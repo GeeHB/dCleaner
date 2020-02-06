@@ -10,12 +10,12 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.1.1
+#   Version     :   0.1.2
 #
-#   Date        :   29 janvier 2020
+#   Date        :   6 février 2020
 #
 
-import os, random, datetime, math, shutil
+import os, random, datetime, math, shutil, time
 
 # Motif aléatoire de type "BASE64"
 #
@@ -27,25 +27,27 @@ BASE64_STRING = "ABCDEFGKHIJLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+
 MIN_PATTERN_LEN = 33
 MAX_PATTERN_LEN = 5121
 
-# Classe paddingfolder - un dossier de remplissage
+# Taille d'un fichier (en octets)
+MIN_FILESIZE = 1024       # 1ko
+MAX_FILESIZE = 5427200
+
+# Classe paddingFolder - un dossier de remplissage
 #
 class paddingFolder:
 
     # Données membres
     valid_ = False                      # L'objet est-il correctement initialisé ?
     currentFolder_ = ""                 # Dossier dans lequel seront générés les fichiers
-    totalSize_ = 0                      # Taille (en octets) à remplir
     patternSize_ = MIN_PATTERN_LEN      # Taille du motif aléatoire
     maxFilesize_ = 0                    # Taille maximale d'un fichier
 
     files_ = 0  # Nombre de fichiers générés
 
     # Constructeur
-    def __init__(self, folder, totalSize = 0, pSize = 0, mFileSize = 0):
+    def __init__(self, folder, pSize = 0, mFileSize = 0):
         # Initialisation des données membres
         self.currentFolder_ = folder
-        self.totalSize_ = totalSize
-        self.patternSize_ = self._minMax(pSize, MIN_PATTERN_LEN, MAX_PATTERN_LEN)
+        self.patternSize_ = self.minMax(pSize, MIN_PATTERN_LEN, MAX_PATTERN_LEN)
         self.maxFilesize_ = mFileSize
         self._valid = False
 
@@ -60,7 +62,7 @@ class paddingFolder:
         if 0 == len(self.currentFolder_):
             return False, "Erreur de paramètres"
 
-        print("Ouverture du dossier", self.currentFolder_)
+        #print("Ouverture du dossier", self.currentFolder_)
 
         # Le dossier existe t'il ?
         if False == os.path.isdir(self.currentFolder_):
@@ -75,6 +77,10 @@ class paddingFolder:
         # Ok - pas  de message
         self.valid_ = True
         return True , ""
+    
+    # Nom du dossier courant
+    def name(self):
+        return self.currentFolder_
 
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
     #   Retourne le tuple (total, used, free)
@@ -92,9 +98,14 @@ class paddingFolder:
 
     # Génération d'un fichier
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
-    def newFile(self, fileSize):
+    def newFile(self, fileSize = 0):
         currentSize = 0
         if True == self.valid_:
+
+            # Si la taille est nulle => on choisit aléatoirement
+            if 0 == fileSize:
+                fileSize = random.randint(MIN_FILESIZE, MAX_FILESIZE)
+
             # Un nouveau fichier ...
             name = self._newFileName()
 
@@ -107,7 +118,7 @@ class paddingFolder:
 
             try:
                 # Ouverture du fihcier
-                file = open(name, 'w')
+                file = open(self.currentFolder_ + "/" + name, 'w')
             except:
                 return name, 0
 
@@ -133,6 +144,41 @@ class paddingFolder:
 
         return name, currentSize, pSize
 
+    # Remplissage avec un taille totale à atteindre ...
+    #   Retourne un booléen indiquant si l'opération a pu être effectuée
+    def newFiles(self, expectedFillSize, wait = 0):
+        if True == self.valid_ and expectedFillSize > 0:
+            print("Demande de remplissage de", self.displaySize(expectedFillSize))
+
+            # Rien n'a été fait !!!
+            still = expectedFillSize
+            totalSize = 0
+            files = 0
+            cont = True
+            if 0 == wait : wait = 1
+
+            while totalSize < expectedFillSize and cont:
+                res = self.newFile()
+
+                if 0 == res[1]:
+                    # Erreur ...
+                    cont = False
+                else:
+                    print("  " + res[0] + " - " + self.displaySize(res[1]),"/", self.displaySize(still))
+                    totalSize+=res[1] # Ajout de la taille du fichier
+                    still-=res[1]
+                    files+=1
+
+                    # On attend ...
+                    time.sleep(wait)
+
+            # Terminé
+            print("Remplissage de", self.displaySize(totalSize), " -", str(files),"fichiers crées")
+            return True
+        
+        # Erreur
+        return False
+
     # Suppression d'un fichier (le nom doit être complet)
     #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
     def deleteFile(self, name = ""):
@@ -154,10 +200,10 @@ class paddingFolder:
                 try:
                     size = os.path.getsize(name)
                     os.remove(name)
-                    print("Suppression de", name, " - ", size, "octets")
+                    #print("Suppression de", name, " - ", self.displaySize(size))
                     return name, size
                 except:
-                    print("Erreur lors de la tentative de suppression de", name)
+                    #print("Erreur lors de la tentative de suppression de", name)
                     pass 
 
         # Rien n'a été fait
@@ -173,6 +219,12 @@ class paddingFolder:
         if True == self.valid_:
             # Il y a quelques choses à faire ....
             if not 0 == count or not 0 == size:
+                
+                if not 0 == size :
+                    print("Demande de suppression à hauteur de", self.displaySize(size))
+                else:
+                    print("Demande de suppression de " + str(count) + " fichiers")
+
                 # On va parser le dossier ...
                 try:
                     # Analyse récursive du dossier
@@ -189,6 +241,11 @@ class paddingFolder:
                             if res[1] > 0:
                                 tFiles+=1       # Un fichier de + (de supprimé ...)
                                 tSize+=res[1]   # La taille en octets
+
+                                if 0 == size:
+                                    print("  " + res[0] + " - " + str(tFiles) + " / " + str(count))
+                                else:
+                                    print("  " + res[0] + " - " + self.displaySize(res[1]),"/", self.displaySize(size - tSize))
 
                                 # Quota atteint
                                 if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
@@ -227,6 +284,35 @@ class paddingFolder:
         
         # Dossier vide
         return count, ""
+
+    # Taille en octet du dossier
+    #   Retourn eun entier
+    def size(self, folder = ""):   
+        if False == self.valid_ :
+            # Pas ouvert
+            return 0
+
+        total = 0
+        try:
+            # Par défaut, moi !
+            if 0 == len(folder):
+                folder = self.currentFolder_
+            
+            # On regarde tous les éléments du dossier
+            for entry in os.scandir(folder):
+                if entry.is_file():
+                    # Un fichier
+                    total += entry.stat().st_size
+                elif entry.is_dir():
+                    # Un sous dossier => appel récursif
+                    total += self.size(entry.path)
+        except NotADirectoryError:
+            # ?
+            return os.path.getsize(folder)
+        except PermissionError:
+            # Je n'ai pas les droits ...
+            return 0
+        return total
 
     # Representation d'une taille (en octets)
     #   Retourne une chaine de caractères
@@ -278,19 +364,19 @@ class paddingFolder:
         size/=(2**10)
         return str(round(size,2)) + " To"
         """
-    #
-    # Méthodes internes
-    #
-
     # On s'assure qu'une valeur se trouve dans un intervalle donné
     #   retourne la valeur ou sa version corrigée
-    def _minMax(self, source, min, max):
+    def minMax(self, source, min, max):
         if source < min :
             source = min
         else:
             if source > max:
                 source = max
         return source
+
+    #
+    # Méthodes internes
+    #
 
     # Génération d'un motif aléatoire
     #   retourne une chaine aléatoire "lisible"
@@ -305,7 +391,7 @@ class paddingFolder:
         return out
 
     # Génération d'un nom de fichier
-    #   Retourne un nom unique de fichier
+    #   Retourne un nom unique de fichier  (le nom court est retourné)
     def _newFileName(self):
         now = datetime.datetime.now()
 
@@ -317,9 +403,10 @@ class paddingFolder:
         while True == self._fileExists(fullName):
             # On génère un nouveau nom
             count+=1
-            fullName = self.currentFolder_ + "/" + name + "-" + str(count)
+            name = name + "-" + str(count)
+            fullName = self.currentFolder_ + "/" + name 
         
-        return fullName
+        return name # On retourne le nom court
 
     # Le fichier existe t'il ?
     def _fileExists(self, fileName):
