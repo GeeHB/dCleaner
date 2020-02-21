@@ -8,18 +8,21 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.1.2
+#   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Date        :   6 février 2020
+#   Version     :   0.1.5
+#
+#   Date        :   20 février 2020
 #
 
 #import os, random, datetime
 from paddingFolder import paddingFolder
+from colorizer import colorizer, backColor, textColor, textAttribute    # Pour la coloration des sorties terminal
 
 #
 # Valeurs par défaut
 #
-DEF_PARTITION_FILL_RATE = 75    # Pourcentage de remplissage max. de la partition
+DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
 DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
 
 # Classe dCleaner
@@ -28,24 +31,26 @@ DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renou
 class dCleaner:
     # Données membre
     #
+    color_  = None      # Gestion des sorties en mode terminal
     folder_ = None      # Mon dossier de remplissage
     fillRate_ = 0       # Taux de remplissage de la partition
     renewRate_ = 0      # Taux de rafraichissement de la zone "libre" de la partition
 
     # Construction
-    def __init__(self, folderName, fillRate = DEF_PARTITION_FILL_RATE, renewRate = DEF_PADDING_RATE):
+    def __init__(self, folderName, color, fillRate = DEF_PARTITION_FILL_RATE, renewRate = DEF_PADDING_RATE):
         # Initialisation des données membres
         if 0 == len(folderName):
             raise ValueError("Le nom doit être renseigné")
 
         # Création de l'objet pour la gestion du dossier
-        self.folder_ = paddingFolder(folderName)
+        self.folder_ = paddingFolder(folderName, self.color_)
         done, message = self.folder_.init()
 
         if False == done:
             # Erreur d'initialisation du dossier
             raise ValueError(message)
 
+        self.color_ = color
         self.fillRate_ = fillRate
         self.renewRate_ = renewRate
 
@@ -63,7 +68,9 @@ class dCleaner:
         out += "\nParamètres : " 
         out += "\n\t- Taille de la partition : " + self.folder_.displaySize(res[0])
         out += "\n\t- Taux de remplissage max : " + str(self.fillRate_) + "%"
-        out += "\n\t- Taux de renouvellement de la partition : " + str(self.renewRate_) + "%"
+        out += "\n\t- Taux de renouvellement de la partition : " + str(self.renewRate_) + "%"        
+        out += "\n\t- Attente entre 2 fichiers : " + str(self.folder_.elapseFiles()) + "s"
+        out += "\n\t- Attente entre 2 traitements : " + str(self.folder_.elapseTasks()) + "s"
 
         return out
 
@@ -77,7 +84,7 @@ class dCleaner:
         if res[1] < maxFill:
             # On fait en sorte de coller immédiatement au taux de remplissage
             fillSize = maxFill - res[1]
-            print("Remplissage initial de", self.folder_.displaySize(fillSize))
+            #print("Remplissage initial de", self.folder_.displaySize(fillSize))
             self.folder_.newFiles(fillSize)
             return True
         
@@ -93,18 +100,18 @@ class dCleaner:
         maxFill = res[0] * DEF_PARTITION_FILL_RATE / 100
     
         if res[1] > maxFill:
-            print("La partition est déja trop remplie")
+            print(self.color_.colored("La partition est déja trop remplie", textColor.JAUNE))
 
             # en retirant les fichiers déja générés
             paddingSize = self.folder_.size()
             if (res[1] - paddingSize) > maxFill:
-                print("Vidage du dossier de remplissage")
+                print(self.color_.colored("Vidage du dossier de remplissage"))
                 self.folder_.empty()
             else:
                 # Retrait du "minimum"
                 removeSize = res[1] - maxFill
 
-                print("Suppression des fichiers de remplissage pour ", self.folder_.displaySize(removeSize))
+                print("Suppression des fichiers de remplissage à hauteur de", self.folder_.displaySize(removeSize))
                 self.folder_.deleteFiles(size=removeSize)
             
             return True
@@ -136,33 +143,22 @@ class dCleaner:
 #
 
 try:
-    cleaner = dCleaner("/home/jhb/padding")
+    
+    color = colorizer(True)
+    cleaner = dCleaner("/home/jhb/padding", color)
 
     print(cleaner)
 
-    # Lancement => traitements initiaux
+    print("\nTraitements initiaux :")
     if False == cleaner.fillPartition():
         # Il faut plutôt libérer de la place
         cleaner.freePartition()
 
     # Maintenant traitement de "fond"
+    print("\nTâches de fond :")
     cleaner.cleanPartition()
 
 except ValueError as e:
-    print("Erreur ",e)
+    print(color.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
 
-"""
-if True == done:
-    
-
-    res = folder.partitionUsage()
-    
-   
-
-    # Maintenant que le disque a le taux de remplissage souhaité, on nettoye ce qui reste
-    renewSize = folder.minMax(0, renewSize, res[2] * DEF_PADDING_RATE / 100)
-else:
-    # Une erreur quelconque
-    print(msg)
-"""
 # EOF

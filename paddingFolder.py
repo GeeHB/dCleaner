@@ -10,46 +10,55 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.1.2
+#   Version     :   0.1.5
 #
-#   Date        :   6 février 2020
+#   Date        :   20 février 2020
 #
 
 import os, random, datetime, math, shutil, time
+from colorizer import colorizer, backColor, textColor, textAttribute    # Pour la coloration des sorties terminal
 
-# Motif aléatoire de type "BASE64"
+# Motif aléatoire
 #
 
-# Caractères utilisés pour l'encodage en B64
-BASE64_STRING = "ABCDEFGKHIJLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+# Caractères utilisés pour l'encodage
+BASE_STRING = "ABCDEFGKHIJLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/!=@&_-:;,?<>$"
 
 # Taille d'un motif aléatoire
 MIN_PATTERN_LEN = 33
 MAX_PATTERN_LEN = 5121
 
-# Taille d'un fichier (en octets)
-MIN_FILESIZE = 1024       # 1ko
-MAX_FILESIZE = 5427200
+# Taille d'un fichier (en k-octets)
+MIN_FILESIZE = 1           # 1ko
+MAX_FILESIZE = 54272       # 53Mo
+
+# Durées d'attente en secondes
+MIN_ELPASE_FILES = 1    # Entre la gestion de deux fichiers
+MIN_ELAPSE_TASKS = 900  # Entre 2 tâches
 
 # Classe paddingFolder - un dossier de remplissage
 #
 class paddingFolder:
 
     # Données membres
+    color_ = None                       # Colorisation du texte
     valid_ = False                      # L'objet est-il correctement initialisé ?
     currentFolder_ = ""                 # Dossier dans lequel seront générés les fichiers
-    patternSize_ = MIN_PATTERN_LEN      # Taille du motif aléatoire
-    maxFilesize_ = 0                    # Taille maximale d'un fichier
+    maxPatternSize_ = MAX_PATTERN_LEN   # Taille maximale du motif aléatoire
+    elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
+    elapseTasks_ = 0                    # Attente entre deux traitements
 
     files_ = 0  # Nombre de fichiers générés
 
     # Constructeur
-    def __init__(self, folder, pSize = 0, mFileSize = 0):
+    def __init__(self, folder, color, pMaxSize = 0, elapseFiles = MIN_ELPASE_FILES, elapseTasks = MIN_ELAPSE_TASKS):
         # Initialisation des données membres
+        self.color_ = color
         self.currentFolder_ = folder
-        self.patternSize_ = self.minMax(pSize, MIN_PATTERN_LEN, MAX_PATTERN_LEN)
-        self.maxFilesize_ = mFileSize
+        self.maxPatternSize_ = pMaxSize if (pMaxSize > MIN_PATTERN_LEN and pMaxSize < MAX_PATTERN_LEN) else MAX_PATTERN_LEN
         self._valid = False
+        self.elapseFiles_ = elapseFiles
+        self.elapseTasks_ = elapseTasks
 
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
@@ -82,6 +91,14 @@ class paddingFolder:
     def name(self):
         return self.currentFolder_
 
+    # Temps d'attente
+    def elapseFiles(self):
+        return self.elapseFiles_
+
+    def elapseTasks(self):
+        return self.elapseTasks_
+    
+
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
     #   Retourne le tuple (total, used, free)
     def partitionUsage(self):
@@ -104,7 +121,7 @@ class paddingFolder:
 
             # Si la taille est nulle => on choisit aléatoirement
             if 0 == fileSize:
-                fileSize = random.randint(MIN_FILESIZE, MAX_FILESIZE)
+                fileSize = 1024 * random.randint(MIN_FILESIZE, MAX_FILESIZE)
 
             # Un nouveau fichier ...
             name = self._newFileName()
@@ -114,11 +131,11 @@ class paddingFolder:
             pSize = len(pattern)
 
             # Taille du buffer
-            buffSize = self.patternSize_ if self.patternSize_ < fileSize else fileSize
+            buffSize = pSize if pSize < fileSize else fileSize
 
             try:
                 # Ouverture du fihcier
-                file = open(self.currentFolder_ + "/" + name, 'w')
+                file = open(os.path.join(self.currentFolder_ ,name), 'w')
             except:
                 return name, 0
 
@@ -146,7 +163,7 @@ class paddingFolder:
 
     # Remplissage avec un taille totale à atteindre ...
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
-    def newFiles(self, expectedFillSize, wait = 0):
+    def newFiles(self, expectedFillSize):
         if True == self.valid_ and expectedFillSize > 0:
             print("Demande de remplissage de", self.displaySize(expectedFillSize))
 
@@ -155,8 +172,7 @@ class paddingFolder:
             totalSize = 0
             files = 0
             cont = True
-            if 0 == wait : wait = 1
-
+            
             while totalSize < expectedFillSize and cont:
                 res = self.newFile()
 
@@ -164,13 +180,13 @@ class paddingFolder:
                     # Erreur ...
                     cont = False
                 else:
-                    print("  " + res[0] + " - " + self.displaySize(res[1]),"/", self.displaySize(still))
+                    print("  + " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(still))
                     totalSize+=res[1] # Ajout de la taille du fichier
                     still-=res[1]
                     files+=1
 
                     # On attend ...
-                    time.sleep(wait)
+                    time.sleep(self.elapseFiles_)
 
             # Terminé
             print("Remplissage de", self.displaySize(totalSize), " -", str(files),"fichiers crées")
@@ -188,7 +204,7 @@ class paddingFolder:
                 # On supprime le premier qui vient ...
                 name = ""
                 for file in os.listdir(self.currentFolder_):
-                    fName = self.currentFolder_ + "/" + file
+                    fName = os.path.join(self.currentFolder_, file)
                     
                     # Un fichier ?
                     if self._fileExists(fName):
@@ -201,7 +217,10 @@ class paddingFolder:
                     size = os.path.getsize(name)
                     os.remove(name)
                     #print("Suppression de", name, " - ", self.displaySize(size))
-                    return name, size
+                    
+                    # On retourne le nom court
+                    values = os.path.split(name)
+                    return values[1], size
                 except:
                     #print("Erreur lors de la tentative de suppression de", name)
                     pass 
@@ -210,7 +229,7 @@ class paddingFolder:
         return "", 0
 
     # Suppression d'un ou plusieurs fichiers sur un critère de nombre ou de taille à libérer
-    #   retourne (# supprimés, # octets libérés)
+    #   retourne True lorsque l'opération s'est déroulée correctement
     def deleteFiles(self, count = 0, size = 0):
         
         tSize = 0
@@ -243,21 +262,26 @@ class paddingFolder:
                                 tSize+=res[1]   # La taille en octets
 
                                 if 0 == size:
-                                    print("  " + res[0] + " - " + str(tFiles) + " / " + str(count))
+                                    print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count))
                                 else:
-                                    print("  " + res[0] + " - " + self.displaySize(res[1]),"/", self.displaySize(size - tSize))
+                                    print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize))
 
                                 # Quota atteint
                                 if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
                                     break
 
-                                # On continue
+                            # On attend ...
+                            time.sleep(self.elapseFiles_)
+                            
+                            # On continue
+
                 except:
                     # Une erreur => on arrête de suite ...
-                    pass
+                    return False
 
         # Fin des traitements
-        return tFiles, tSize
+        print("Suppression de", self.displaySize(tSize), " -", str(tFiles),"fichiers supprimés")
+        return True
 
     # Vidage du dossier
     def empty(self):
@@ -321,9 +345,12 @@ class paddingFolder:
         # Unités
         sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
         
-        # Version 1  - La plus "matheuse"
+        # Version 3  - La plus "matheuse" et la plus ouverte aussi
         #  necessite le module math
-        index = int(math.log(size,2) / 10) # on effectue un log base 1024 = log 2 / 10
+
+        # on effectue un log base 1024 = log 2 / 10
+        #   attention logn(0) n'existe pas !!!
+        index = 0 if size == 0 else int(math.log(size,2) / 10) 
         if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
         return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
         
@@ -339,7 +366,7 @@ class paddingFolder:
         """
 
         """
-        # Version 1
+        # Version 1 - Plutôt bourine (et surtout très limitée ...)
 
         # en octets
         if size < 1024:
@@ -381,11 +408,16 @@ class paddingFolder:
     # Génération d'un motif aléatoire
     #   retourne une chaine aléatoire "lisible"
     def _newPattern(self):
+        
+        # Taille du motif
+        patternSize = random.randint(MIN_PATTERN_LEN, self.maxPatternSize_)
+        
         # Génération de la chaine
         out = ""
-        for _ in range(self.patternSize_):
+        maxIndex = len(BASE_STRING) - 1
+        for _ in range(patternSize):
             # Valeur aléatoire
-            out+=BASE64_STRING[random.randint(0, 63)]
+            out+=BASE_STRING[random.randint(0, maxIndex)]
 
         # Terminé
         return out
@@ -396,7 +428,7 @@ class paddingFolder:
         now = datetime.datetime.now()
 
         name = now.strftime("%Y%m%d-%H%M%S")
-        fullName = self.currentFolder_ + "/" + name
+        fullName = os.path.join(self.currentFolder_, name)
 
         # Tant qu'il existe
         count = 0
@@ -404,7 +436,7 @@ class paddingFolder:
             # On génère un nouveau nom
             count+=1
             name = name + "-" + str(count)
-            fullName = self.currentFolder_ + "/" + name 
+            fullName = os.path.join(self.currentFolder_, name )
         
         return name # On retourne le nom court
 
