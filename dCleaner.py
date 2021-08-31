@@ -2,7 +2,7 @@
 
 # coding=UTF-8
 #
-#   Fichier     :   dCleaner.py
+#   File     :   dCleaner.py
 #
 #   Auteur      :   JHB
 #
@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.1.6
+#   Version     :   0.2.1
 #
-#   Date        :   5 mars 2020
+#   Date        :   31 aout 2021
 #
 
 #import os, random, datetime
@@ -24,6 +24,9 @@ from colorizer import colorizer, backColor, textColor, textAttribute    # Pour l
 #
 # Valeurs par défaut
 #
+
+APP_VERSION = "version 0.2.1"
+
 DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
 DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
 
@@ -62,17 +65,19 @@ class dCleaner:
         res = self.folder_.partitionUsage()
     
         # Quelques informations ...
-        out = "Dossier : " 
-        out += "\n\t- Nom : " + self.folder_.name()
-        out += "\n\t- Contenu : " + self.folder_.displaySize(self.folder_.size())
-        out += "\n\t- Remplissage de la partition : " + self.folder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
+        #
 
-        out += "\nParamètres : " 
+        out = "\nParamètres : " 
         out += "\n\t- Taille de la partition : " + self.folder_.displaySize(res[0])
         out += "\n\t- Taux de remplissage max : " + str(self.fillRate_) + "%"
         out += "\n\t- Taux de renouvellement de la partition : " + str(self.renewRate_) + "%"        
         out += "\n\t- Attente entre 2 fichiers : " + str(self.folder_.elapseFiles()) + "s"
         out += "\n\t- Attente entre 2 traitements : " + str(self.folder_.elapseTasks()) + "s"
+
+        out += "\n\nDossier : " 
+        out += "\n\t- Nom : " + self.folder_.name()
+        out += "\n\t- Contenu : " + self.folder_.displaySize(self.folder_.size())
+        out += "\n\t- Remplissage de la partition : " + self.folder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
 
         return out
 
@@ -130,37 +135,41 @@ class dCleaner:
         # Valeur max. théorique
         renewSize = res[0] * (100 - self.fillRate_) / 100 * self.renewRate_ / 100 
         
-        # on recadre avec l'espce effectivement dispo
+        # on recadre avec l'espace effectivement dispo
         renewSize = self.folder_.minMax(0, renewSize, res[2] * self.renewRate_ / 100)        
-        
-        # On supprime
-        self.folder_.deleteFiles(size = renewSize)
         
         # On remplit 
         self.folder_.newFiles(renewSize)
+        
+        # On supprime
+        self.folder_.deleteFiles(size = renewSize)
         
  
 #
 # Corps du programme
 #
-
-try:
+if '__main__' == __name__:
     
     color = colorizer(True)
-    cleaner = dCleaner("/home/jhb/padding", color)
+        
+    print(color.colored("\ndCleaner.py", formatAttr=[textAttribute.BOLD]), "par JHB - version", APP_VERSION, "\n")
+    
+    try:
+        
+        cleaner = dCleaner("/home/jhb/padding", color)
 
-    print(cleaner)
+        print(cleaner)
 
-    print("\nTraitements initiaux :")
-    if False == cleaner.fillPartition():
-        # Il faut plutôt libérer de la place
-        cleaner.freePartition()
+        print("\nTraitements initiaux :")
+        if False == cleaner.fillPartition():
+            # Il faut plutôt libérer de la place
+            cleaner.freePartition()
 
-    # Maintenant traitement de "fond"
-    print("\nTâches de fond :")
-    cleaner.cleanPartition()
+        # Maintenant traitement de "fond"
+        print("\nTâches de fond :")
+        cleaner.cleanPartition()
 
-except ValueError as e:
-    print(color.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
+    except ValueError as e:
+        print(color.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
 
 # EOF

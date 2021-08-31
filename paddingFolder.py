@@ -1,6 +1,6 @@
 # coding=UTF-8
 #
-#   Fichier     :   paddingFolder.py
+#   File     :   paddingFolder.py
 #
 #   Auteur      :   JHB
 #
@@ -10,9 +10,9 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.1.6
+#   Version     :   0.2.1
 #
-#   Date        :   5 mars 2020
+#   Date        :   31 aout 2021
 #
 
 import os, random, datetime, math, shutil, time
@@ -33,7 +33,7 @@ MIN_FILESIZE = 1           # 1ko
 MAX_FILESIZE = 54272       # 53Mo
 
 # Durées d'attente en secondes
-MIN_ELPASE_FILES = 1    # Entre la gestion de deux fichiers
+MIN_ELPASE_FILES = 0.1    # Entre la gestion de deux fichiers
 MIN_ELAPSE_TASKS = 900  # Entre 2 tâches
 
 # Classe paddingFolder - un dossier de remplissage
@@ -310,7 +310,7 @@ class paddingFolder:
         return count, ""
 
     # Taille en octet du dossier
-    #   Retourn eun entier
+    #   Retourne un entier
     def size(self, folder = ""):   
         if False == self.valid_ :
             # Pas ouvert
@@ -427,7 +427,7 @@ class paddingFolder:
     def _newFileName(self):
         now = datetime.datetime.now()
 
-        name = now.strftime("%Y%m%d-%H%M%S")
+        name = now.strftime("%Y%m%d-%H%M%S-%f")
         fullName = os.path.join(self.currentFolder_, name)
 
         # Tant qu'il existe

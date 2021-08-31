@@ -1,78 +1,104 @@
 # coding=UTF-8
 #
-#   Fichier     :   colorizer.py
+#   File     :   colorizer.py
 #
-#   Auteur      :   JHB
+#   Author      :   JHB
 #
 #   Description :   Définition des objets :
 #                     - colorizer : Gestion de la colorisation des sorties enmode terminal (et/ou texte)
 #                     - textAttribute : Liste des attributs
 #                     - textColor : Liste des couleurs de texte
-#                     - backColor : Liste des coleurs de fond
+#                     - backColor : Liste des couleurs de fond
 #
-#   Remarque    :  
+#   Comment    :  le module termcolor doit être installé (pip3 install termcolor)
 #
-#   Version     :   1.5.6
+#   Version     :   1.3.1
 #
-#   Date        :   20 février 2020
+#   Date        :   7 aout 2021
 #
 
-from termcolor import colored               # Pour la coloration des sorties terminal
+try :
+    # Pour la coloration des sorties terminal
+    from termcolor import colored
+    packageTermColor = True
+except ModuleNotFoundError:
+    packageTermColor = False
 
 #
-# backColor - Couleurs de fonc
+# backColor - Couleurs de fond
 #
 class backColor:
 
-    GRIS = "on_grey"
-    ROUGE = "on_red"
-    VERT = "on_green"
-    JAUNE = "on_yellow"
-    BLEU = "on_blue"
+    GREY = GRIS = "on_grey"
+    RED = ROUGE = "on_red"
+    GREEN = VERT = "on_green"
+    YELLOW = JAUNE = "on_yellow"
+    BLUE = BLEU = "on_blue"
     MAGENTA = "on_magenta"
     CYAN = "on_cyan"
-    BLANC = "on_white"
+    WHITE = BLANC = "on_white"
 
 #
-# textkColor - Couleurs de fonc
+# textkColor - Couleurs du texte
 #
 class textColor:
 
-    GRIS = "grey"
-    ROUGE = "red"
-    VERT = "green"
-    JAUNE = "yellow"
-    BLEU = "blue"
+    GREY = GRIS = "grey"
+    RED = ROUGE = "red"
+    GREEN = VERT = "green"
+    YELLOW = JAUNE = "yellow"
+    BLUE = BLEU = "blue"
     MAGENTA = "magenta"
     CYAN = "cyan"
-    BLANC = "white"
+    WHITE = BLANC = "white"
 
 #
-# colorAttribute - Attbiuts d'affichage
+# colorAttribute - Attributs d'affichage
 #
 class textAttribute:
-    GRAS = "bold"
-    FONCE = "dark"
-    SOULIGNE = "underline"
-    CLIGNTANT = "blink"
-    INVERSE = "reverse"
-    CACHE = "concealed"
+    BOLD = GRAS = "bold"
+    DARK = FONCE = "dark"
+    UNDERLINE = SOULIGNE = "underline"
+    BLINK = CLIGNOTANT = "blink"
+    REVERSE = INVERSE = "reverse"
+    CONCELED = CACHE = "concealed"
 
 #
-#   textColor  - Colorisation du texte
+#   colorizer  - Colorisation du texte
 #
 class colorizer:
-    # Données membres
-    #
-    colored_ = True       # Doit-on coloriser ? Par défaut oui ...
     
     # Construction
-    def __init__(self, colored = True):
+    def __init__(self, colored = True, message = True):
+        
+        colored_ = False       # Doit-on coloriser ?
+        
+        self.setColorized(colored)
+        if True == colored and False == packageTermColor:
+            self.colored_ = False
+            if message:
+                #print("Attention - le package termcolor (python-termcolor) n'est pas installé")
+                print("Warning - termcolor package (python-termcolor) is not installed")
+                        
+    # Mise en place de la colorisation
+    def setColorized(self, colored = True):
         self.colored_ = colored
-
+    
     # Formatage d'une ligne de texte
     def colored(self, text, txtColor = None, bkColor = None, formatAttr = None):
         # On colorise ou pas ...
         return colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text
 
+    # Début de ligne en mode [OK] / [KO]
+    def checkBoxLine(self, checked = True, text = "", color = None, prefix = ""):
+        box=prefix + "["
+        if True == checked:
+            box+=self.colored("OK", textColor.VERT)
+        else:
+            box+=self.colored("KO", textColor.ROUGE if color == None else color)
+        box+="]"
+        if len(text) > 0 :
+            box+=" "
+            box+=text
+        return box
 # EOF

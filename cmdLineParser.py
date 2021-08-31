@@ -1,17 +1,17 @@
 # coding=UTF-8
 #
-#   Fichier     :   cmdLineParser.py
+#   File     :   cmdLineParser.py
 #
-#   Auteur      :   JHB
+#   Author      :   JHB
 #
 #   Description :   Définition des objets :
 #                     - cmdLineParser : Gestion de la ligne de commandes
 #
 #   Remarque    :  
 #
-#   Version     :   1.5.6
+#   Version     :   1.3.1
 #
-#   Date        :   20 février 2020
+#   Date        :   7 aout 2021
 #
 
 import sys
@@ -46,12 +46,23 @@ class cmdLineParser:
         return self.options_
 
     # Accès
+    #
+
+    # Accès à un paramètre (ou valeur) par son index
+    def at(self, index):
+        if index > self.size() or index < 0:
+            raise IndexError()
+
+        # Valeur à l'index
+        return sys.argv[index]
+
+    # Accès à une valeur
     #   retourne le tuple {l'option / ou la valeur selon son index, option ? }
-    def parameter(self, index):
+    def parameterOrValue(self, index):
         if index >= self.size() or index < 0:
             raise IndexError()
 
-        # Valeur à m'index
+        # Valeur à l'index
         value = sys.argv[index + 1]
 
         # Une option ?
@@ -86,14 +97,28 @@ class cmdLineParser:
         return self.NO_INDEX
 
     # Recherche et retrait si existante d'une option
+    # l'option peut avoir plusieurs noms
     #   retourne son index ou NO_INDEX (-1) si l'option n'existe pas
-    def findAndRemoveOption(self, name, altName = None):
+    def old_findAndRemoveOption(self, name, altName = None):
         # On recherche le premier nom
         index = self.findOption(name, True)
         if index == self.NO_INDEX:
             # On recherche la valeur alternative (si elle est fournie)
             return self.NO_INDEX if None == altName else self.findOption(altName, True)
         return index
+
+    # Nombre variable de paramètres ayant la même signification ...
+    def findAndRemoveOption(self, *args):          
+        for name in args:
+            # Les paramètres par ordre ....
+            index = self.findOption(name, True)
+            
+            # Trouvé ?
+            if not self.NO_INDEX == index:
+                return index
+        
+        # Non trouvé
+        return self.NO_INDEX
 
     #
     # Méthodes privées
@@ -107,4 +132,13 @@ class cmdLineParser:
             if parameter[0] == self.optionChar_:
                 # Une option de +
                 self.options_+=1
+                
+    # Taille
+    def __len__(self) :
+        size = self.size()
+        return (size if size >= 0 else 0) # len ne doit pas retourner de valeur négative ! 
+        
+    # Accès
+    def __getitem__(self, index):
+        return self.at(index)     
 # EOF
