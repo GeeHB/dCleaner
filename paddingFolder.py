@@ -16,46 +16,28 @@
 #
 
 import os, random, datetime, math, shutil, time
-from colorizer import colorizer, backColor, textColor, textAttribute    # Pour la coloration des sorties terminal
-
-# Motif aléatoire
-#
-
-# Caractères utilisés pour l'encodage
-BASE_STRING = "ABCDEFGKHIJLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/!=@&_-:;,?<>$"
-
-# Taille d'un motif aléatoire
-MIN_PATTERN_LEN = 33
-MAX_PATTERN_LEN = 5121
-
-# Taille d'un fichier (en k-octets)
-MIN_FILESIZE = 1           # 1ko
-MAX_FILESIZE = 54272       # 53Mo
-
-# Durées d'attente en secondes
-MIN_ELPASE_FILES = 0.1    # Entre la gestion de deux fichiers
-MIN_ELAPSE_TASKS = 900  # Entre 2 tâches
+import parameters
 
 # Classe paddingFolder - un dossier de remplissage
 #
 class paddingFolder:
 
     # Données membres
-    color_ = None                       # Colorisation du texte
     valid_ = False                      # L'objet est-il correctement initialisé ?
+    params = None
     currentFolder_ = ""                 # Dossier dans lequel seront générés les fichiers
-    maxPatternSize_ = MAX_PATTERN_LEN   # Taille maximale du motif aléatoire
+    maxPatternSize_ = parameters.PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
     elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
     elapseTasks_ = 0                    # Attente entre deux traitements
 
     files_ = 0  # Nombre de fichiers générés
 
     # Constructeur
-    def __init__(self, folder, color, pMaxSize = 0, elapseFiles = MIN_ELPASE_FILES, elapseTasks = MIN_ELAPSE_TASKS):
+    def __init__(self, folder, color, pMaxSize = 0, elapseFiles = parameters.MIN_ELPASE_FILES, elapseTasks = parameters.MIN_ELAPSE_TASKS):
         # Initialisation des données membres
         self.color_ = color
         self.currentFolder_ = folder
-        self.maxPatternSize_ = pMaxSize if (pMaxSize > MIN_PATTERN_LEN and pMaxSize < MAX_PATTERN_LEN) else MAX_PATTERN_LEN
+        self.maxPatternSize_ = pMaxSize if (pMaxSize > parameters.MIN_PATTERN_LEN and pMaxSize < parameters.MAX_PATTERN_LEN) else parameters.MAX_PATTERN_LEN
         self._valid = False
         self.elapseFiles_ = elapseFiles
         self.elapseTasks_ = elapseTasks
@@ -121,7 +103,9 @@ class paddingFolder:
 
             # Si la taille est nulle => on choisit aléatoirement
             if 0 == fileSize:
-                fileSize = 1024 * random.randint(MIN_FILESIZE, MAX_FILESIZE)
+                # 1 => ko, 2 = Mo
+                unit = 1 + random.randint(1, 1024) % 2
+                fileSize = 2 ** (unit * 10) * random.randint(parameters.FILESIZE_MIN, parameters.FILESIZE_MAX)
 
             # Un nouveau fichier ...
             name = self._newFileName()
@@ -391,15 +375,6 @@ class paddingFolder:
         size/=(2**10)
         return str(round(size,2)) + " To"
         """
-    # On s'assure qu'une valeur se trouve dans un intervalle donné
-    #   retourne la valeur ou sa version corrigée
-    def minMax(self, source, min, max):
-        if source < min :
-            source = min
-        else:
-            if source > max:
-                source = max
-        return source
 
     #
     # Méthodes internes
@@ -410,20 +385,20 @@ class paddingFolder:
     def _newPattern(self):
         
         # Taille du motif
-        patternSize = random.randint(MIN_PATTERN_LEN, self.maxPatternSize_)
+        patternSize = random.randint(parameters.PATTERN_MIN_LEN, self.maxPatternSize_)
         
         # Génération de la chaine
         out = ""
-        maxIndex = len(BASE_STRING) - 1
+        maxIndex = len(parameters.PATTERN_BASE_STRING) - 1
         for _ in range(patternSize):
             # Valeur aléatoire
-            out+=BASE_STRING[random.randint(0, maxIndex)]
+            out+=parameters.PATTERN_BASE_STRING[random.randint(0, maxIndex)]
 
         # Terminé
         return out
 
     # Génération d'un nom de fichier
-    #   Retourne un nom unique de fichier  (le nom court est retourné)
+    #   Retourne un nom unique de fichier (le nom court est retourné)
     def _newFileName(self):
         now = datetime.datetime.now()
 
@@ -453,7 +428,6 @@ class paddingFolder:
             # Le fichier existe, il est donc ouvert
             file.close()
             return True
-        #except IOError as e: 
         except IOError: 
             # print("Le fichier ", self.fileName_, " n'existe pas")
             return False

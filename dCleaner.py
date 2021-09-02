@@ -17,18 +17,8 @@
 #   Date        :   31 aout 2021
 #
 
-#import os, random, datetime
+import parameters
 from paddingFolder import paddingFolder
-from colorizer import colorizer, backColor, textColor, textAttribute    # Pour la coloration des sorties terminal
-
-#
-# Valeurs par défaut
-#
-
-APP_VERSION = "version 0.2.1"
-
-DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
-DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
 
 # Classe dCleaner
 #   Actions sur le dossier de remplissage
@@ -42,7 +32,7 @@ class dCleaner:
     renewRate_ = 0      # Taux de rafraichissement de la zone "libre" de la partition
 
     # Construction
-    def __init__(self, folderName, color, fillRate = DEF_PARTITION_FILL_RATE, renewRate = DEF_PADDING_RATE):
+    def __init__(self, folderName, color, fillRate = parameters.DEF_PARTITION_FILL_RATE, renewRate = parameters.DEF_PADDING_RATE):
         # Initialisation des données membres
         if 0 == len(folderName):
             raise ValueError("Le nom doit être renseigné")
@@ -86,7 +76,7 @@ class dCleaner:
     def fillPartition(self):
 
         res = self.folder_.partitionUsage()
-        maxFill = res[0] * DEF_PARTITION_FILL_RATE / 100
+        maxFill = res[0] * parameters.DEF_PARTITION_FILL_RATE / 100
 
         if res[1] < maxFill:
             # On fait en sorte de coller immédiatement au taux de remplissage
@@ -104,15 +94,15 @@ class dCleaner:
         
         # Mode "initial" : on fait en sorte de coller immédiatement au taux de remplissage
         res = self.folder_.partitionUsage()
-        maxFill = res[0] * DEF_PARTITION_FILL_RATE / 100
+        maxFill = res[0] * parameters.DEF_PARTITION_FILL_RATE / 100
     
         if res[1] > maxFill:
-            print(self.color_.colored("La partition est déja trop remplie", textColor.JAUNE))
+            print(params.color_.colored("La partition est déja trop remplie", params.colors_.textColor.JAUNE))
 
             # en retirant les fichiers déja générés
             paddingSize = self.folder_.size()
             if (res[1] - paddingSize) > maxFill:
-                print(self.color_.colored("Vidage du dossier de remplissage"))
+                print(params.color_.colored("Vidage du dossier de remplissage"))
                 self.folder_.empty()
             else:
                 # Retrait du "minimum"
@@ -150,13 +140,13 @@ class dCleaner:
 #
 if '__main__' == __name__:
     
-    color = colorizer(True)
-        
-    print(color.colored("\ndCleaner.py", formatAttr=[textAttribute.BOLD]), "par JHB - version", APP_VERSION, "\n")
-    
-    try:
-        
-        cleaner = dCleaner("/home/jhb/padding", color)
+    # Ma ligne de commandes
+    params = parameters.options()
+    if False == params.parse():
+        exit(1)
+
+    try:    
+        cleaner = dCleaner(params)
 
         print(cleaner)
 
@@ -170,6 +160,6 @@ if '__main__' == __name__:
         cleaner.cleanPartition()
 
     except ValueError as e:
-        print(color.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
+        print(params.color_.colored("Erreur de paramètre(s) : " + str(e), params.colors_.textColor.ROUGE))
 
 # EOF
