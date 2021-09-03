@@ -24,8 +24,7 @@ class paddingFolder:
 
     # Données membres
     valid_ = False                      # L'objet est-il correctement initialisé ?
-    params = None
-    currentFolder_ = ""                 # Dossier dans lequel seront générés les fichiers
+    params_ = None
     maxPatternSize_ = parameters.PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
     elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
     elapseTasks_ = 0                    # Attente entre deux traitements
@@ -33,11 +32,10 @@ class paddingFolder:
     files_ = 0  # Nombre de fichiers générés
 
     # Constructeur
-    def __init__(self, folder, color, pMaxSize = 0, elapseFiles = parameters.MIN_ELPASE_FILES, elapseTasks = parameters.MIN_ELAPSE_TASKS):
+    def __init__(self, options, pMaxSize = 0, elapseFiles = parameters.MIN_ELPASE_FILES, elapseTasks = parameters.MIN_ELAPSE_TASKS):
         # Initialisation des données membres
-        self.color_ = color
-        self.currentFolder_ = folder
-        self.maxPatternSize_ = pMaxSize if (pMaxSize > parameters.MIN_PATTERN_LEN and pMaxSize < parameters.MAX_PATTERN_LEN) else parameters.MAX_PATTERN_LEN
+        self.params_ = options
+        self.maxPatternSize_ = pMaxSize if (pMaxSize > parameters.PATTERN_MIN_LEN and pMaxSize < parameters.PATTERN_MAX_LEN) else parameters.PATTERN_MAX_LEN
         self._valid = False
         self.elapseFiles_ = elapseFiles
         self.elapseTasks_ = elapseTasks
@@ -50,20 +48,20 @@ class paddingFolder:
         random.seed()
 
         # Ouverture / création du dossier de travail
-        if 0 == len(self.currentFolder_):
+        if 0 == len(self.params_.folder_):
             return False, "Erreur de paramètres"
 
-        #print("Ouverture du dossier", self.currentFolder_)
+        #print("Ouverture du dossier", self.params_.folder_)
 
         # Le dossier existe t'il ?
-        if False == os.path.isdir(self.currentFolder_):
-            print("Le dossier", self.currentFolder_, "n'existe pas")
+        if False == os.path.isdir(self.params_.folder_):
+            print("Le dossier", self.params_.folder_, "n'existe pas")
 
             # On essaye de le créer
             try:
-                os.makedirs(self.currentFolder_)
+                os.makedirs(self.params_.folder_)
             except:   
-                return False, "Impossible de créer le dossier " + self.currentFolder_
+                return False, "Impossible de créer le dossier " + self.params_.folder_
         
         # Ok - pas  de message
         self.valid_ = True
@@ -71,7 +69,7 @@ class paddingFolder:
     
     # Nom du dossier courant
     def name(self):
-        return self.currentFolder_
+        return self.params_.folder_
 
     # Temps d'attente
     def elapseFiles(self):
@@ -85,7 +83,7 @@ class paddingFolder:
     #   Retourne le tuple (total, used, free)
     def partitionUsage(self):
         if True == self.valid_:
-            total, used, free = shutil.disk_usage(self.currentFolder_)
+            total, used, free = shutil.disk_usage(self.params_.folder_)
             return total, used, free
         else:
             return 0,0,0
@@ -119,7 +117,7 @@ class paddingFolder:
 
             try:
                 # Ouverture du fihcier
-                file = open(os.path.join(self.currentFolder_ ,name), 'w')
+                file = open(os.path.join(self.params_.folder_ ,name), 'w')
             except:
                 return name, 0
 
@@ -187,8 +185,8 @@ class paddingFolder:
             if 0 == len(name):
                 # On supprime le premier qui vient ...
                 name = ""
-                for file in os.listdir(self.currentFolder_):
-                    fName = os.path.join(self.currentFolder_, file)
+                for file in os.listdir(self.params_.folder_):
+                    fName = os.path.join(self.params_.folder_, file)
                     
                     # Un fichier ?
                     if self._fileExists(fName):
@@ -231,8 +229,8 @@ class paddingFolder:
                 # On va parser le dossier ...
                 try:
                     # Analyse récursive du dossier
-                    for (curPath, dirs, files) in os.walk(self.currentFolder_):
-                        if curPath == self.currentFolder_:
+                    for (curPath, dirs, files) in os.walk(self.params_.folder_):
+                        if curPath == self.params_.folder_:
                             dirs[:]=[] # On arrête de parser
                     
                         # Les fichiers "fils"
@@ -277,8 +275,8 @@ class paddingFolder:
         # Vidage du dossier
         try:
             # Analyse récursive du dossier
-            for (curPath, dirs, files) in os.walk(self.currentFolder_):
-                if curPath == self.currentFolder_:
+            for (curPath, dirs, files) in os.walk(self.params_.folder_):
+                if curPath == self.params_.folder_:
                     dirs[:]=[] # On arrête de parser
             
                 # Les fichiers "fils"
@@ -288,7 +286,7 @@ class paddingFolder:
 
                     self.deleteFile(fullName)
         except:
-            return 0, "Erreur lors du vidage de "+self.currentFolder_
+            return 0, "Erreur lors du vidage de "+self.params_.folder_
         
         # Dossier vide
         return count, ""
@@ -304,7 +302,7 @@ class paddingFolder:
         try:
             # Par défaut, moi !
             if 0 == len(folder):
-                folder = self.currentFolder_
+                folder = self.params_.folder_
             
             # On regarde tous les éléments du dossier
             for entry in os.scandir(folder):
@@ -403,7 +401,7 @@ class paddingFolder:
         now = datetime.datetime.now()
 
         name = now.strftime("%Y%m%d-%H%M%S-%f")
-        fullName = os.path.join(self.currentFolder_, name)
+        fullName = os.path.join(self.params_.folder_, name)
 
         # Tant qu'il existe
         count = 0
@@ -411,7 +409,7 @@ class paddingFolder:
             # On génère un nouveau nom
             count+=1
             name = name + "-" + str(count)
-            fullName = os.path.join(self.currentFolder_, name )
+            fullName = os.path.join(self.params_.folder_, name )
         
         return name # On retourne le nom court
 

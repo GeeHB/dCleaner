@@ -19,6 +19,7 @@
 
 import parameters
 from paddingFolder import paddingFolder
+from colorizer import colorizer, textAttribute, textColor
 
 # Classe dCleaner
 #   Actions sur le dossier de remplissage
@@ -26,48 +27,43 @@ from paddingFolder import paddingFolder
 class dCleaner:
     # Données membre
     #
-    color_  = None      # Gestion des sorties en mode terminal
-    folder_ = None      # Mon dossier de remplissage
-    fillRate_ = 0       # Taux de remplissage de la partition
-    renewRate_ = 0      # Taux de rafraichissement de la zone "libre" de la partition
+    options_ = None
 
     # Construction
-    def __init__(self, folderName, color, fillRate = parameters.DEF_PARTITION_FILL_RATE, renewRate = parameters.DEF_PADDING_RATE):
+    def __init__(self, options):
         # Initialisation des données membres
-        if 0 == len(folderName):
-            raise ValueError("Le nom doit être renseigné")
+        if None == options:
+            raise ValueError("Pas de paramètres")
+
+        self.options_ = options
 
         # Création de l'objet pour la gestion du dossier
-        self.folder_ = paddingFolder(folderName, self.color_)
-        done, message = self.folder_.init()
+        self.paddingFolder_ = paddingFolder(self.options_)
+        done, message = self.paddingFolder_.init()
 
         if False == done:
             # Erreur d'initialisation du dossier
             raise ValueError(message)
 
-        self.color_ = color
-        self.fillRate_ = fillRate
-        self.renewRate_ = renewRate
-
     # Affichage des paramètres internes de l'objet
     def __repr__(self):
         
-        res = self.folder_.partitionUsage()
+        res = self.paddingFolder_.partitionUsage()
     
         # Quelques informations ...
         #
 
         out = "\nParamètres : " 
-        out += "\n\t- Taille de la partition : " + self.folder_.displaySize(res[0])
-        out += "\n\t- Taux de remplissage max : " + str(self.fillRate_) + "%"
-        out += "\n\t- Taux de renouvellement de la partition : " + str(self.renewRate_) + "%"        
-        out += "\n\t- Attente entre 2 fichiers : " + str(self.folder_.elapseFiles()) + "s"
-        out += "\n\t- Attente entre 2 traitements : " + str(self.folder_.elapseTasks()) + "s"
+        out += "\n\t- Taille de la partition : " + self.paddingFolder_.displaySize(res[0])
+        out += "\n\t- Taux de remplissage max : " + str(self.options_.fillRate_) + "%"
+        out += "\n\t- Taux de renouvellement de la partition : " + str(self.options_.renewRate_) + "%"        
+        out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
+        out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
 
         out += "\n\nDossier : " 
-        out += "\n\t- Nom : " + self.folder_.name()
-        out += "\n\t- Contenu : " + self.folder_.displaySize(self.folder_.size())
-        out += "\n\t- Remplissage de la partition : " + self.folder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
+        out += "\n\t- Nom : " + self.paddingFolder_.name()
+        out += "\n\t- Contenu : " + self.paddingFolder_.displaySize(self.paddingFolder_.size())
+        out += "\n\t- Remplissage de la partition : " + self.paddingFolder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
 
         return out
 
@@ -75,14 +71,14 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     def fillPartition(self):
 
-        res = self.folder_.partitionUsage()
+        res = self.paddingFolder_.partitionUsage()
         maxFill = res[0] * parameters.DEF_PARTITION_FILL_RATE / 100
 
         if res[1] < maxFill:
             # On fait en sorte de coller immédiatement au taux de remplissage
             fillSize = maxFill - res[1]
-            #print("Remplissage initial de", self.folder_.displaySize(fillSize))
-            self.folder_.newFiles(fillSize)
+            #print("Remplissage initial de", self.paddingFolder_.displaySize(fillSize))
+            self.paddingFolder_.newFiles(fillSize)
             return True
         
         # La partition est déja "pleine"
@@ -93,23 +89,23 @@ class dCleaner:
     def freePartition(self):
         
         # Mode "initial" : on fait en sorte de coller immédiatement au taux de remplissage
-        res = self.folder_.partitionUsage()
+        res = self.paddingFolder_.partitionUsage()
         maxFill = res[0] * parameters.DEF_PARTITION_FILL_RATE / 100
     
         if res[1] > maxFill:
-            print(params.color_.colored("La partition est déja trop remplie", params.colors_.textColor.JAUNE))
+            print(self.options_.color_.colored("La partition est déja trop remplie", textColor.JAUNE))
 
             # en retirant les fichiers déja générés
-            paddingSize = self.folder_.size()
+            paddingSize = self.paddingFolder_.size()
             if (res[1] - paddingSize) > maxFill:
-                print(params.color_.colored("Vidage du dossier de remplissage"))
-                self.folder_.empty()
+                print(self.options_.color_.colored("Vidage du dossier de remplissage"))
+                self.paddingFolder_.empty()
             else:
                 # Retrait du "minimum"
                 removeSize = res[1] - maxFill
 
-                print("Suppression des fichiers de remplissage à hauteur de", self.folder_.displaySize(removeSize))
-                self.folder_.deleteFiles(size=removeSize)
+                print("Suppression des fichiers de remplissage à hauteur de", self.paddingFolder_.displaySize(removeSize))
+                self.paddingFolder_.deleteFiles(size=removeSize)
             
             return True
 
@@ -120,19 +116,19 @@ class dCleaner:
     def cleanPartition(self):
         
         # Taille en octets du volume à renouveller
-        res = self.folder_.partitionUsage()
+        res = self.paddingFolder_.partitionUsage()
         
         # Valeur max. théorique
-        renewSize = res[0] * (100 - self.fillRate_) / 100 * self.renewRate_ / 100 
+        renewSize = res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100 
         
         # on recadre avec l'espace effectivement dispo
-        renewSize = self.folder_.minMax(0, renewSize, res[2] * self.renewRate_ / 100)        
+        renewSize = self.options_.minMax(0, renewSize, res[2] * self.options_.renewRate_ / 100)        
         
         # On remplit 
-        self.folder_.newFiles(renewSize)
+        self.paddingFolder_.newFiles(renewSize)
         
         # On supprime
-        self.folder_.deleteFiles(size = renewSize)
+        self.paddingFolder_.deleteFiles(size = renewSize)
         
  
 #
@@ -160,6 +156,6 @@ if '__main__' == __name__:
         cleaner.cleanPartition()
 
     except ValueError as e:
-        print(params.color_.colored("Erreur de paramètre(s) : " + str(e), params.colors_.textColor.ROUGE))
+        print(self.options_.color_.colored("Erreur de paramètre(s) : " + str(e), params.colors_.textColor.ROUGE))
 
 # EOF

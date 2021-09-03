@@ -79,7 +79,7 @@ class options(object):
         self.color_ = None      # Outil de colorisation
         self.verbose_ = True    # Par défaut l'application trace tout ...
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
-        self.folderName_ = ""
+        self.folder_ = ""
         self.iterate_ = DEF_ITERATE_COUNT
         self.fillRate_ = DEF_PARTITION_FILL_RATE
         self.renewRate_ = DEF_PADDING_RATE
@@ -115,7 +115,7 @@ class options(object):
                 try :
                     rets = parameters.parameterOrValue(index + 1)
                     if False == rets[1] : 
-                        self.folderName_ = rets[0]
+                        self.folder_ = rets[0]
 
                         # Pas d'erreur !
                         showUsage = False
