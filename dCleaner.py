@@ -19,7 +19,7 @@
 
 import parameters
 from paddingFolder import paddingFolder
-from colorizer import colorizer, textAttribute, textColor
+from colorizer import textAttribute, textColor
 
 # Classe dCleaner
 #   Actions sur le dossier de remplissage
@@ -48,26 +48,32 @@ class dCleaner:
     # Affichage des paramètres internes de l'objet
     def __repr__(self):
         
-        res = self.paddingFolder_.partitionUsage()
-    
         # Quelques informations ...
         #
+        if self.options_.verbose_:
+            res = self.paddingFolder_.partitionUsage()
+    
+            out = "Paramètres : " 
+            out += "\n\t- Taille de la partition : " + self.paddingFolder_.displaySize(res[0])
+            out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Itération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
+            out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
 
-        out = "\nParamètres : " 
-        out += "\n\t- Taille de la partition : " + self.paddingFolder_.displaySize(res[0])
-        out += "\n\t- Taux de remplissage max : " + str(self.options_.fillRate_) + "%"
-        out += "\n\t- Taux de renouvellement de la partition : " + str(self.options_.renewRate_) + "%"        
-        out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
-        out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
-
-        out += "\n\nDossier : " 
-        out += "\n\t- Nom : " + self.paddingFolder_.name()
-        out += "\n\t- Contenu : " + self.paddingFolder_.displaySize(self.paddingFolder_.size())
-        out += "\n\t- Remplissage de la partition : " + self.paddingFolder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
-
+            out += "\n\nDossier : " 
+            out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Contenu : " + self.paddingFolder_.displaySize(self.paddingFolder_.size())
+            out += "\n\t- Remplissage de la partition : " + self.paddingFolder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
+        else :
+            out = "Dossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+            out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
+            out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
+            out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
+            
         return out
 
-    # Remplissage iniitial de la partition
+    # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
     def fillPartition(self):
 
@@ -130,7 +136,6 @@ class dCleaner:
         # On supprime
         self.paddingFolder_.deleteFiles(size = renewSize)
         
- 
 #
 # Corps du programme
 #
@@ -142,20 +147,27 @@ if '__main__' == __name__:
         exit(1)
 
     try:    
-        cleaner = dCleaner(params)
+        params.usage(False)
 
+        cleaner = dCleaner(params)
         print(cleaner)
 
-        print("\nTraitements initiaux :")
+        exit(1)
+
+        print("\nVérification du dossier de 'padding'")
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
             cleaner.freePartition()
 
-        # Maintenant traitement de "fond"
-        print("\nTâches de fond :")
-        cleaner.cleanPartition()
+        # doit-on maintenant "salir" le disque ?
+        if False == params.adjust_:
+            # Maintenant traitement de "fond"
+            print("\nEffacement dela partition")
+            cleaner.cleanPartition()
+
+        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 
     except ValueError as e:
-        print(self.options_.color_.colored("Erreur de paramètre(s) : " + str(e), params.colors_.textColor.ROUGE))
+        print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
 
 # EOF

@@ -18,7 +18,7 @@ from colorizer import colorizer, textAttribute
 # Valeurs par défaut
 #
 
-CURRENT_VERSION = "version 0.2.1"
+CURRENT_VERSION = "version 0.2.2"
 
 DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
 DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
@@ -95,75 +95,36 @@ class options(object):
         else:
             # En mode log ?
             self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
-
+            
             # Colorisation des affichages ?
-            if False == self.verbose_ :
-                noColor = False
-            else:
-                noColor = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR))
-
+            noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
+            
+            # Création de l'objet pour la gestion de la colorisation
             self.color_ = colorizer(False == noColor)
 
             # Ajustement ?
             self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
 
             # Nom du dossier
-            index =  parameters.findAndRemoveOption(CMD_OPTION_FOLDER)
-            if parameters.NO_INDEX != index:                
+            self.folder_ = parameters.getOptionValue(CMD_OPTION_FOLDER)
+            if None == self.folder_:
+                # Le dossier est obligatoire
                 showUsage = True
-                # Le nom du dossier suit ...
-                try :
-                    rets = parameters.parameterOrValue(index + 1)
-                    if False == rets[1] : 
-                        self.folder_ = rets[0]
+            else:
+                # Nombre d'itérations
+                value = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
+                if None != value:
+                    self.iterate_ = value
+                
+                # Taux de remplissage permanent de la partition
+                value = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
+                if None != value:
+                    self.fillRate_ = value
 
-                        # Pas d'erreur !
-                        showUsage = False
-                except IndexError:
-                    # pas de nom de dossier ...
-                    pass            
-
-            # Nombre d'itérations
-            index =  parameters.findAndRemoveOption(CMD_OPTION_ITERATE)
-            if parameters.NO_INDEX != index:
-                showUsage = True
-                # suivi d'une valeur num.
-                try :
-                    rets = parameters.parameterOrValue(index + 1)
-                    if rets[1] == False : 
-                        self.iterate_ = self.minMax(int(rets[0]), MIN_ITERATE_COUNT, MAX_ITERATE_COUNT)
-                        showUsage = False
-                except IndexError:
-                    # Pas de valeurs ...
-                    pass
-            
-            # Taux de remplissage permanent de la partition
-            index =  parameters.findAndRemoveOption(CMD_OPTION_PARTITION_FILL_RATE)
-            if parameters.NO_INDEX != index:
-                showUsage = True
-                # suivi d'une valeur num.
-                try :
-                    rets = parameters.parameterOrValue(index + 1)
-                    if rets[1] == False : 
-                        self.fillRate_ = self.minMax(int(rets[0]), MIN_RATE, MAX_RATE)
-                        showUsage = False
-                except IndexError:
-                    # Pas de valeurs ...
-                    pass
-            
-            # Taux de remplissage du reste de la partition
-            index =  parameters.findAndRemoveOption(CMD_OPTION_PARTITION_PADDING_RATE)
-            if parameters.NO_INDEX != index:
-                showUsage = True
-                # suivi d'une valeur num.
-                try :
-                    rets = parameters.parameterOrValue(index + 1)
-                    if rets[1] == False : 
-                        self.renewRate_ = self.minMax(int(rets[0]), MIN_RATE, MAX_PADDING_RATE)
-                        showUsage = False
-                except IndexError:
-                    # Pas de valeurs ...
-                    pass
+                # Taux de remplissage du reste de la partition
+                value = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
+                if None != value:
+                    self.renewRate_ = value
 
         # A priori il ne devrait plus y avoir de paramètres
         if True == showUsage or parameters.options() > 0 :
@@ -179,7 +140,10 @@ class options(object):
         if None == self.color_:
             self.color_ = colorizer(True)
 
-        print(self.color_.colored("\ndCleaner.py", formatAttr=[textAttribute.BOLD]), "par JHB - version", CURRENT_VERSION, "\n")
+        print(self.color_.colored("dCleaner.py", formatAttr=[textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB -", CURRENT_VERSION)
+
+        if self.verbose_:
+            print("")
             
         # Show all commands ?
         if True == fullUsage:
@@ -190,15 +154,5 @@ class options(object):
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Taux de remplissage de la partition")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " ]", formatAttr=[textAttribute.DARK]),": Taille (en %) de la zone à nettoyer")
-
-    # On s'assure qu'une valeur se trouve dans un intervalle donné
-    #   retourne la valeur ou sa version corrigée
-    def minMax(self, source, min, max):
-        if source < min :
-            source = min
-        else:
-            if source > max:
-                source = max
-        return source
 
 # EOF

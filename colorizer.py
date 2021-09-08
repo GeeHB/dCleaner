@@ -24,6 +24,18 @@ try :
 except ModuleNotFoundError:
     packageTermColor = False
 
+# Pour l'ajout de la date et de l'heure en mode "logs
+from datetime import datetime
+
+# Format de la date (pour les logs)
+#
+LOG_DATE_FORMAT = "[%d/%m/%Y - %H:%M:%S] "
+
+# Messages d'erreur
+#
+MSG_NO_TERM_COLOR = "Attention - le package termcolor (python-termcolor) n'est pas installé"
+#MSG_NO_TERM_COLOR = "Warning - termcolor package (python-termcolor) is not installed"
+
 #
 # backColor - Couleurs de fond
 #
@@ -77,17 +89,24 @@ class colorizer:
         if True == colored and False == packageTermColor:
             self.colored_ = False
             if message:
-                #print("Attention - le package termcolor (python-termcolor) n'est pas installé")
-                print("Warning - termcolor package (python-termcolor) is not installed")
+                print(MSG_NO_TERM_COLOR)
                         
     # Mise en place de la colorisation
     def setColorized(self, colored = True):
         self.colored_ = colored
     
     # Formatage d'une ligne de texte
-    def colored(self, text, txtColor = None, bkColor = None, formatAttr = None):
+    #   Retourne la chaine complète
+    def colored(self, text, txtColor = None, bkColor = None, formatAttr = None, datePrefix = False):
+        
+        prefix = ""
+        if datePrefix:
+            # En mode log. on ajoute la date et l'heure
+            today = datetime.now()
+            prefix = today.strftime(LOG_DATE_FORMAT)
+        
         # On colorise ou pas ...
-        return colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text
+        return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)
 
     # Début de ligne en mode [OK] / [KO]
     def checkBoxLine(self, checked = True, text = "", color = None, prefix = ""):
