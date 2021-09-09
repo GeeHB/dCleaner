@@ -122,49 +122,49 @@ class cmdLineParser:
 
     # Recherche d'une option et de sa valeur à partir d'un ou plusieurs noms
     #   
-    #   Retourne la valeur ou None si non trouvée
+    #   Retourne le tuple (valeur ou None si non trouvée, erreur ?)
     #
     def getOptionValue(self, *args):
         
         index = self.findAndRemoveOption(*args)
         if self.NO_INDEX == index:
             # non trouvé
-            return None
+            return None, False
 
         # Recherche de la valeur (qui doit suivre) ...
         try :
             rets = self.parameterOrValue(index + 1)
             if rets[1] == False : 
-                return rets[0]
+                return rets[0], False
         except IndexError:
             # Pas de valeur ...
-            return None
+            return None, True
 
     # Recherche d'une option et de sa valeur numérique à partir d'un ou plusieurs noms
     #   Lorsque les bornes min et max sont fournies, la métode s'assurera que la valeur sera dans l'intervalle
     #
-    #   Retourne la valeur ou None si non trouvée ou non numérique
+    #   Retourne le tuple (valeur ou None si non trouvée, erreur ?)
     #
     def getOptionValueNum(self, name, min = None, max = None):
 
-        value = self.getOptionValue(name)
-        if None == value:
+        res = self.getOptionValue(name)
+        if None == res[0]:
             # Non trouvé ...
-            return None
+            return None, False
 
         # La valeur est-elle numérique ?
         try:
-            if True == value.isnumeric():
-                num = int(value)    # Peut malgré tout poser des pb ...
+            if True == res[0].isnumeric():
+                num = int(res[0])    # Peut malgré tout poser des pb ...
                 
                 # Valeur bornée (et bornes valides) ?
-                return self._minMax(num, min, max) if (min!=None and max!=None and min < max) else num
+                return self._minMax(num, min, max) if (min!=None and max!=None and min < max) else num , False
         except ValueError:
             # Problème de format et/ou de conversion
             pass
 
         # Une erreur ou dans un mauvais format
-        return None
+        return None, True
 
     #
     # Méthodes privées

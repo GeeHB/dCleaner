@@ -12,9 +12,9 @@
 #
 #   Comment    :  le module termcolor doit être installé (pip3 install termcolor)
 #
-#   Version     :   1.3.1
+#   Version     :   1.3.2
 #
-#   Date        :   7 aout 2021
+#   Date        :   09 spetembre 2021
 #
 
 try :

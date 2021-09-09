@@ -18,7 +18,7 @@ from colorizer import colorizer, textAttribute
 # Valeurs par défaut
 #
 
-CURRENT_VERSION = "version 0.2.2"
+CURRENT_VERSION = "version 0.2.3"
 
 DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
 DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
@@ -106,25 +106,28 @@ class options(object):
             self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
 
             # Nom du dossier
-            self.folder_ = parameters.getOptionValue(CMD_OPTION_FOLDER)
-            if None == self.folder_:
+            res = parameters.getOptionValue(CMD_OPTION_FOLDER)
+            if None == res[0]:
                 # Le dossier est obligatoire
                 showUsage = True
             else:
+                
+                self.folder_ = res[0]
+                
                 # Nombre d'itérations
-                value = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
-                if None != value:
-                    self.iterate_ = value
+                res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
+                if None != res[0]:
+                    self.iterate_ = res[0]
                 
                 # Taux de remplissage permanent de la partition
-                value = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
-                if None != value:
-                    self.fillRate_ = value
+                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
+                if None != res[0]:
+                    self.fillRate_ = res[0]
 
                 # Taux de remplissage du reste de la partition
-                value = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
-                if None != value:
-                    self.renewRate_ = value
+                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
+                if None != res[0]:
+                    self.renewRate_ = res[0]
 
         # A priori il ne devrait plus y avoir de paramètres
         if True == showUsage or parameters.options() > 0 :
