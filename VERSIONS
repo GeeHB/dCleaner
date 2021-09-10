@@ -1,12 +1,12 @@
 
-+ preifx mode logs
-
-Version 0.2.xxx
-    * 31 aout 2021
+Version 0.2.3
+    * 10 septembre 2021
     + Ajout de parameters.py
         + Gestion des constantes communes
         + Gestion de la ligne de commande
-    + Nouvel algo pour déterminer la taille (aléatoire) d'un fichier
+    + Nouvel algo pour déterminer la taille (aléatoire) d'un fichier (50% en ko / 50% en Mo)
+    + Modification des affichages (plus courts en mode logs + datés)
+    + Gestion de la ligne de commandes
 
 Version 0.2.1
     * 31 aout 2021

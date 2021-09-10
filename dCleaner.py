@@ -12,12 +12,14 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.2.1
+#   Version     :   0.2.3
 #
-#   Date        :   31 aout 2021
+#   Date        :   10 septembre 2021
 #
 
 import parameters
+from os import path
+from cmdLineParser import cmdLineParser
 from paddingFolder import paddingFolder
 from colorizer import textAttribute, textColor
 
@@ -32,10 +34,15 @@ class dCleaner:
     # Construction
     def __init__(self, options):
         # Initialisation des données membres
-        if None == options:
+        if None == options or None == options.folder_:
             raise ValueError("Pas de paramètres")
 
         self.options_ = options
+
+        # Le dossier est-il correct ?
+        if self.options_.folder_ == "\\" or not path.isdir(self.options_.folder_):
+            message = "Le dossier '" + self.options_.folder_ + "' n'est pas correct"
+            raise ValueError(message)
 
         # Création de l'objet pour la gestion du dossier
         self.paddingFolder_ = paddingFolder(self.options_)
@@ -75,6 +82,7 @@ class dCleaner:
 
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
+    #
     def fillPartition(self):
 
         res = self.paddingFolder_.partitionUsage()
@@ -83,7 +91,6 @@ class dCleaner:
         if res[1] < maxFill:
             # On fait en sorte de coller immédiatement au taux de remplissage
             fillSize = maxFill - res[1]
-            #print("Remplissage initial de", self.paddingFolder_.displaySize(fillSize))
             self.paddingFolder_.newFiles(fillSize)
             return True
         
@@ -92,6 +99,7 @@ class dCleaner:
         
     # Nettoyage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
+    #
     def freePartition(self):
         
         # Mode "initial" : on fait en sorte de coller immédiatement au taux de remplissage
@@ -99,18 +107,23 @@ class dCleaner:
         maxFill = res[0] * parameters.DEF_PARTITION_FILL_RATE / 100
     
         if res[1] > maxFill:
-            print(self.options_.color_.colored("La partition est déja trop remplie", textColor.JAUNE))
+            if self.options_.verbose_:
+                print(self.options_.color_.colored("La partition est déja trop remplie", textColor.JAUNE))
 
-            # en retirant les fichiers déja générés
+            # ... en retirant les fichiers déja générés
             paddingSize = self.paddingFolder_.size()
             if (res[1] - paddingSize) > maxFill:
-                print(self.options_.color_.colored("Vidage du dossier de remplissage"))
-                self.paddingFolder_.empty()
+                print("Vidage complet du dossier de remplissage")
+                res = self.paddingFolder_.empty()
+
+                # Un message d'erreur !!!
+                if len(res[1]) > 0 :
+                    print(self.options_.color_.colored(res[1], textColor.ROUGE))
+
             else:
                 # Retrait du "minimum"
                 removeSize = res[1] - maxFill
 
-                print("Suppression des fichiers de remplissage à hauteur de", self.paddingFolder_.displaySize(removeSize))
                 self.paddingFolder_.deleteFiles(size=removeSize)
             
             return True
@@ -128,7 +141,7 @@ class dCleaner:
         renewSize = res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100 
         
         # on recadre avec l'espace effectivement dispo
-        renewSize = self.options_.minMax(0, renewSize, res[2] * self.options_.renewRate_ / 100)        
+        renewSize = cmdLineParser.minMax(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100)        
         
         # On remplit 
         self.paddingFolder_.newFiles(renewSize)
@@ -152,18 +165,17 @@ if '__main__' == __name__:
         cleaner = dCleaner(params)
         print(cleaner)
 
-        exit(1)
-
-        print("\nVérification du dossier de 'padding'")
+        print("Vérification du dossier de 'padding'")
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
             cleaner.freePartition()
 
         # doit-on maintenant "salir" le disque ?
         if False == params.adjust_:
-            # Maintenant traitement de "fond"
-            print("\nEffacement dela partition")
-            cleaner.cleanPartition()
+            
+            for index in range(params.iterate_):
+                print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
+                cleaner.cleanPartition()
 
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 

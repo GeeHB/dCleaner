@@ -10,13 +10,14 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.2.1
+#   Version     :   0.2.3
 #
-#   Date        :   31 aout 2021
+#   Date        :   10 septembre 2021
 #
 
 import os, random, datetime, math, shutil, time
 import parameters
+from colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -55,13 +56,18 @@ class paddingFolder:
 
         # Le dossier existe t'il ?
         if False == os.path.isdir(self.params_.folder_):
-            print("Le dossier", self.params_.folder_, "n'existe pas")
+            if self.params_.verbose_:
+                print("Le dossier '" +  self.params_.folder_ + "' n'existe pas")
 
             # On essaye de le créer
             try:
                 os.makedirs(self.params_.folder_)
+
+                if self.params_.verbose_:
+                    print("Dossier crée avec succès")
+
             except:   
-                return False, "Impossible de créer le dossier " + self.params_.folder_
+                return False, "Impossible de créer le dossier '" + self.params_.folder_ + "'"
         
         # Ok - pas  de message
         self.valid_ = True
@@ -147,7 +153,8 @@ class paddingFolder:
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
     def newFiles(self, expectedFillSize):
         if True == self.valid_ and expectedFillSize > 0:
-            print("Demande de remplissage de", self.displaySize(expectedFillSize))
+            if self.params_.verbose_ :
+                print("Demande de remplissage de", self.displaySize(expectedFillSize))
 
             # Rien n'a été fait !!!
             still = expectedFillSize
@@ -162,7 +169,9 @@ class paddingFolder:
                     # Erreur ...
                     cont = False
                 else:
-                    print("  + " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(still))
+                    if self.params_.verbose_:
+                        print("  + " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(still))
+                    
                     totalSize+=res[1] # Ajout de la taille du fichier
                     still-=res[1]
                     files+=1
@@ -198,13 +207,13 @@ class paddingFolder:
                 try:
                     size = os.path.getsize(name)
                     os.remove(name)
-                    #print("Suppression de", name, " - ", self.displaySize(size))
                     
                     # On retourne le nom court
                     values = os.path.split(name)
                     return values[1], size
                 except:
-                    #print("Erreur lors de la tentative de suppression de", name)
+                    if self.params_.verbose_:
+                        print(self.params_.color_.colored("Erreur lors de la tentative de suppression de " + name, textColor.ROUGE))
                     pass 
 
         # Rien n'a été fait
@@ -221,10 +230,11 @@ class paddingFolder:
             # Il y a quelques choses à faire ....
             if not 0 == count or not 0 == size:
                 
-                if not 0 == size :
-                    print("Demande de suppression à hauteur de", self.displaySize(size))
-                else:
-                    print("Demande de suppression de " + str(count) + " fichiers")
+                if self.params_.verbose_:
+                    if not 0 == size :
+                        print("Demande de suppression à hauteur de", self.displaySize(size))
+                    else:
+                        print("Demande de suppression de " + str(count) + " fichiers")
 
                 # On va parser le dossier ...
                 try:
@@ -243,10 +253,11 @@ class paddingFolder:
                                 tFiles+=1       # Un fichier de + (de supprimé ...)
                                 tSize+=res[1]   # La taille en octets
 
-                                if 0 == size:
-                                    print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count))
-                                else:
-                                    print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize))
+                                if self.params_.verbose_:
+                                    if 0 == size:
+                                        print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count))
+                                    else:
+                                        print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize))
 
                                 # Quota atteint
                                 if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
@@ -266,6 +277,9 @@ class paddingFolder:
         return True
 
     # Vidage du dossier
+    #   
+    #   Retourne Le tuple (# supprimé, message d'erreur / "")
+    #
     def empty(self):
         if False == self.valid_:
             return 0, "Objet non initialisé"
@@ -288,7 +302,7 @@ class paddingFolder:
         except:
             return 0, "Erreur lors du vidage de "+self.params_.folder_
         
-        # Dossier vide
+        # Dossier vidé
         return count, ""
 
     # Taille en octet du dossier
