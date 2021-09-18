@@ -83,6 +83,9 @@ class paddingFolder:
 
     def elapseTasks(self):
         return self.elapseTasks_
+
+    def wait(self, duration):
+        time.sleep(duration)
     
 
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)

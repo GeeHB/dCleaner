@@ -18,7 +18,7 @@ from colorizer import colorizer, textAttribute
 # Valeurs par défaut
 #
 
-CURRENT_VERSION = "version 0.2.3"
+CURRENT_VERSION = "version 0.2.4"
 
 DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
 DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
@@ -44,6 +44,9 @@ PATTERN_MAX_LEN = 5121
 # Gestion des fichiers
 #
 
+# Nom du sous-dossier
+DEF_FOLDER_NAME = "padding"
+
 # Taille d'un fichier (en k ou M octets)
 FILESIZE_MIN = 1
 FILESIZE_MAX = 1024
@@ -66,6 +69,8 @@ CMD_OPTION_ITERATE = "i"                # Nombre d'itération à effectuer - Par
 CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
 CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
  
+CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
+
 #
 #   options object : command-line parsing and parameters management
 #
@@ -83,6 +88,7 @@ class options(object):
         self.iterate_ = DEF_ITERATE_COUNT
         self.fillRate_ = DEF_PARTITION_FILL_RATE
         self.renewRate_ = DEF_PADDING_RATE
+        self.clear_ = False
 
     # Analyse de la ligne de commandes
     #   returne un booléen
@@ -102,8 +108,12 @@ class options(object):
             # Création de l'objet pour la gestion de la colorisation
             self.color_ = colorizer(False == noColor)
 
-            # Ajustement ?
-            self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
+            # Nettoyage ?
+            self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
+
+            if False == self.clear_:
+                # Ajustement ?
+                self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
 
             # Nom du dossier
             res = parameters.getOptionValue(CMD_OPTION_FOLDER)
@@ -114,20 +124,21 @@ class options(object):
                 
                 self.folder_ = res[0]
                 
-                # Nombre d'itérations
-                res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
-                if None != res[0]:
-                    self.iterate_ = res[0]
-                
-                # Taux de remplissage permanent de la partition
-                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
-                if None != res[0]:
-                    self.fillRate_ = res[0]
+                if False == self.clear_:
+                    # Nombre d'itérations
+                    res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
+                    if None != res[0]:
+                        self.iterate_ = res[0]
+                    
+                    # Taux de remplissage permanent de la partition
+                    res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
+                    if None != res[0]:
+                        self.fillRate_ = res[0]
 
-                # Taux de remplissage du reste de la partition
-                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
-                if None != res[0]:
-                    self.renewRate_ = res[0]
+                    # Taux de remplissage du reste de la partition
+                    res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
+                    if None != res[0]:
+                        self.renewRate_ = res[0]
 
         # A priori il ne devrait plus y avoir de paramètres
         if True == showUsage or parameters.options() > 0 :
@@ -153,7 +164,8 @@ class options(object):
             print("\t", self.color_.colored("  " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ", formatAttr=[textAttribute.DARK]), ": Dossier pour les fichiers de remplisage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[textAttribute.DARK]), ": Affichages non colorisés")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ADJUST + " ]", formatAttr=[textAttribute.DARK]), ": Ajustement du dossier de remplissage.")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[textAttribute.DARK]), ": NEttoyage du dossier de remplissage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ADJUST + " ]", formatAttr=[textAttribute.DARK]), ": Ajustement du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Taux de remplissage de la partition")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " ]", formatAttr=[textAttribute.DARK]),": Taille (en %) de la zone à nettoyer")

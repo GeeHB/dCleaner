@@ -61,6 +61,7 @@ class dCleaner:
             res = self.paddingFolder_.partitionUsage()
     
             out = "Paramètres : " 
+            out += "\n\t- Mode : " + self.options_.color_.colored("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"), formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taille de la partition : " + self.paddingFolder_.displaySize(res[0])
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
@@ -74,6 +75,7 @@ class dCleaner:
             out += "\n\t- Remplissage de la partition : " + self.paddingFolder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
         else :
             out = "Dossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Mode : " + "nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage")
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
             out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
@@ -132,7 +134,10 @@ class dCleaner:
         return False
 
     # Rafraichissement - remplissage et nettoyage ponctuel
-    def cleanPartition(self):
+    def cleanPartition(self, wait = False):
+        
+        if wait:
+            self.paddingFolder_.wait(self.paddingFolder_.elapseTasks())
         
         # Taille en octets du volume à renouveller
         res = self.paddingFolder_.partitionUsage()
@@ -175,7 +180,7 @@ if '__main__' == __name__:
             
             for index in range(params.iterate_):
                 print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
-                cleaner.cleanPartition()
+                cleaner.cleanPartition(index > 0)
 
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 
