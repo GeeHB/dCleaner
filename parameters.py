@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.2.3
+#   Version     :   0.2.4
 #
-#   Date        :   10 septembre 2021
+#   Date        :   20 septembre 2021
 #
 
 from cmdLineParser import cmdLineParser
@@ -58,7 +58,7 @@ FILESIZE_MAX = 1024
 # Durée(s) d'attente(s) en sec.
 #
 MIN_ELPASE_FILES = 0.1      # Entre la gestion de deux fichiers
-MIN_ELAPSE_TASKS = 900      # Entre 2 tâches
+MIN_ELAPSE_TASKS = 90       # Entre 2 tâches
 
 # Commandes reconnues
 #

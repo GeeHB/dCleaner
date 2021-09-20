@@ -10,9 +10,9 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.2.3
+#   Version     :   0.2.4
 #
-#   Date        :   10 septembre 2021
+#   Date        :   20 septembre 2021
 #
 
 import os, random, datetime, math, shutil, time
@@ -104,7 +104,7 @@ class paddingFolder:
 
     # Génération d'un fichier
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
-    def newFile(self, fileSize = 0):
+    def newFile(self, fileSize = 0, maxFileSize = 0):
         currentSize = 0
         if True == self.valid_:
 
@@ -113,6 +113,10 @@ class paddingFolder:
                 # 1 => ko, 2 = Mo
                 unit = 1 + random.randint(1, 1024) % 2
                 fileSize = 2 ** (unit * 10) * random.randint(parameters.FILESIZE_MIN, parameters.FILESIZE_MAX)
+
+                # On remplit (mais on ne déborde pas !)
+                if maxFileSize >0 and fileSize > maxFileSize:
+                    fileSize = maxFileSize
 
             # Un nouveau fichier ...
             name = self._newFileName()
@@ -166,7 +170,7 @@ class paddingFolder:
             cont = True
             
             while totalSize < expectedFillSize and cont:
-                res = self.newFile()
+                res = self.newFile(maxFileSize = still)
 
                 if 0 == res[1]:
                     # Erreur ...
