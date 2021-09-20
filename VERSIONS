@@ -5,6 +5,7 @@ Version 0.2.4
             + dossier par défaut selon l'OS
         - Attente entre 2 tâches
         + Affichage du mode d'execution ('adjust' et/ou 'cleaner')
+        + Affichage de la suppression lorsque la taille du fichier est > au quota
     + Ajout de l'option -clear pour supprimer le contenu du dossier de 'padding'
     + Ajout de parameters.py
         + Gestion des constantes communes

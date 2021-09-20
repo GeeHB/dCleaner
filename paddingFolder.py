@@ -29,6 +29,7 @@ class paddingFolder:
     maxPatternSize_ = parameters.PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
     elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
     elapseTasks_ = 0                    # Attente entre deux traitements
+    sizes_ = None                       # Taille (#octets et fichiers) du dossier
 
     files_ = 0  # Nombre de fichiers générés
 
@@ -87,7 +88,6 @@ class paddingFolder:
     def wait(self, duration):
         time.sleep(duration)
     
-
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
     #   Retourne le tuple (total, used, free)
     def partitionUsage(self):
@@ -271,7 +271,7 @@ class paddingFolder:
                             
                             # On continue
 
-                except:
+                except :
                     # Une erreur => on arrête de suite ...
                     return False
 
@@ -308,14 +308,15 @@ class paddingFolder:
         # Dossier vidé
         return count, ""
 
-    # Taille en octet du dossier
-    #   Retourne un entier
-    def size(self, folder = ""):   
+    # Taille du dossier
+    #   Retourne le tuple (taille en octets, nombre de fichiers)
+    def sizes(self, folder = ""):   
         if False == self.valid_ :
             # Pas ouvert
-            return 0
+            return 0,0
 
-        total = 0
+        totalSize = 0
+        totalFiles = 0
         try:
             # Par défaut, moi !
             if 0 == len(folder):
@@ -325,22 +326,45 @@ class paddingFolder:
             for entry in os.scandir(folder):
                 if entry.is_file():
                     # Un fichier
-                    total += entry.stat().st_size
+                    totalSize += entry.stat().st_size
+                    totalFiles += 1
                 elif entry.is_dir():
                     # Un sous dossier => appel récursif
-                    total += self.size(entry.path)
+                    total = self.sizes(entry.path)
+                    totalSize += total[0]
+                    totalFiles += total[1]
+
         except NotADirectoryError:
             # ?
-            return os.path.getsize(folder)
+            return os.path.getsize(folder), 1
         except PermissionError:
             # Je n'ai pas les droits ...
-            return 0
-        return total
+            return 0, 0
+        return totalSize, totalFiles
 
+    # Taille en octets
+    #   retourne un entier
+    def size(self):
+        # Déja caclculé ?
+        if None == self.sizes_:
+            self.sizes_ = self.sizes()
+        return self.sizes_[0]
+
+    # Nombre de fichiers
+    #   Retourne un entier
+    def files(self):
+        # Déja caclculé ?
+        if None == self.sizes_:
+            self.sizes_ = self.sizes()
+        return self.sizes_[1]
+        
     # Representation d'une taille (en octets)
     #   Retourne une chaine de caractères
     def displaySize(self, size):
         
+        if size < 0:
+            size = 0
+
         # Unités
         sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
         

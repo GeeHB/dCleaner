@@ -82,6 +82,12 @@ class dCleaner:
             
         return out
 
+    # Nettoyage (vidage) du dossier de remplissage / 'padding'
+    #   Retourne un booléen
+    #
+    def clearFolder(self):
+        return self.paddingFolder_.deleteFiles(count = self.paddingFolder_.files())
+    
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
@@ -152,8 +158,7 @@ class dCleaner:
         self.paddingFolder_.newFiles(renewSize)
         
         # On supprime
-        self.paddingFolder_.deleteFiles(size = renewSize)
-        
+        self.paddingFolder_.deleteFiles(size = renewSize)    
 #
 # Corps du programme
 #
@@ -170,21 +175,32 @@ if '__main__' == __name__:
         cleaner = dCleaner(params)
         print(cleaner)
 
-        print("Vérification du dossier de 'padding'")
-        if False == cleaner.fillPartition():
-            # Il faut plutôt libérer de la place
-            cleaner.freePartition()
+        if params.clear_:
+            print("Nettoyage du dossier de 'padding'")
+            if False == cleaner.clearFolder() :
+                print(params.color_.colored("Erreur lors de la suppression", textColor.ROUGE))
+        else:
+            if params.clear_:
+                print("Vidage du dossier")
+                cleaner.clearFolder()
+            else:
+                print("Vérification du dossier de 'padding'")
+                if False == cleaner.fillPartition():
+                    # Il faut plutôt libérer de la place
+                    cleaner.freePartition()
 
-        # doit-on maintenant "salir" le disque ?
-        if False == params.adjust_:
-            
-            for index in range(params.iterate_):
-                print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
-                cleaner.cleanPartition(index > 0)
+                # doit-on maintenant "salir" le disque ?
+                if False == params.adjust_:
+                    
+                    for index in range(params.iterate_):
+                        print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
+                        cleaner.cleanPartition(index > 0)
 
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 
     except ValueError as e:
         print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
+    except :
+        print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
 
 # EOF

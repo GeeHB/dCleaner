@@ -13,6 +13,7 @@
 
 from cmdLineParser import cmdLineParser
 from colorizer import colorizer, textAttribute
+import sys, os
 
 #
 # Valeurs par défaut
@@ -47,6 +48,9 @@ PATTERN_MAX_LEN = 5121
 # Nom du sous-dossier
 DEF_FOLDER_NAME = "padding"
 
+DEF_WIN_ROOT_FOLDER = "c:\\"      # Dossiers par défaut
+DEF_LINUX_ROOT_FOLDER = "~"
+
 # Taille d'un fichier (en k ou M octets)
 FILESIZE_MIN = 1
 FILESIZE_MAX = 1024
@@ -72,7 +76,7 @@ CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partit
 CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
 
 #
-#   options object : command-line parsing and parameters management
+#   options : Gestion de la ligne de commande et des paramètres ou options
 #
 class options(object):
 
@@ -84,11 +88,13 @@ class options(object):
         self.color_ = None      # Outil de colorisation
         self.verbose_ = True    # Par défaut l'application trace tout ...
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
-        self.folder_ = ""
         self.iterate_ = DEF_ITERATE_COUNT
         self.fillRate_ = DEF_PARTITION_FILL_RATE
         self.renewRate_ = DEF_PADDING_RATE
         self.clear_ = False
+
+        # Dossier par défaut
+        self.folder_ = os.path.join(DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER, DEF_FOLDER_NAME)   
 
     # Analyse de la ligne de commandes
     #   returne un booléen
@@ -96,49 +102,44 @@ class options(object):
 
         showUsage = False
         parameters = cmdLineParser(CMD_OPTION_CHAR)
-        if 0 == parameters.size():
-            showUsage = True
-        else:
-            # En mode log ?
-            self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
+        
+        # En mode log ?
+        self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
+        
+        # Colorisation des affichages ?
+        noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
+        
+        # Création de l'objet pour la gestion de la colorisation
+        self.color_ = colorizer(False == noColor)
+
+        # Nettoyage ?
+        self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
+
+        if False == self.clear_:
+            # Ajustement ?
+            self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
+
+        # Nom du dossier
+        res = parameters.getOptionValue(CMD_OPTION_FOLDER)
+        if None != res[0]:
+            self.folder_ = res[0]
+        self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
+        
+        if False == self.clear_:
+            # Nombre d'itérations
+            res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
+            if None != res[0]:
+                self.iterate_ = res[0]
             
-            # Colorisation des affichages ?
-            noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
-            
-            # Création de l'objet pour la gestion de la colorisation
-            self.color_ = colorizer(False == noColor)
+            # Taux de remplissage permanent de la partition
+            res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
+            if None != res[0]:
+                self.fillRate_ = res[0]
 
-            # Nettoyage ?
-            self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
-
-            if False == self.clear_:
-                # Ajustement ?
-                self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
-
-            # Nom du dossier
-            res = parameters.getOptionValue(CMD_OPTION_FOLDER)
-            if None == res[0]:
-                # Le dossier est obligatoire
-                showUsage = True
-            else:
-                
-                self.folder_ = res[0]
-                
-                if False == self.clear_:
-                    # Nombre d'itérations
-                    res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
-                    if None != res[0]:
-                        self.iterate_ = res[0]
-                    
-                    # Taux de remplissage permanent de la partition
-                    res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
-                    if None != res[0]:
-                        self.fillRate_ = res[0]
-
-                    # Taux de remplissage du reste de la partition
-                    res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
-                    if None != res[0]:
-                        self.renewRate_ = res[0]
+            # Taux de remplissage du reste de la partition
+            res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
+            if None != res[0]:
+                self.renewRate_ = res[0]
 
         # A priori il ne devrait plus y avoir de paramètres
         if True == showUsage or parameters.options() > 0 :
