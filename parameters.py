@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.2.4
+#   Version     :   0.2.5
 #
-#   Date        :   20 septembre 2021
+#   Date        :   21 septembre 2021
 #
 
 from cmdLineParser import cmdLineParser
