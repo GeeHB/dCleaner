@@ -1,6 +1,12 @@
+Version 0.2.5
+    * xxx septembre 2021
+    + Corrections mineures
+        - bug d'affichage en mode logs
+
 Version 0.2.4
     * 20 septembre 2021
     + Corrections mineures
+        + Moins d'accès disque (optimisations)
         + Valeur(s) par défaut pour les paramètres de la ligne de commandes
             + dossier par défaut selon l'OS
         - Attente entre 2 tâches
@@ -13,8 +19,11 @@ Version 0.2.4
     + Nouvel algo pour déterminer la taille (aléatoire) d'un fichier (50% en ko / 50% en Mo)
     + Modification des affichages (plus courts en mode logs + datés)
     + Gestion de la ligne de commandes
+        - Aucun paramètre n'est obligatoire
 
 Version 0.2.1
     * 31 aout 2021
     + Version complète (paramètres d'execution constants)
 
+Version 0.1.1
+    + Mai 2020

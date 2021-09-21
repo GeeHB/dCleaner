@@ -75,7 +75,7 @@ class dCleaner:
             out += "\n\t- Remplissage de la partition : " + self.paddingFolder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
         else :
             out = "Dossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Mode : " + "nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage")
+            out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
             out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
@@ -162,6 +162,7 @@ class dCleaner:
         
         # On supprime
         self.paddingFolder_.deleteFiles(size = renewSize)    
+
 #
 # Corps du programme
 #

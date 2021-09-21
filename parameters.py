@@ -15,11 +15,12 @@ from cmdLineParser import cmdLineParser
 from colorizer import colorizer, textAttribute
 import sys, os
 
+# Version de l'application
+CURRENT_VERSION = "version 0.2.5"
+
 #
 # Valeurs par défaut
 #
-
-CURRENT_VERSION = "version 0.2.4"
 
 DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
 DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
@@ -32,6 +33,7 @@ DEF_ITERATE_COUNT = 1           # Nombre de fois ou sera lancé le processus de 
 MIN_ITERATE_COUNT = 1
 MAX_ITERATE_COUNT = 100
 
+#
 # Motif aléatoire
 #
 
@@ -72,11 +74,10 @@ CMD_OPTION_FOLDER = "folder"            # Dossier utilisé pour le remplissage (
 CMD_OPTION_ITERATE = "i"                # Nombre d'itération à effectuer - Par défaut = 1
 CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
 CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
- 
 CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
 
 #
-#   options : Gestion de la ligne de commande et des paramètres ou options
+#   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
 class options(object):
 
@@ -162,13 +163,13 @@ class options(object):
             
         # Show all commands ?
         if True == fullUsage:
-            print("\t", self.color_.colored("  " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ", formatAttr=[textAttribute.DARK]), ": Dossier pour les fichiers de remplisage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[textAttribute.DARK]), ": Chemin du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[textAttribute.DARK]), ": Affichages non colorisés")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[textAttribute.DARK]), ": NEttoyage du dossier de remplissage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[textAttribute.DARK]), ": Nettoyage du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ADJUST + " ]", formatAttr=[textAttribute.DARK]), ": Ajustement du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Taux de remplissage de la partition")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " ]", formatAttr=[textAttribute.DARK]),": Taille (en %) de la zone à nettoyer")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {%} ]",formatAttr=[textAttribute.DARK]),": Taux de remplissage de la partition")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
 
 # EOF
