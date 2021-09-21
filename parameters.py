@@ -11,8 +11,8 @@
 #   Date        :   21 septembre 2021
 #
 
-from cmdLineParser import cmdLineParser
-from colorizer import colorizer, textAttribute
+from sharedTools.common import cmdLineParser
+from sharedTools.common import colorizer
 import sys, os
 
 # Version de l'application
@@ -156,20 +156,20 @@ class options(object):
         if None == self.color_:
             self.color_ = colorizer(True)
 
-        print(self.color_.colored("dCleaner.py", formatAttr=[textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB -", CURRENT_VERSION)
+        print(self.color_.colored("dCleaner.py", formatAttr=[colorizer.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB -", CURRENT_VERSION)
 
         if self.verbose_:
             print("")
             
         # Show all commands ?
         if True == fullUsage:
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[textAttribute.DARK]), ": Chemin du dossier de remplissage")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[textAttribute.DARK]), ": Affichages non colorisés")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[textAttribute.DARK]), ": Nettoyage du dossier de remplissage")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ADJUST + " ]", formatAttr=[textAttribute.DARK]), ": Ajustement du dossier de remplissage")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {%} ]",formatAttr=[textAttribute.DARK]),": Taux de remplissage de la partition")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[colorizer.textAttribute.DARK]), ": Chemin du dossier de remplissage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[colorizer.textAttribute.DARK]), ": Affichages non colorisés")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[colorizer.textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[colorizer.textAttribute.DARK]), ": Nettoyage du dossier de remplissage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ADJUST + " ]", formatAttr=[colorizer.textAttribute.DARK]), ": Ajustement du dossier de remplissage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[colorizer.textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {%} ]",formatAttr=[colorizer.textAttribute.DARK]),": Taux de remplissage de la partition")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[colorizer.textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
 
 # EOF

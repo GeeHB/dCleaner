@@ -19,9 +19,9 @@
 
 import parameters
 from os import path
-from cmdLineParser import cmdLineParser
+from sharedTools.common import cmdLineParser
 from paddingFolder import paddingFolder
-from colorizer import textAttribute, textColor
+from sharedTools.common.colorizer import textAttribute, textColor
 
 # Classe dCleaner
 #   Actions sur le dossier de remplissage

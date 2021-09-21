@@ -17,7 +17,7 @@
 
 import os, random, datetime, math, shutil, time
 import parameters
-from colorizer import textColor
+from sharedTools.common.colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
 #
