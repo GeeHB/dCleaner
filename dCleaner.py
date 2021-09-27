@@ -12,14 +12,14 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.2.5
+#   Version     :   0.3.2
 #
-#   Date        :   21 septembre 2021
+#   Date        :   27 septembre 2021
 #
 
 import parameters
 from os import path
-from sharedTools.common import cmdLineParser
+from sharedTools.common import cmdLineParser as parser
 from paddingFolder import paddingFolder
 from sharedTools.common.colorizer import textAttribute, textColor
 
@@ -40,7 +40,7 @@ class dCleaner:
         self.options_ = options
 
         # Le dossier est-il correct ?
-        if self.options_.folder_ == "\\" or not path.isdir(self.options_.folder_):
+        if self.options_.folder_ == "\\" or (path.exists(self.options_.folder_) and not path.isdir(self.options_.folder_)):
             message = "Le dossier '" + self.options_.folder_ + "' n'est pas correct"
             raise ValueError(message)
 
@@ -155,7 +155,7 @@ class dCleaner:
         renewSize = res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100 
         
         # on recadre avec l'espace effectivement dispo
-        renewSize = cmdLineParser.minMax(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100)        
+        renewSize = parser.cmdLineParser.minMax(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100)        
         
         # On remplit 
         self.paddingFolder_.newFiles(renewSize)
@@ -201,11 +201,12 @@ if '__main__' == __name__:
                     print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
                     cleaner.cleanPartition(index > 0)
 
-        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
-
     except ValueError as e:
         print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
     except :
         print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
+
+    # La fin, la vraie !
+    print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 
 # EOF

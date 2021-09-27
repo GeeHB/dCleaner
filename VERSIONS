@@ -1,7 +1,12 @@
-Version 0.3.1
-    * xxx
+Version 0.3.2
+    * 27 sept. 2021
     + Utilisation des modules sharedTools (à la place des fichiers dans le dossier)
-    
+    + Test(s) & corrections pour Windows
+    + Possibilité de founir +sieurs dossiers (séparés par "," ou "*" pour Windows)
+    + Logs plus efficaces
+    + Tous les paramètres peuvent être passés en ligne de commande (ajout des délais inter-traitements)
+    + Corrections
+        - bug lorsque le dossier de padding n'existe pas
 
 Version 0.2.5
     * 21 septembre 2021
@@ -32,4 +37,4 @@ Version 0.2.1
     + Version complète (paramètres d'execution constants)
 
 Version 0.1.1
-    + Mai 2020
+    + Mai 2020 - Version fonctionnelle (mais basique ...)
