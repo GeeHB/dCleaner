@@ -1,3 +1,14 @@
+Version 0.3.3
+    * xxx
+    + Modification des affichages
+        + Taille de la partition et taux de remplissage réel
+        + Corrections mineures
+    
+## TODO ##
+    ? Vidage de la corbeille avec renomage (/home/your_username/.local/share/Trash)
+    ? 
+##
+
 Version 0.3.2
     * 27 sept. 2021
     + Utilisation des modules sharedTools (à la place des fichiers dans le dossier)

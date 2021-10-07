@@ -177,7 +177,7 @@ class paddingFolder:
                     cont = False
                 else:
                     if self.params_.verbose_:
-                        print("  + " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(still))
+                        print("  + " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(still) + " restants")
                     
                     totalSize+=res[1] # Ajout de la taille du fichier
                     still-=res[1]
@@ -262,9 +262,9 @@ class paddingFolder:
 
                                 if self.params_.verbose_:
                                     if 0 == size:
-                                        print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count))
+                                        print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
                                     else:
-                                        print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize))
+                                        print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize) + " restants")
 
                                 # Quota atteint
                                 if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):

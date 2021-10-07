@@ -65,7 +65,10 @@ class dCleaner:
             out += "\n\t- Taille de la partition : " + self.paddingFolder_.displaySize(res[0])
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Itération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
+            
+            if False == self.options_.adjust_ :
+                out += "\n\t- Itération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
+            
             out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
             out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
 
@@ -78,7 +81,9 @@ class dCleaner:
             out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
-            out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
+            
+            if False == self.options_.adjust_ :
+                out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
             
         return out
 
@@ -117,7 +122,7 @@ class dCleaner:
     
         if currentFillSize > maxFillSize:
             if self.options_.verbose_:
-                print(self.options_.color_.colored("La partition est déja trop remplie", textColor.JAUNE))
+                print(self.options_.color_.colored("La partition est déja trop remplie (" + self.paddingFolder_.displaySize(currentFillSize) + " -" + str(round(currentFillSize / totalSize * 100 ,0)) + "% )", textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()

@@ -16,7 +16,7 @@ from sharedTools.common import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "version 0.3.2"
+CURRENT_VERSION = "version 0.3.3"
 
 #
 # Valeurs par défaut
@@ -48,7 +48,7 @@ PATTERN_MAX_LEN = 5121
 #
 
 # Nom du sous-dossier
-DEF_FOLDER_NAME = "padding"
+DEF_FOLDER_NAME = ".padding"
 
 DEF_WIN_ROOT_FOLDER = "c:\\"      # Dossiers par défaut
 DEF_LINUX_ROOT_FOLDER = "~"
