@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.3.2
+#   Version     :   0.3.4
 #
-#   Date        :   27 septembre 2021
+#   Date        :   8 oct. 2021
 #
 
 from sharedTools.common import cmdLineParser as parser
@@ -16,7 +16,7 @@ from sharedTools.common import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "version 0.3.3"
+CURRENT_VERSION = "version 0.3.4"
 
 #
 # Valeurs par défaut

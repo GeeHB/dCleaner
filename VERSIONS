@@ -1,12 +1,12 @@
-Version 0.3.3
-    * xxx
+Version 0.3.4
+    * 8 octobre 2021
     + Modification des affichages
         + Taille de la partition et taux de remplissage réel
         + Corrections mineures
     
 ## TODO ##
     ? Vidage de la corbeille avec renomage (/home/your_username/.local/share/Trash)
-    ? 
+    ? Multi-partition sous Windows
 ##
 
 Version 0.3.2

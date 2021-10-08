@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.3.2
+#   Version     :   0.3.4
 #
-#   Date        :   27 septembre 2021
+#   Date        :   8 oct. 2021
 #
 
 import parameters
@@ -57,12 +57,11 @@ class dCleaner:
         
         # Quelques informations ...
         #
-        if self.options_.verbose_:
-            res = self.paddingFolder_.partitionUsage()
+        res = self.paddingFolder_.partitionUsage()
     
+        if self.options_.verbose_:
             out = "Paramètres : " 
             out += "\n\t- Mode : " + self.options_.color_.colored("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"), formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Taille de la partition : " + self.paddingFolder_.displaySize(res[0])
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
             
@@ -72,12 +71,16 @@ class dCleaner:
             out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
             out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
 
+            out += "\n\nPartition : "
+            out += "\n\t- Taille : " + self.paddingFolder_.displaySize(res[0])
+            out += "\n\t- Remplie à " + self.options_.color_.colored(str(round(res[1] / res[0] * 100 , 2)) + "%", formatAttr=[textAttribute.GRAS]) + " - " + self.paddingFolder_.displaySize(res[1])
+            
             out += "\n\nDossier : " 
             out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Contenu : " + self.paddingFolder_.displaySize(self.paddingFolder_.size())
-            out += "\n\t- Remplissage de la partition : " + self.paddingFolder_.displaySize(res[1]) +  " = " + str(round(100*res[1]/res[0],2)) + "%"
+            out += "\n\t- Contenu : " + self.paddingFolder_.displaySize(self.paddingFolder_.size()) + "\n"
         else :
-            out = "Dossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+            out = "Partition : " + self.paddingFolder_.displaySize(res[0]) +  " - remplie à " + str(round(res[1] / res[0] * 100 ,0)) + "%"
+            out += "\nDossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
             out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
