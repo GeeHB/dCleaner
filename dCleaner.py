@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.3.4
+#   Version     :   0.3.5
 #
-#   Date        :   8 oct. 2021
+#   Date        :   15 oct. 2021
 #
 
 import parameters
@@ -125,7 +125,7 @@ class dCleaner:
     
         if currentFillSize > maxFillSize:
             if self.options_.verbose_:
-                print(self.options_.color_.colored("La partition est déja trop remplie (" + self.paddingFolder_.displaySize(currentFillSize) + " -" + str(round(currentFillSize / totalSize * 100 ,0)) + "% )", textColor.JAUNE))
+                print(self.options_.color_.colored("La partition est déja trop remplie (" + self.paddingFolder_.displaySize(currentFillSize) + " - " + str(round(currentFillSize / totalSize * 100 ,0)) + "% )", textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -137,6 +137,7 @@ class dCleaner:
                 # Tout le dossier de 'padding' n'y suffira pas ...
                 print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le tauxc de remplissage demandé", textColor.JAUNE))
                 res = self.paddingFolder_.empty()
+                print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
                 
                 if len(res[1]) > 0:
                     print(self.options_.color_.colored("Erreur lors du vidage du dossier de remplissage : " + res[1], textColor.ROUGE))

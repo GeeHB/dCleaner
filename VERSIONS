@@ -1,13 +1,23 @@
+    
+## TODO ##
+? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
+? Multi-partition sous Windows
+##
+
+Version 0.3.5
+    * 15 oct. 2021
+    + Corrections
+        - Si un seul mauvais param; en ligne de commmande
+            + utilisation de sharedTools v1.4.2
+        + Le dossier est, par défaut, caché 
+        + Affichages
+    + Ajout du paramètre -? et/ou -help pour afficher la ligne de commande 
+
 Version 0.3.4
     * 8 octobre 2021
     + Modification des affichages
         + Taille de la partition et taux de remplissage réel
         + Corrections mineures
-    
-## TODO ##
-    ? Vidage de la corbeille avec renomage (/home/your_username/.local/share/Trash)
-    ? Multi-partition sous Windows
-##
 
 Version 0.3.2
     * 27 sept. 2021
@@ -23,7 +33,7 @@ Version 0.2.5
     * 21 septembre 2021
     + Corrections mineures
         - bug d'affichage en mode logs
-        - valeures par défaut
+        - valeurs par défaut
 
 Version 0.2.4
     * 20 septembre 2021

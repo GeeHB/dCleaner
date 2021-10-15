@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.3.4
+#   Version     :   0.3.5
 #
-#   Date        :   8 oct. 2021
+#   Date        :   15 oct. 2021
 #
 
 from sharedTools.common import cmdLineParser as parser
@@ -16,7 +16,7 @@ from sharedTools.common import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "version 0.3.4"
+CURRENT_VERSION = "version 0.3.5"
 
 #
 # Valeurs par défaut
@@ -76,6 +76,9 @@ CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant êt
 CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
 
+CMD_OPTION_HELP = "help"                # De l'aide !!!
+CMD_OPTION_HELP_MIN = "?"
+
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
@@ -101,49 +104,60 @@ class options(object):
     #   returne un booléen
     def parse(self):
 
-        showUsage = False
         parameters = parser.cmdLineParser(CMD_OPTION_CHAR)
-        
-        # En mode log ?
-        self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
-        
-        # Colorisation des affichages ?
-        noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
-        
-        # Création de l'objet pour la gestion de la colorisation
-        self.color_ = color.colorizer(False == noColor)
 
-        # Nettoyage ?
-        self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
-
-        if False == self.clear_:
-            # Ajustement ?
-            self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
-
-        # Nom du dossier
-        res = parameters.getOptionValue(CMD_OPTION_FOLDER)
-        if None != res[0]:
-            self.folder_ = res[0]
-        self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
+        # De l'aide ?
+        showUsage = ((parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_HELP)) or (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_HELP_MIN)))
         
-        if False == self.clear_:
-            # Nombre d'itérations
-            res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
-            if None != res[0]:
-                self.iterate_ = res[0]
+        # Si l'aide est demandée, rien ne sert d'analyser le reste de la ligne de commande
+        #
+        if False == showUsage:
+        
+            # En mode log ?
+            self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
             
-            # Taux de remplissage permanent de la partition
-            res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
-            if None != res[0]:
-                self.fillRate_ = res[0]
+            # Colorisation des affichages ?
+            noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
+            
+            # Création de l'objet pour la gestion de la colorisation
+            self.color_ = color.colorizer(False == noColor)
 
-            # Taux de remplissage du reste de la partition
-            res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
+            # Nettoyage ?
+            self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
+
+            if False == self.clear_:
+                # Ajustement ?
+                self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
+
+            # Nom du dossier
+            res = parameters.getOptionValue(CMD_OPTION_FOLDER)
             if None != res[0]:
-                self.renewRate_ = res[0]
+                self.folder_ = res[0]
+            self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
+            
+            if False == self.clear_:
+                # Nombre d'itérations
+                res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
+                if None != res[0]:
+                    self.iterate_ = res[0]
+                
+                # Taux de remplissage permanent de la partition
+                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
+                if None != res[0]:
+                    self.fillRate_ = res[0]
+
+                # Taux de remplissage du reste de la partition
+                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
+                if None != res[0]:
+                    self.renewRate_ = res[0]
 
         # A priori il ne devrait plus y avoir de paramètres
-        if True == showUsage or parameters.options() > 0 :
+        """
+        a = parameters.size()            # Elements dans la ligne de cmd
+        b = parameters.options()         # Options non traitées
+        c = parameters.usefullItems()    # Elements restants (non traités) 
+        """
+        if True == showUsage or parameters.usefullItems() > 0 :
             self.usage()
             return False
         
@@ -163,6 +177,7 @@ class options(object):
             
         # Show all commands ?
         if True == fullUsage:
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_HELP + " ou " + CMD_OPTION_CHAR + CMD_OPTION_HELP_MIN + " ]", formatAttr=[color.textAttribute.DARK]), ": Aide")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Chemin du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[color.textAttribute.DARK]), ": Affichages non colorisés")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[color.textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
