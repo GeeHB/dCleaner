@@ -3,6 +3,13 @@
 ? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
 ? Multi-partition sous Windows
 ##
+Version 0.3.6
+    * 26 oct. 2021
+    + Corrections mineures
+        - Gestion des cas d'erreur
+        - Affichages
+            + Affiche "Attente" avant d'afficher le # de l'itération 
+    + Choix aléatoire du fichier lors de la suppression (meilleur pour le salissage de la partition)
 
 Version 0.3.5
     * 15 oct. 2021

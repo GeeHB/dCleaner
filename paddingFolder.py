@@ -10,9 +10,9 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.3.5
+#   Version     :   0.3.6
 #
-#   Date        :   15 oct. 2021
+#   Date        :   26 oct. 2021
 #
 
 import os, random, datetime, math, shutil, time
@@ -243,37 +243,37 @@ class paddingFolder:
                     else:
                         print("Demande de suppression de " + str(count) + " fichiers")
 
-                # On va parser le dossier ...
+                
+                # Liste des fichiers du dossier
+                files = [ f for f in os.listdir(self.params_.folder_) if os.path.isfile(os.path.join(self.params_.folder_,f)) ]
+
+                # On mélange la liste
+                random.shuffle(files)
+                
+                # Suppression des fichiers
                 try:
-                    # Analyse récursive du dossier
-                    for (curPath, dirs, files) in os.walk(self.params_.folder_):
-                        if curPath == self.params_.folder_:
-                            dirs[:]=[] # On arrête de parser
-                    
-                        # Les fichiers "fils"
-                        for file in files:
-                            fullName = os.path.join(curPath, file) 
-                            res = self.deleteFile(fullName)
+                    # Les fichiers "fils"
+                    for file in files:
+                        fullName = os.path.join(self.params_.folder_, file) 
+                        res = self.deleteFile(fullName)
 
-                            # Suppression effectuée ?
-                            if res[1] > 0:
-                                tFiles+=1       # Un fichier de + (de supprimé ...)
-                                tSize+=res[1]   # La taille en octets
+                        # Suppression effectuée ?
+                        if res[1] > 0:
+                            tFiles+=1       # Un fichier de + (de supprimé ...)
+                            tSize+=res[1]   # La taille en octets
 
-                                if self.params_.verbose_:
-                                    if 0 == size:
-                                        print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
-                                    else:
-                                        print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize) + " restants")
+                            if self.params_.verbose_:
+                                if 0 == size:
+                                    print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
+                                else:
+                                    print("  - " + res[0] + " - " + self.displaySize(res[1]) + " / " + self.displaySize(size - tSize) + " restants")
 
-                                # Quota atteint
-                                if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
-                                    break
+                            # Quota atteint
+                            if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
+                                break
 
-                            # On attend ...
-                            time.sleep(self.elapseFiles_)
-                            
-                            # On continue
+                        # On attend ...
+                        time.sleep(self.elapseFiles_)
 
                 except :
                     # Une erreur => on arrête de suite ...

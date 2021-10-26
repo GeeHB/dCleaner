@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.3.5
+#   Version     :   0.3.6
 #
-#   Date        :   15 oct. 2021
+#   Date        :   26 oct. 2021
 #
 
 import parameters
@@ -152,10 +152,8 @@ class dCleaner:
         return False
 
     # Rafraichissement - remplissage et nettoyage ponctuel
-    def cleanPartition(self, wait = False):
-        
-        if wait:
-            self.paddingFolder_.wait(self.paddingFolder_.elapseTasks())
+    #
+    def cleanPartition(self):
         
         # Taille en octets du volume à renouveller
         res = self.paddingFolder_.partitionUsage()
@@ -179,41 +177,45 @@ if '__main__' == __name__:
     
     # Ma ligne de commandes
     params = parameters.options()
-    if False == params.parse():
-        exit(1)
+    if True == params.parse():
+        try:    
+            params.usage(False)
 
-    try:    
-        params.usage(False)
+            cleaner = dCleaner(params)
+            print(cleaner)
 
-        cleaner = dCleaner(params)
-        print(cleaner)
-
-        if params.clear_:
-            print("Nettoyage du dossier de 'padding'")
-            res = cleaner.clearFolder()
-            if len(res[1] > 0)  :
-                print(params.color_.colored("Erreur lors de la suppression : " + res[1], textColor.ROUGE))
+            if params.clear_:
+                print("Nettoyage du dossier de 'padding'")
+                res = cleaner.clearFolder()
+                if len(res[1] > 0)  :
+                    print(params.color_.colored("Erreur lors de la suppression : " + res[1], textColor.ROUGE))
+                else:
+                    if params.verbose_:
+                        print(str(res[0]) + " fichier(s) supprimé(s)")
             else:
-                if params.verbose_:
-                    print(str(res[0]) + " fichier(s) supprimé(s)")
-        else:
-            
-            print("Vérification du dossier de 'padding'")
-            if False == cleaner.fillPartition():
-                # Il faut plutôt libérer de la place
-                cleaner.freePartition()
-
-            # doit-on maintenant "salir" le disque ?
-            if False == params.adjust_:
                 
-                for index in range(params.iterate_):
-                    print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
-                    cleaner.cleanPartition(index > 0)
+                print("Vérification du dossier de 'padding'")
+                if False == cleaner.fillPartition():
+                    # Il faut plutôt libérer de la place
+                    cleaner.freePartition()
 
-    except ValueError as e:
-        print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
-    except :
-        print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
+                # doit-on maintenant "salir" le disque ?
+                if False == params.adjust_:
+                    
+                    for index in range(params.iterate_):
+                        if index > 0:
+                            # On patiente un peu ...
+                            if params.verbose_:
+                                print("On attend un peu...")
+                            cleaner.paddingFolder_.wait(cleaner.paddingFolder_.elapseTasks())
+
+                        print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
+                        cleaner.cleanPartition()
+
+        except ValueError as e:
+            print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
+        except :
+            print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
 
     # La fin, la vraie !
     print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
