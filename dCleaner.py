@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.3.6
+#   Version     :   0.3.7
 #
-#   Date        :   26 oct. 2021
+#   Date        :   28 oct. 2021
 #
 
 import parameters
@@ -135,7 +135,7 @@ class dCleaner:
             
             if gap > paddingFillSize:
                 # Tout le dossier de 'padding' n'y suffira pas ...
-                print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le tauxc de remplissage demandé", textColor.JAUNE))
+                print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", textColor.JAUNE))
                 res = self.paddingFolder_.empty()
                 print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
                 

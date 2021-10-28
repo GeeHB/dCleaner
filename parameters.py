@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.3.6
+#   Version     :   0.3.7
 #
-#   Date        :   26 oct. 2021
+#   Date        :   28 oct. 2021
 #
 
 from sharedTools.common import cmdLineParser as parser
@@ -16,7 +16,7 @@ from sharedTools.common import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "version 0.3.6"
+CURRENT_VERSION = "version 0.3.7"
 
 #
 # Valeurs par défaut
@@ -131,7 +131,7 @@ class options(object):
 
             # Nom du dossier
             res = parameters.getOptionValue(CMD_OPTION_FOLDER)
-            if None != res[0]:
+            if None != res and None != res[0]:
                 self.folder_ = res[0]
             self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
             
