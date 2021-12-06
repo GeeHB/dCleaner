@@ -10,9 +10,9 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.3.7
+#   Version     :   0.3.8
 #
-#   Date        :   28 oct. 2021
+#   Date        :   06 déc. 2021
 #
 
 import os, random, datetime, math, shutil, time

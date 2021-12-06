@@ -3,6 +3,11 @@
 ? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
 ? Multi-partition sous Windows
 ##
+
+Version 0.3.8
+    * 06 déc. 2021
+    + Corrections mineures
+
 Version 0.3.7
     * 28 oct. 2021
     + Corrections mineures

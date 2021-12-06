@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.3.7
+#   Version     :   0.3.8
 #
-#   Date        :   28 oct. 2021
+#   Date        :   06 déc. 2021
 #
 
 import parameters
