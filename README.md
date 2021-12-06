@@ -9,7 +9,9 @@ Comme le montre le schéma suivant, une partition disque peut être découpée e
 * Une zone de remplissage - zone de *padding* - qui contient des fichier aléatoire et sature artificiellement l'espace de stockage
 * enfin l'espace libre de la partition. 
 Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée - à un taux paramétrable - de fichiers qui seront à leur tour effacés.
-> Plus l'espace libre sera ténu, et plus le taux de remplissage ponctuel de cette zone sera élevé et plus le disque sera protégé.
+
+> Plus l'espace libre sera ténu, et plus le taux de remplissage ponctuel de cette zone sera élevé et donc plus le disque sera protégé des récupérations indues.
+
 ## Version
 |Dépôt |https://coffee.cd03.fr/JHB/dCleaner|
 |---|---|
