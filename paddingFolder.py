@@ -10,14 +10,21 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.3.8
+#   Version     :   0.3.9
 #
-#   Date        :   06 déc. 2021
+#   Date        :   21 déc. 2021
 #
 
-import os, random, datetime, math, shutil, time
-import parameters
+import datetime
+import math
+import os
+import random
+import shutil
+import time
 from sharedTools.common.colorizer import textColor
+
+import parameters
+
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -56,7 +63,7 @@ class paddingFolder:
         #print("Ouverture du dossier", self.params_.folder_)
 
         # Le dossier existe t'il ?
-        if False == os.path.isdir(self.params_.folder_):
+        if not os.path.isdir(self.params_.folder_):
             if self.params_.verbose_:
                 print("Le dossier '" +  self.params_.folder_ + "' n'existe pas")
 
@@ -91,7 +98,7 @@ class paddingFolder:
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
     #   Retourne le tuple (total, used, free)
     def partitionUsage(self):
-        if True == self.valid_:
+        if self.valid_:
             total, used, free = shutil.disk_usage(self.params_.folder_)
             return total, used, free
         else:
@@ -106,7 +113,7 @@ class paddingFolder:
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
     def newFile(self, fileSize = 0, maxFileSize = 0):
         currentSize = 0
-        if True == self.valid_:
+        if self.valid_:
 
             # Si la taille est nulle => on choisit aléatoirement
             if 0 == fileSize:
@@ -115,7 +122,7 @@ class paddingFolder:
                 fileSize = 2 ** (unit * 10) * random.randint(parameters.FILESIZE_MIN, parameters.FILESIZE_MAX)
 
                 # On remplit (mais on ne déborde pas !)
-                if maxFileSize >0 and fileSize > maxFileSize:
+                if 0 < maxFileSize < fileSize:
                     fileSize = maxFileSize
 
             # Un nouveau fichier ...
@@ -159,7 +166,7 @@ class paddingFolder:
     # Remplissage avec un taille totale à atteindre ...
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
     def newFiles(self, expectedFillSize):
-        if True == self.valid_ and expectedFillSize > 0:
+        if self.valid_ and expectedFillSize > 0:
             if self.params_.verbose_ :
                 print("Demande de remplissage de", self.displaySize(expectedFillSize))
 
@@ -196,7 +203,7 @@ class paddingFolder:
     # Suppression d'un fichier (le nom doit être complet)
     #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
     def deleteFile(self, name = ""):
-        if True == self.valid_:
+        if self.valid_:
             # Pas de nom ?
             if 0 == len(name):
                 # On supprime le premier qui vient ...
@@ -233,7 +240,7 @@ class paddingFolder:
         tSize = 0
         tFiles = 0
         
-        if True == self.valid_:
+        if self.valid_:
             # Il y a quelques choses à faire ....
             if not 0 == count or not 0 == size:
                 
@@ -288,7 +295,7 @@ class paddingFolder:
     #   Retourne Le tuple (# supprimé, message d'erreur / "")
     #
     def empty(self):
-        if False == self.valid_:
+        if not self.valid_:
             return 0, "Objet non initialisé"
 
         count = 0
@@ -315,7 +322,7 @@ class paddingFolder:
     # Taille du dossier
     #   Retourne le tuple (taille en octets, nombre de fichiers)
     def sizes(self, folder = ""):   
-        if False == self.valid_ :
+        if not self.valid_ :
             # Pas ouvert
             return 0,0
 
@@ -450,7 +457,7 @@ class paddingFolder:
 
         # Tant qu'il existe
         count = 0
-        while True == self._fileExists(fullName):
+        while self._fileExists(fullName):
             # On génère un nouveau nom
             count+=1
             name = name + "-" + str(count)

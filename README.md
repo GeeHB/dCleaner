@@ -15,10 +15,10 @@ Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espac
 ## Version
 |Dépôt |https://coffee.cd03.fr/JHB/dCleaner|
 |---|---|
-| **Date** |  06 décembre 2021|
+| **Date** |  21 décembre 2021|
 | **Auteur** |  JHB - <henry-barnaudiere.j@allier.fr>|
 | **Version stable** |  **0.3.8 - branche `master`**|
-|**Version en cours** |xxx|  
+|**Version en cours** |**0.3.9 - branche `master`**|  
 |**Dépendances** |Python 3.xx|
 |**Testé sur**| *Linux* / *MacOS* - *Windows* à confirmer|
 ## Appel
