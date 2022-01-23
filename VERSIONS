@@ -2,18 +2,11 @@
 ## TODO ##
 ? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
 ? Multi-partition sous Windows
-? Motif généré aléatoirement avec chaque fichier
 ##
-
-Version 0.3.9
-    * 21 déc. 2021
-    - Corrections mineures
-        - syntaxes
-        - correction / refacftoring avec PY Charm (certaines corrections ...)
-
-Version 0.3.7
-    * 28 oct. 2021
+Version 0.3.8
+    * 23 janv. 2022
     + Corrections mineures
+        - Bug d'affichage avec l'option -clear
         - Gestion de la ligne de commandes
         - Gestion des cas d'erreur
         - Affichages

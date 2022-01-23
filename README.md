@@ -9,16 +9,14 @@ Comme le montre le schéma suivant, une partition disque peut être découpée e
 * Une zone de remplissage - zone de *padding* - qui contient des fichier aléatoire et sature artificiellement l'espace de stockage
 * enfin l'espace libre de la partition. 
 Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée - à un taux paramétrable - de fichiers qui seront à leur tour effacés.
-
-> Plus l'espace libre sera ténu, et plus le taux de remplissage ponctuel de cette zone sera élevé et donc plus le disque sera protégé des récupérations indues.
-
+> Plus l'espace libre sera ténu, et plus le taux de remplissage ponctuel de cette zone sera élevé et plus le disque sera protégé.
 ## Version
 |Dépôt |https://coffee.cd03.fr/JHB/dCleaner|
 |---|---|
-| **Date** |  21 décembre 2021|
+| **Date** |  23 janvier 2022|
 | **Auteur** |  JHB - <henry-barnaudiere.j@allier.fr>|
 | **Version stable** |  **0.3.8 - branche `master`**|
-|**Version en cours** |**0.3.9 - branche `master`**|  
+|**Version en cours** |xxx|  
 |**Dépendances** |Python 3.xx|
 |**Testé sur**| *Linux* / *MacOS* - *Windows* à confirmer|
 ## Appel
