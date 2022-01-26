@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.3.8
+#   Version     :   0.3.9
 #
-#   Date        :   23 janv. 2022
+#   Date        :   26 janv. 2022
 #
 
 from sharedTools.common import cmdLineParser as parser
@@ -16,7 +16,8 @@ from sharedTools.common import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "version 0.3.8"
+CURRENT_VERSION = "version 0.3.9"
+RELEASE_DATE = "2022-01-26"
 
 #
 # Valeurs par défaut
@@ -170,7 +171,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        print(self.color_.colored("dCleaner.py", formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB -", CURRENT_VERSION)
+        print(self.color_.colored("dCleaner.py", formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB -", CURRENT_VERSION, "-", RELEASE_DATE)
 
         if self.verbose_:
             print("")
