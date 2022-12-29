@@ -3,6 +3,12 @@
 ? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
 ? Multi-partition sous Windows
 ##
+
+Version 0.4.1
+    * 29 dec. 2022
+    + 'sharedTools' est incorporé au projet comme sous_dossier
+    - corrections mineures
+
 Version 0.3.9
     * 26 janv. 2022
     + Corrections mineures

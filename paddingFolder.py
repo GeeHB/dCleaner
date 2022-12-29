@@ -10,14 +10,14 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.3.9
+#   Version     :   0.4.1
 #
-#   Date        :   26 janv. 2022
+#   Date        :   29 déc. 2022
 #
 
 import os, random, datetime, math, shutil, time
 import parameters
-from sharedTools.common.colorizer import textColor
+from sharedTools.colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
 #

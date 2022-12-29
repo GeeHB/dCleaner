@@ -12,16 +12,16 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.3.9
+#   Version     :   0.4.1
 #
-#   Date        :   26 janv. 2022
+#   Date        :   29 déc. 2022
 #
 
 import parameters
 from os import path
-from sharedTools.common import cmdLineParser as parser
+from sharedTools import cmdLineParser as parser
 from paddingFolder import paddingFolder
-from sharedTools.common.colorizer import textAttribute, textColor
+from sharedTools.colorizer import textAttribute, textColor
 
 # Classe dCleaner
 #   Actions sur le dossier de remplissage
