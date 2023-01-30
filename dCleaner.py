@@ -12,9 +12,9 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.4.1
+#   Version     :   0.5.1
 #
-#   Date        :   29 déc. 2022
+#   Date        :   27 jan. 2023
 #
 
 import parameters
@@ -72,14 +72,14 @@ class dCleaner:
             out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
 
             out += "\n\nPartition : "
-            out += "\n\t- Taille : " + self.paddingFolder_.displaySize(res[0])
-            out += "\n\t- Remplie à " + self.options_.color_.colored(str(round(res[1] / res[0] * 100 , 2)) + "%", formatAttr=[textAttribute.GRAS]) + " - " + self.paddingFolder_.displaySize(res[1])
+            out += "\n\t- Taille : " + self.paddingFolder_.size2String(res[0])
+            out += "\n\t- Remplie à " + self.options_.color_.colored(str(round(res[1] / res[0] * 100 , 2)) + "%", formatAttr=[textAttribute.GRAS]) + " - " + self.paddingFolder_.size2String(res[1])
             
             out += "\n\nDossier : " 
             out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Contenu : " + self.paddingFolder_.displaySize(self.paddingFolder_.size()) + "\n"
+            out += "\n\t- Contenu : " + self.paddingFolder_.size2String(self.paddingFolder_.size()) + "\n"
         else :
-            out = "Partition : " + self.paddingFolder_.displaySize(res[0]) +  " - remplie à " + str(round(res[1] / res[0] * 100 ,0)) + "%"
+            out = "Partition : " + self.paddingFolder_.size2String(res[0]) +  " - remplie à " + str(round(res[1] / res[0] * 100 ,0)) + "%"
             out += "\nDossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
             out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
@@ -125,7 +125,7 @@ class dCleaner:
     
         if currentFillSize > maxFillSize:
             if self.options_.verbose_:
-                print(self.options_.color_.colored("La partition est déja trop remplie (" + self.paddingFolder_.displaySize(currentFillSize) + " - " + str(round(currentFillSize / totalSize * 100 ,0)) + "% )", textColor.JAUNE))
+                print(self.options_.color_.colored("La partition est déja trop remplie (" + self.paddingFolder_.size2String(currentFillSize) + " - " + str(round(currentFillSize / totalSize * 100 ,0)) + "% )", textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -193,7 +193,6 @@ if '__main__' == __name__:
                     if params.verbose_:
                         print(str(res[0]) + " fichier(s) supprimé(s)")
             else:
-                
                 print("Vérification du dossier de 'padding'")
                 if False == cleaner.fillPartition():
                     # Il faut plutôt libérer de la place

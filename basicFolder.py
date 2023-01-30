@@ -1,11 +1,11 @@
 # coding=UTF-8
 #
-#   File     :   paddingFolder.py
+#   File     :   basicFolder.py
 #
 #   Auteur      :   JHB
 #
-#   Description :   Définition de l'objet paddingFolder
-#                   Cet objet modélise le dossier de "remplissage" dans lequel seront 
+#   Description :   Définition de l'objet basicFolder
+#                   Cet objet modélise un dossier lequel seront 
 #                   ajoutés et supprimés les fichiers
 #
 #   Remarque    : 
@@ -16,35 +16,32 @@
 #
 
 import os, random, datetime, math, shutil, time
-import parameters
-from sharedTools.colorizer import textColor
+from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 
-# Classe paddingFolder - un dossier de remplissage
+# Classe basicFolder - un dossier de remplissage ou à vider ...
 #
-class paddingFolder:
+class basicFolder:
 
     # Données membres
     valid_ = False                      # L'objet est-il correctement initialisé ?
+    name_ = ""                          # Nom complet du dossier
     params_ = None
-    maxPatternSize_ = parameters.PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
-    elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
-    elapseTasks_ = 0                    # Attente entre deux traitements
-    sizes_ = None                       # Taille (#octets et fichiers) du dossier
-
-    files_ = 0  # Nombre de fichiers générés
 
     # Constructeur
-    def __init__(self, options, pMaxSize = 0, elapseFiles = parameters.MIN_ELPASE_FILES, elapseTasks = parameters.MIN_ELAPSE_TASKS):
+    def __init__(self, options, pMaxSize):
         # Initialisation des données membres
-        self.params_ = options
-        self.maxPatternSize_ = pMaxSize if (pMaxSize > parameters.PATTERN_MIN_LEN and pMaxSize < parameters.PATTERN_MAX_LEN) else parameters.PATTERN_MAX_LEN
-        self._valid = False
-        self.elapseFiles_ = elapseFiles
-        self.elapseTasks_ = elapseTasks
+       self._valid = False
+       self.name_ = ""
 
+       self.params_ = options
+       self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
+        
+    
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
-    def init(self):
+    def init(self, name):
+
+        self.name_ = name
 
         # Initialisation du générateur aléatoire
         random.seed()
@@ -52,8 +49,6 @@ class paddingFolder:
         # Ouverture / création du dossier de travail
         if 0 == len(self.params_.folder_):
             return False, "Erreur de paramètres"
-
-        #print("Ouverture du dossier", self.params_.folder_)
 
         # Le dossier existe t'il ?
         if False == os.path.isdir(self.params_.folder_):
@@ -76,26 +71,7 @@ class paddingFolder:
     
     # Nom du dossier courant
     def name(self):
-        return self.params_.folder_
-
-    # Temps d'attente
-    def elapseFiles(self):
-        return self.elapseFiles_
-
-    def elapseTasks(self):
-        return self.elapseTasks_
-
-    def wait(self, duration):
-        time.sleep(duration)
-    
-    # Usage du disque (de la partition sur laquelle le dossier courant est situé)
-    #   Retourne le tuple (total, used, free)
-    def partitionUsage(self):
-        if True == self.valid_:
-            total, used, free = shutil.disk_usage(self.params_.folder_)
-            return total, used, free
-        else:
-            return 0,0,0
+        return self.name_
 
     # Contenu du dossier
     #   retourne le contenu du dossier
@@ -112,7 +88,7 @@ class paddingFolder:
             if 0 == fileSize:
                 # 1 => ko, 2 = Mo
                 unit = 1 + random.randint(1, 1024) % 2
-                fileSize = 2 ** (unit * 10) * random.randint(parameters.FILESIZE_MIN, parameters.FILESIZE_MAX)
+                fileSize = 2 ** (unit * 10) * random.randint(FILESIZE_MIN, FILESIZE_MAX)
 
                 # On remplit (mais on ne déborde pas !)
                 if maxFileSize >0 and fileSize > maxFileSize:
@@ -312,7 +288,7 @@ class paddingFolder:
         # Dossier vidé
         return count, ""
 
-    # Taille du dossier
+    # Taille du dossier ( et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)
     def sizes(self, folder = ""):   
         if False == self.valid_ :
@@ -362,7 +338,7 @@ class paddingFolder:
             self.sizes_ = self.sizes()
         return self.sizes_[1]
         
-    # Representation d'une taille (en octets)
+    # Représentation d'une taille (en octets)
     #   Retourne une chaine de caractères
     def size2String(self, size):
         
@@ -420,6 +396,18 @@ class paddingFolder:
         """
 
     #
+    # Méthodes générales
+    #
+
+    # Le dossier existe-il ?
+    def exists(self, folderName):
+        if not 0 == len(folderName) and os.path.isdir(folderName):
+            return True;
+
+        # Non
+        return False
+
+    #
     # Méthodes internes
     #
 
@@ -428,33 +416,33 @@ class paddingFolder:
     def _newPattern(self):
         
         # Taille du motif
-        patternSize = random.randint(parameters.PATTERN_MIN_LEN, self.maxPatternSize_)
+        patternSize = random.randint(PATTERN_MIN_LEN, self.maxPatternSize_)
         
         # Génération de la chaine
         out = ""
-        maxIndex = len(parameters.PATTERN_BASE_STRING) - 1
+        maxIndex = len(PATTERN_BASE_STRING) - 1
         for _ in range(patternSize):
             # Valeur aléatoire
-            out+=parameters.PATTERN_BASE_STRING[random.randint(0, maxIndex)]
+            out+=PATTERN_BASE_STRING[random.randint(0, maxIndex)]
 
         # Terminé
         return out
 
-    # Génération d'un nom de fichier
+    # Génération d'un nom de fichier (pour le dossier courant)
     #   Retourne un nom unique de fichier (le nom court est retourné)
     def _newFileName(self):
         now = datetime.datetime.now()
 
         name = now.strftime("%Y%m%d-%H%M%S-%f")
-        fullName = os.path.join(self.params_.folder_, name)
+        fullName = os.path.join(self.name_, name)
 
-        # Tant qu'il existe
+        # Tant qu'il existe (avec le même nom)
         count = 0
         while True == self._fileExists(fullName):
             # On génère un nouveau nom
             count+=1
             name = name + "-" + str(count)
-            fullName = os.path.join(self.params_.folder_, name )
+            fullName = os.path.join(self.name_, name )
         
         return name # On retourne le nom court
 
@@ -480,5 +468,4 @@ class paddingFolder:
         
         # oui
         return True
-
 # EOF

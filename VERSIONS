@@ -4,6 +4,11 @@
 ? Multi-partition sous Windows
 ##
 
+Version 0.5.1
+    * 27 jan. 2023
+    + ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé)
+    + ajout de l'objet basicFolder dont héritera paddingFolder
+
 Version 0.4.1
     * 29 dec. 2022
     + 'sharedTools' est incorporé au projet comme sous_dossier

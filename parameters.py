@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.4.1
+#   Version     :   0.5.1
 #
-#   Date        :   29 déc. 2022
+#   Date        :   27 jan. 2023
 #
 
 from sharedTools import cmdLineParser as parser
@@ -16,8 +16,8 @@ from sharedTools import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "0.4.1"
-RELEASE_DATE = "2022-12-29"
+CURRENT_VERSION = "0.5.1"
+RELEASE_DATE = "2023-01-27"
 
 #
 # Valeurs par défaut
@@ -71,11 +71,12 @@ CMD_OPTION_CHAR = "-"                   # Caractère qui précède tjrs un param
 CMD_OPTION_LOGMODE = "log"              # Mode non verbeux (spécifique pour les fichiers de logs) - Par défaut Non
 CMD_OPTION_NOCOLOR = "nc"               # Pas de colorisation des sorties - Par défaut les sorties seront colorisées
 CMD_OPTION_ADJUST = "adjust"            # Effectue uniquement la vérification du dossier de remplissage
-CMD_OPTION_FOLDER = "folder"            # Dossier utilisé pour le remplissage (la partition associée sera saturée)
+CMD_OPTION_FOLDER = "fill"              # Dossier utilisé pour le remplissage (la partition associée sera saturée)
 CMD_OPTION_ITERATE = "i"                # Nombre d'itération à effectuer - Par défaut = 1
 CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
 CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
+CMD_OPTION_DEST_FOLDER = "clean"       # Nettoyage de tous les fichiers et dossiers contenu dans le dossier source
 
 CMD_OPTION_HELP = "help"                # De l'aide !!!
 CMD_OPTION_HELP_MIN = "?"
@@ -180,6 +181,7 @@ class options(object):
         if True == fullUsage:
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_HELP + " ou " + CMD_OPTION_CHAR + CMD_OPTION_HELP_MIN + " ]", formatAttr=[color.textAttribute.DARK]), ": Aide")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Chemin du dossier de remplissage")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_DEST_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Nettoyage du dossier")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[color.textAttribute.DARK]), ": Affichages non colorisés")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[color.textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[color.textAttribute.DARK]), ": Nettoyage du dossier de remplissage")
