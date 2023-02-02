@@ -6,7 +6,7 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.5.1
+#   Version     :   0.5.2
 #
 #   Date        :   27 jan. 2023
 #
@@ -16,7 +16,7 @@ from sharedTools import colorizer as color
 import sys, os
 
 # Version de l'application
-CURRENT_VERSION = "0.5.1"
+CURRENT_VERSION = "0.5.2"
 RELEASE_DATE = "2023-01-27"
 
 #
@@ -76,7 +76,7 @@ CMD_OPTION_ITERATE = "i"                # Nombre d'itération à effectuer - Par
 CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
 CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
-CMD_OPTION_DEST_FOLDER = "clean"       # Nettoyage de tous les fichiers et dossiers contenu dans le dossier source
+CMD_OPTION_DEST_FOLDER = "clean"        # Nettoyage de tous les fichiers et dossiers contenu dans le dossier source
 
 CMD_OPTION_HELP = "help"                # De l'aide !!!
 CMD_OPTION_HELP_MIN = "?"

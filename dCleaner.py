@@ -12,7 +12,7 @@
 #
 #   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
 #
-#   Version     :   0.5.1
+#   Version     :   0.5.2
 #
 #   Date        :   27 jan. 2023
 #
@@ -213,9 +213,10 @@ if '__main__' == __name__:
 
         except ValueError as e:
             print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
+        """
         except :
             print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
-
+        """
     # La fin, la vraie !
     print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 

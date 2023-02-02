@@ -4,7 +4,7 @@
 ? Multi-partition sous Windows
 ##
 
-Version 0.5.1
+Version 0.5.2
     * 27 jan. 2023
     + ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé)
     + ajout de l'objet basicFolder dont héritera paddingFolder

@@ -10,13 +10,14 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.5.1
+#   Version     :   0.5.2
 #
 #   Date        :   27 jan. 2023
 #
 
 import os, random, datetime, math, shutil, time
 from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
+from sharedTools.colorizer import textColor
 
 # Classe basicFolder - un dossier de remplissage ou à vider ...
 #
@@ -26,17 +27,18 @@ class basicFolder:
     valid_ = False                      # L'objet est-il correctement initialisé ?
     name_ = ""                          # Nom complet du dossier
     params_ = None
+    maxPatternSize_ = PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
+    sizes_ = None                       # Taille et # fichiers contenus
 
     # Constructeur
-    def __init__(self, options, pMaxSize):
+    def __init__(self, options, pMaxSize = 0):
         # Initialisation des données membres
        self._valid = False
        self.name_ = ""
-
        self.params_ = options
        self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
+       size_ = None
         
-    
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name):
@@ -46,24 +48,9 @@ class basicFolder:
         # Initialisation du générateur aléatoire
         random.seed()
 
-        # Ouverture / création du dossier de travail
-        if 0 == len(self.params_.folder_):
-            return False, "Erreur de paramètres"
-
         # Le dossier existe t'il ?
         if False == os.path.isdir(self.params_.folder_):
-            if self.params_.verbose_:
-                print("Le dossier '" +  self.params_.folder_ + "' n'existe pas")
-
-            # On essaye de le créer
-            try:
-                os.makedirs(self.params_.folder_)
-
-                if self.params_.verbose_:
-                    print("Dossier crée avec succès")
-
-            except:   
-                return False, "Impossible de créer le dossier '" + self.params_.folder_ + "'"
+            return False, "Le dossier '" +  self.params_.folder_ + "' n'existe pas"
         
         # Ok - pas  de message
         self.valid_ = True
@@ -73,118 +60,20 @@ class basicFolder:
     def name(self):
         return self.name_
 
-    # Contenu du dossier
-    #   retourne le contenu du dossier
-    def content(self):
-        return 0
-
     # Génération d'un fichier
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
     def newFile(self, fileSize = 0, maxFileSize = 0):
-        currentSize = 0
-        if True == self.valid_:
+        return self._pattern2File("", fileSize, maxFileSize)
 
-            # Si la taille est nulle => on choisit aléatoirement
-            if 0 == fileSize:
-                # 1 => ko, 2 = Mo
-                unit = 1 + random.randint(1, 1024) % 2
-                fileSize = 2 ** (unit * 10) * random.randint(FILESIZE_MIN, FILESIZE_MAX)
-
-                # On remplit (mais on ne déborde pas !)
-                if maxFileSize >0 and fileSize > maxFileSize:
-                    fileSize = maxFileSize
-
-            # Un nouveau fichier ...
-            name = self._newFileName()
-
-            # Le motif
-            pattern = self._newPattern()
-            pSize = len(pattern)
-
-            # Taille du buffer
-            buffSize = pSize if pSize < fileSize else fileSize
-
-            try:
-                # Ouverture du fihcier
-                file = open(os.path.join(self.params_.folder_ ,name), 'w')
-            except:
-                return name, 0
-
-            try:
-                # Remplissage du fichier
-                while currentSize < fileSize:
-                    # Ecriture du buffer
-                    file.write(pattern)
-                    currentSize+=buffSize
-
-                    # Le dernier paquet doit-il être tronqué ?
-                    if (currentSize + buffSize) > fileSize:
-                        buffSize = fileSize - currentSize
-                        pattern = pattern[:buffSize]
-
-                # Terminé
-                file.close()
-            except:
-                file.close()
-                return name, 0, 0
-        else:
-            name = ""
-
-        return name, currentSize, pSize
-
-    # Remplissage avec un taille totale à atteindre ...
-    #   Retourne un booléen indiquant si l'opération a pu être effectuée
-    def newFiles(self, expectedFillSize):
-        if True == self.valid_ and expectedFillSize > 0:
-            if self.params_.verbose_ :
-                print("Demande de remplissage de", self.size2String(expectedFillSize))
-
-            # Rien n'a été fait !!!
-            still = expectedFillSize
-            totalSize = 0
-            files = 0
-            cont = True
-            
-            while totalSize < expectedFillSize and cont:
-                res = self.newFile(maxFileSize = still)
-
-                if 0 == res[1]:
-                    # Erreur ...
-                    cont = False
-                else:
-                    if self.params_.verbose_:
-                        print("  + " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(still) + " restants")
-                    
-                    totalSize+=res[1] # Ajout de la taille du fichier
-                    still-=res[1]
-                    files+=1
-
-                    # On attend ...
-                    time.sleep(self.elapseFiles_)
-
-            # Terminé
-            print("Remplissage de", self.size2String(totalSize), " -", str(files),"fichiers crées")
-            return True
-        
-        # Erreur
-        return False
-
+    # Remplissage et renommage d'un fichier existant
+    #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
+    def fillFile(self, name):
+        return self._pattern2File(name)
+    
     # Suppression d'un fichier (le nom doit être complet)
     #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
     def deleteFile(self, name = ""):
         if True == self.valid_:
-            # Pas de nom ?
-            if 0 == len(name):
-                # On supprime le premier qui vient ...
-                name = ""
-                for file in os.listdir(self.params_.folder_):
-                    fName = os.path.join(self.params_.folder_, file)
-                    
-                    # Un fichier ?
-                    if self._fileExists(fName):
-                        name = fName
-                        break
-
             # Le fichier doit exister
             if self._fileExists(name):
                 try:
@@ -202,93 +91,54 @@ class basicFolder:
         # Rien n'a été fait
         return "", 0
 
-    # Suppression d'un ou plusieurs fichiers sur un critère de nombre ou de taille à libérer
-    #   retourne True lorsque l'opération s'est déroulée correctement
-    def deleteFiles(self, count = 0, size = 0):
-        
-        tSize = 0
-        tFiles = 0
-        
-        if True == self.valid_:
-            # Il y a quelques choses à faire ....
-            if not 0 == count or not 0 == size:
-                
-                if self.params_.verbose_:
-                    if not 0 == size :
-                        print("Demande de suppression à hauteur de", self.size2String(size))
-                    else:
-                        print("Demande de suppression de " + str(count) + " fichiers")
-
-                
-                # Liste des fichiers du dossier
-                files = [ f for f in os.listdir(self.params_.folder_) if os.path.isfile(os.path.join(self.params_.folder_,f)) ]
-
-                # On mélange la liste
-                random.shuffle(files)
-                
-                # Suppression des fichiers
-                try:
-                    # Les fichiers "fils"
-                    for file in files:
-                        fullName = os.path.join(self.params_.folder_, file) 
-                        res = self.deleteFile(fullName)
-
-                        # Suppression effectuée ?
-                        if res[1] > 0:
-                            tFiles+=1       # Un fichier de + (de supprimé ...)
-                            tSize+=res[1]   # La taille en octets
-
-                            if self.params_.verbose_:
-                                if 0 == size:
-                                    print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
-                                else:
-                                    print("  - " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(size - tSize) + " restants")
-
-                            # Quota atteint
-                            if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
-                                break
-
-                        # On attend ...
-                        time.sleep(self.elapseFiles_)
-
-                except :
-                    # Une erreur => on arrête de suite ...
-                    return False
-
-        # Fin des traitements
-        print("Suppression de", self.size2String(tSize), " -", str(tFiles),"fichiers supprimés")
-        return True
-
     # Vidage du dossier
+    #
+    #       folder : nom complet du dossier à vider ("" => dossier courant)
+    #       recurse : Vidage recursive des sous-dossiers
+    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #   
     #   Retourne Le tuple (# supprimé, message d'erreur / "")
     #
-    def empty(self):
+    def empty(self, folder = "", recurse = False, remove = -1):
         if False == self.valid_:
             return 0, "Objet non initialisé"
+
+         # Quel dossier vider ?
+        if 0 == len(folder):
+            folder = self.params_.folder_
 
         count = 0
 
         # Vidage du dossier
         try:
             # Analyse récursive du dossier
-            for (curPath, dirs, files) in os.walk(self.params_.folder_):
-                if curPath == self.params_.folder_:
-                    dirs[:]=[] # On arrête de parser
-            
-                # Les fichiers "fils"
-                for file in files:
-                    fullName = os.path.join(curPath, file) 
-                    count+=1
+            for entry in os.scandir(folder):
+                if entry.is_file():
+                    # Un fichier
+                    self.deleteFile(entry.name)
+                    count += 1
+                elif entry.is_dir():
+                    if recurse:
+                        # Un sous dossier => appel récursif
+                        subCount, message = self.empty(entry.name, True, remove - 1 if remove > 0 else remove)
+                        
+                        # Une erreur ?
+                        if len(message):
+                            return 0, message
 
-                    self.deleteFile(fullName)
+                        count+=subCount
+            
+            # Suppression du dossier courant?
+            if 0 == remove:
+                os.rmdir(folder)
         except:
             return 0, "Erreur lors du vidage de "+self.params_.folder_
+        
         
         # Dossier vidé
         return count, ""
 
-    # Taille du dossier ( et de tout ce qu'il contient)
+    # Taille du dossier (et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)
     def sizes(self, folder = ""):   
         if False == self.valid_ :
@@ -401,11 +251,11 @@ class basicFolder:
 
     # Le dossier existe-il ?
     def exists(self, folderName):
-        if not 0 == len(folderName) and os.path.isdir(folderName):
-            return True;
+        if 0 == len(folderName):
+            folderName = self.name_
 
-        # Non
-        return False
+        # On vérifie ...
+        return os.path.isdir(folderName)
 
     #
     # Méthodes internes
@@ -468,4 +318,77 @@ class basicFolder:
         
         # oui
         return True
+
+    # Rempliisage d'un fichier
+    #    retourne le tuple (nom du fichier, taille en octets, taille du motif aléatoire)
+    def _pattern2File(self, fname, fileSize = 0, maxFileSize = 0):
+        currentSize = 0
+        if True == self.valid_:
+
+            # Creation ?
+            if 0 == len(fname):
+                # Si la taille est nulle => on choisit aléatoirement
+                if 0 == fileSize:
+                    # 1 => ko, 2 = Mo
+                    unit = 1 + random.randint(1, 1024) % 2
+                    fileSize = 2 ** (unit * 10) * random.randint(FILESIZE_MIN, FILESIZE_MAX)
+
+                    # On remplit (mais on ne déborde pas !)
+                    if maxFileSize >0 and fileSize > maxFileSize:
+                        fileSize = maxFileSize
+            else:
+                # Remplissage
+
+                if False == self._fileExists(fname):
+                    # Le fichier n'existe pas
+                    return fname, 0, 0
+
+                # On conserve la taille
+                fileSize = os.path.getsize(fname)
+
+            # Génération du nom
+            name = self._newFileName()
+
+            # Si le fichier existe, je le renomme
+            if not 0 == len(fname):
+                try:
+                    os.rename(fname, name)
+                except:
+                    # Impossible de renommer le fichier
+                    return fname, 0, 0
+
+            # Le motif
+            pattern = self._newPattern()
+            pSize = len(pattern)
+
+            # Taille du buffer
+            buffSize = pSize if pSize < fileSize else fileSize
+
+            try:
+                # Ouverture / création du fihcier
+                file = open(os.path.join(self.params_.folder_ ,name), 'w')
+            except:
+                return name, 0
+
+            try:
+                # Remplissage du fichier
+                while currentSize < fileSize:
+                    # Ecriture du buffer
+                    file.write(pattern)
+                    currentSize+=buffSize
+
+                    # Le dernier paquet doit-il être tronqué ?
+                    if (currentSize + buffSize) > fileSize:
+                        buffSize = fileSize - currentSize
+                        pattern = pattern[:buffSize]
+
+                # Terminé
+                file.close()
+            except:
+                file.close()
+                return name, 0, 0
+        else:
+            name = ""
+
+        return name, currentSize, pSize
 # EOF
