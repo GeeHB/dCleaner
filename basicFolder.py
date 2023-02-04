@@ -12,7 +12,7 @@
 #
 #   Version     :   0.5.2
 #
-#   Date        :   27 jan. 2023
+#   Date        :   4 fev. 2023
 #
 
 import os, random, datetime, math
@@ -73,6 +73,7 @@ class basicFolder:
     # Suppression d'un fichier (le nom doit être complet)
     #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
     def deleteFile(self, name, clearContent = True):
+        size = 0
         if True == self.valid_:
             # Le fichier doit exister
             if self._fileExists(name):
@@ -81,26 +82,28 @@ class basicFolder:
                     # Replacement du contenu
                     if clearContent:
                         # Nouveau nom
-                        name = self._rename(name)
+                        name = self._renameFile(name)
 
-                        # Nouveau contenu (on itère l'effacement)
-                        for count in range(self.options_.iterate_):
-                            self._pattern2File(name)
+                        if len(name) > 0:
+                            # Nouveau contenu (on itère l'effacement)
+                            for count in range(self.params_.iterate_):
+                                self._pattern2File(name)
                     
                     # Effacement
-                    size = os.path.getsize(name)
-                    os.remove(name)
+                    if len(name)>0:
+                        size = os.path.getsize(name)
+                        os.remove(name)
                     
-                    # On retourne le nom court
-                    values = os.path.split(name)
-                    return values[1], size
+                        # On retourne le nom court
+                        values = os.path.split(name)
+                        return values[1], size
                 except:
                     if self.params_.verbose_:
                         print(self.params_.color_.colored("Erreur lors de la tentative de suppression de " + name, textColor.ROUGE))
                     pass 
 
         # Rien n'a été fait
-        return "", 0
+        return "", size
 
     # Vidage du dossier
     #
@@ -116,7 +119,7 @@ class basicFolder:
 
          # Quel dossier vider ?
         if 0 == len(folder):
-            folder = self.params_.folder_
+            folder = self.name_
 
         count = 0
 
@@ -126,12 +129,14 @@ class basicFolder:
             for entry in os.scandir(folder):
                 if entry.is_file():
                     # Un fichier
-                    self.deleteFile(entry.name)
+                    fullName = os.path.join(folder, entry.name)
+                    res = self.deleteFile(fullName)
                     count += 1
                 elif entry.is_dir():
                     if recurse:
                         # Un sous dossier => appel récursif
-                        subCount, message = self.empty(entry.name, True, remove - 1 if remove > 0 else remove)
+                        fullName = os.path.join(folder, entry.name)
+                        subCount, message = self.empty(fullName, True, remove - 1 if remove > 0 else remove)
                         
                         # Une erreur ?
                         if len(message):
@@ -308,10 +313,14 @@ class basicFolder:
         return name # On retourne le nom court
 
     ## Renomage d'un fichier
-    #   Retourne le "nouveau" nom
-    def _rename(self, file):
+    #   Retourne le "nouveau" nom ou "" en cas d'erreur
+    def _renameFile(self, file):
         if self._fileExists(file):
-            name = self._newFileName()
+            
+
+            # Nouveau nom "complet"
+            res = os.path.split(file)
+            name = os.path.join(res[0], self._newFileName())
 
             try:
                 os.rename(file, name)
@@ -364,26 +373,20 @@ class basicFolder:
                     # On remplit (mais on ne déborde pas !)
                     if maxFileSize >0 and fileSize > maxFileSize:
                         fileSize = maxFileSize
+
+                    # Génération du nom
+                    name = self._newFileName()
+                    os.path.join(self.params_.folder_, name)
+
             else:
                 # Remplissage
-
                 if False == self._fileExists(fname):
                     # Le fichier n'existe pas
                     return fname, 0, 0
 
                 # On conserve la taille
                 fileSize = os.path.getsize(fname)
-
-            # Génération du nom
-            name = self._newFileName()
-
-            # Si le fichier existe, je le renomme
-            if not 0 == len(fname):
-                try:
-                    os.rename(fname, name)
-                except:
-                    # Impossible de renommer le fichier
-                    return fname, 0, 0
+                name = fname
 
             # Le motif
             pattern = self._newPattern()
@@ -394,7 +397,7 @@ class basicFolder:
 
             try:
                 # Ouverture / création du fihcier
-                file = open(os.path.join(self.params_.folder_ ,name), 'w')
+                file = open(fname, 'w')
             except:
                 return name, 0
 

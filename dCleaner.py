@@ -14,7 +14,7 @@
 #
 #   Version     :   0.5.2
 #
-#   Date        :   27 jan. 2023
+#   Date        :   4 fev. 2023
 #
 
 import parameters
@@ -129,7 +129,7 @@ class dCleaner:
                 raise ValueError(message)
             
             # Nettoyage ...
-            return folder.empty()
+            return folder.empty(recurse = True, remove = self.options_.cleanDepth_)
     
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
