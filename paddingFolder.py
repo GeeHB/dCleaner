@@ -128,7 +128,7 @@ class paddingFolder(basicFolder.basicFolder):
 
     # Suppression d'un fichier (le nom doit être complet)
     #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
-    def deleteFile(self, name = ""):
+    def deleteFile(self, name):
         if True == self.valid_:
             # Pas de nom ?
             if 0 == len(name):
@@ -142,7 +142,7 @@ class paddingFolder(basicFolder.basicFolder):
                         name = fName
                         break
 
-            return super().deleteFile(name)
+            return super().deleteFile(name, False)
 
         # Rien n'a été fait
         return "", 0

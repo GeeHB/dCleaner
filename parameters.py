@@ -72,11 +72,16 @@ CMD_OPTION_LOGMODE = "log"              # Mode non verbeux (spécifique pour les
 CMD_OPTION_NOCOLOR = "nc"               # Pas de colorisation des sorties - Par défaut les sorties seront colorisées
 CMD_OPTION_ADJUST = "adjust"            # Effectue uniquement la vérification du dossier de remplissage
 CMD_OPTION_FOLDER = "fill"              # Dossier utilisé pour le remplissage (la partition associée sera saturée)
+
+CMD_OPTION_NOPADDING = "np"             # Pas de remplissage (juste nettoyer ou effacer)
+
 CMD_OPTION_ITERATE = "i"                # Nombre d'itération à effectuer - Par défaut = 1
 CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
 CMD_OPTION_PARTITION_PADDING_RATE = "padding" # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 CMD_OPTION_CLEAN = "clear"              # Nettoyage du dossier de padding
+
 CMD_OPTION_DEST_FOLDER = "clean"        # Nettoyage de tous les fichiers et dossiers contenu dans le dossier source
+CMD_OPTION_DEPTH = "depth"              # Profondeur du nettoyage (et de l'effacement des dossiers)
 
 CMD_OPTION_HELP = "help"                # De l'aide !!!
 CMD_OPTION_HELP_MIN = "?"
@@ -93,11 +98,19 @@ class options(object):
         # Valeurs par défaut
         self.color_ = None      # Outil de colorisation
         self.verbose_ = True    # Par défaut l'application trace tout ...
+        
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
+        
+        self.noPadding_ = False
+        
         self.iterate_ = DEF_ITERATE_COUNT
+        
         self.fillRate_ = DEF_PARTITION_FILL_RATE
         self.renewRate_ = DEF_PADDING_RATE
         self.clear_ = False
+        
+        self.clean_ = None      # Nettoyage d'un dossier
+        self.cleanDepth_ = -1   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
         self.folder_ = os.path.join(DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER, DEF_FOLDER_NAME)   
@@ -119,10 +132,14 @@ class options(object):
             self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
             
             # Colorisation des affichages ?
+            #
             noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
-            
+
             # Création de l'objet pour la gestion de la colorisation
             self.color_ = color.colorizer(False == noColor)
+
+            # Pas de padding ?
+            self.noPadding_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOPADDING)) if self.verbose_ else True
 
             # Nettoyage ?
             self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
@@ -136,7 +153,18 @@ class options(object):
             if None != res and None != res[0]:
                 self.folder_ = res[0]
             self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
-            
+
+             # Nettoyage d'un (ou plusieurs) dossier(s)
+            res = parameters.getOptionValue(CMD_OPTION_DEST_FOLDER)
+            if None != res and None != res[0]:
+                self.clean_ = res[0]
+                self.clean_ = os.path.expanduser(self.clean_)   # Remplacer le car. '~' si présent
+
+           # Profondeur
+            res = parameters.getOptionValueNum(CMD_OPTION_DEPTH, 0, 10)
+            if None != res[0]:
+                self.cleanDepth_ = res[0]
+
             if False == self.clear_:
                 # Nombre d'itérations
                 res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
@@ -159,10 +187,11 @@ class options(object):
         b = parameters.options()         # Options non traitées
         c = parameters.usefullItems()    # Elements restants (non traités) 
         """
-        if True == showUsage or parameters.usefullItems() > 0 :
+        # Une erreur, trop de paramètres ou rien à faire ...
+        if True == showUsage or parameters.usefullItems() > 0 or (self.noPadding_ and self.clear_ == False and self.clean_ is None):
             self.usage()
             return False
-        
+
         # Ok
         return True
 
@@ -182,7 +211,9 @@ class options(object):
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_HELP + " ou " + CMD_OPTION_CHAR + CMD_OPTION_HELP_MIN + " ]", formatAttr=[color.textAttribute.DARK]), ": Aide")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Chemin du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_DEST_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Nettoyage du dossier")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_DEPTH + " {n} ]", formatAttr=[color.textAttribute.DARK]), ": Suppression des dossiers en profondeur (à partir de)")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[color.textAttribute.DARK]), ": Affichages non colorisés")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOPADDING + " ]", formatAttr=[color.textAttribute.DARK]), ": Pas de remplissage de la partition")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_LOGMODE + " ]", formatAttr=[color.textAttribute.DARK]), ": Mode non verbeux, pour les fichiers de logs")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_CLEAN + " ]", formatAttr=[color.textAttribute.DARK]), ": Nettoyage du dossier de remplissage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ADJUST + " ]", formatAttr=[color.textAttribute.DARK]), ": Ajustement du dossier de remplissage")

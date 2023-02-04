@@ -15,7 +15,7 @@
 #   Date        :   27 jan. 2023
 #
 
-import os, random, datetime, math, shutil, time
+import os, random, datetime, math
 from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 from sharedTools.colorizer import textColor
 
@@ -49,8 +49,8 @@ class basicFolder:
         random.seed()
 
         # Le dossier existe t'il ?
-        if False == os.path.isdir(self.params_.folder_):
-            return False, "Le dossier '" +  self.params_.folder_ + "' n'existe pas"
+        if False == os.path.isdir(self.name_):
+            return False, "Le dossier '" +  self.name_ + "' n'existe pas"
         
         # Ok - pas  de message
         self.valid_ = True
@@ -72,11 +72,22 @@ class basicFolder:
     
     # Suppression d'un fichier (le nom doit être complet)
     #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
-    def deleteFile(self, name = ""):
+    def deleteFile(self, name, clearContent = True):
         if True == self.valid_:
             # Le fichier doit exister
             if self._fileExists(name):
                 try:
+                    
+                    # Replacement du contenu
+                    if clearContent:
+                        # Nouveau nom
+                        name = self._rename(name)
+
+                        # Nouveau contenu (on itère l'effacement)
+                        for count in range(self.options_.iterate_):
+                            self._pattern2File(name)
+                    
+                    # Effacement
                     size = os.path.getsize(name)
                     os.remove(name)
                     
@@ -295,6 +306,23 @@ class basicFolder:
             fullName = os.path.join(self.name_, name )
         
         return name # On retourne le nom court
+
+    ## Renomage d'un fichier
+    #   Retourne le "nouveau" nom
+    def _rename(self, file):
+        if self._fileExists(file):
+            name = self._newFileName()
+
+            try:
+                os.rename(file, name)
+            except:
+                # une erreur
+                return file
+
+            return name
+
+        # sinon on retourne le nom de base
+        return file
 
     # Le fichier existe t'il ?
     def _fileExists(self, fileName):

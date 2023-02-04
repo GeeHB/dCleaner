@@ -20,6 +20,7 @@
 import parameters
 from os import path
 from sharedTools import cmdLineParser as parser
+from basicFolder import basicFolder
 from paddingFolder import paddingFolder
 from sharedTools.colorizer import textAttribute, textColor
 
@@ -61,41 +62,74 @@ class dCleaner:
     
         if self.options_.verbose_:
             out = "Paramètres : " 
-            out += "\n\t- Mode : " + self.options_.color_.colored("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"), formatAttr=[textAttribute.GRAS])
+            
+            txt = ""
+            if self.options_.clear_:
+                txt = "libération"
+            else: 
+                if False == self.options_.noPadding_:
+                    txt = "ajustement" if self.options_.adjust_ else "remplissage / nettoyage"
+            
+            if self.options_.clean_ is not None:
+                if len(txt) > 0 : 
+                    txt = txt + " &"
+                txt = txt + " vidage de dossier"
+            out += "\n\t- Mode : " + self.options_.color_.colored(txt, formatAttr=[textAttribute.GRAS])
+            
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
+            out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
             
             if False == self.options_.adjust_ :
                 out += "\n\t- Itération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
             
-            out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
-            out += "\n\t- Attente entre 2 traitements : " + str(self.paddingFolder_.elapseTasks()) + "s"
-
             out += "\n\nPartition : "
             out += "\n\t- Taille : " + self.paddingFolder_.size2String(res[0])
             out += "\n\t- Remplie à " + self.options_.color_.colored(str(round(res[1] / res[0] * 100 , 2)) + "%", formatAttr=[textAttribute.GRAS]) + " - " + self.paddingFolder_.size2String(res[1])
             
-            out += "\n\nDossier : " 
-            out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Contenu : " + self.paddingFolder_.size2String(self.paddingFolder_.size()) + "\n"
+            if False == self.options_.noPadding_:
+                out += "\n\nRemplissage : " 
+                out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+                out += "\n\t- Contenu : " + self.paddingFolder_.size2String(self.paddingFolder_.size()) + "\n"
+
+            if self.options_.clean_ is not None:
+                out += "\n\nVider : " 
+                out += "\n\t- Dossier : " + self.options_.color_.colored(self.options_.clean_, formatAttr=[textAttribute.GRAS])
+                out += "\n\t- Profondeur : " + str(self.options_.cleanDepth_) + "\n"
         else :
             out = "Partition : " + self.paddingFolder_.size2String(res[0]) +  " - remplie à " + str(round(res[1] / res[0] * 100 ,0)) + "%"
-            out += "\nDossier : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
             out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
+            
+            if self.options_.clean_ is not None:
+                out += "\nVider : " + self.options_.color_.colored(self.options_.clean_ + " - Profondeur : " + str(self.options_.cleanDepth_), formatAttr=[textAttribute.GRAS])
             
             if False == self.options_.adjust_ :
                 out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
             
         return out
 
-    # Nettoyage (vidage) du dossier de remplissage / 'padding'
+    # Nettoyage (vidage) d'un dossier (dossier de remplissage / 'padding' si non précisé)
     #   Retourne Le tuple (# supprimé, message d'erreur / "")
     #
-    def clearFolder(self):
-        #return self.paddingFolder_.deleteFiles(count = self.paddingFolder_.files())
-        return self.paddingFolder_.empty()
+    def clearFolder(self, name = ""):
+        if 0 == len(name):
+            #return self.paddingFolder_.deleteFiles(count = self.paddingFolder_.files())
+            return self.paddingFolder_.empty()
+        else:
+            # Vidage d'un dossier
+            folder = basicFolder(self.options_)
+
+            done, message = folder.init(self.options_.clean_)
+            if False == done:
+                # Erreur d'initialisation du dossier
+                raise ValueError(message)
+            
+            # Nettoyage ...
+            return folder.empty()
     
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
@@ -175,10 +209,13 @@ class dCleaner:
 #
 if '__main__' == __name__:
     
+    done = False
+
     # Ma ligne de commandes
     params = parameters.options()
     if True == params.parse():
         try:    
+            done = True
             params.usage(False)
 
             cleaner = dCleaner(params)
@@ -193,23 +230,29 @@ if '__main__' == __name__:
                     if params.verbose_:
                         print(str(res[0]) + " fichier(s) supprimé(s)")
             else:
-                print("Vérification du dossier de 'padding'")
-                if False == cleaner.fillPartition():
-                    # Il faut plutôt libérer de la place
-                    cleaner.freePartition()
+                # Remplissage de la partition
+                if False == params.noPadding_:
+                    print("Vérification du dossier de 'padding'")
+                    if False == cleaner.fillPartition():
+                        # Il faut plutôt libérer de la place
+                        cleaner.freePartition()
 
-                # doit-on maintenant "salir" le disque ?
-                if False == params.adjust_:
-                    
-                    for index in range(params.iterate_):
-                        if index > 0:
-                            # On patiente un peu ...
-                            if params.verbose_:
-                                print("On attend un peu...")
-                            cleaner.paddingFolder_.wait(cleaner.paddingFolder_.elapseTasks())
+                    # doit-on maintenant "salir" le disque ?
+                    if False == params.adjust_:
+                        
+                        for index in range(params.iterate_):
+                            if index > 0:
+                                # On patiente un peu ...
+                                if params.verbose_:
+                                    print("On attend un peu...")
+                                cleaner.paddingFolder_.wait(cleaner.paddingFolder_.elapseTasks())
 
-                        print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
-                        cleaner.cleanPartition()
+                            print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
+                            cleaner.cleanPartition()
+
+                # Nettoyer un ou plusieurs dossiers ?
+                if params.clean_ is not None:
+                    cleaner.clearFolder(params.clean_)
 
         except ValueError as e:
             print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))
@@ -218,6 +261,7 @@ if '__main__' == __name__:
             print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
         """
     # La fin, la vraie !
-    print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
+    if done:
+        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
 
 # EOF

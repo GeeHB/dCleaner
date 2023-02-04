@@ -1,13 +1,16 @@
     
 ## TODO ##
 ? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
+? clean : plusieurs dossiers
+? clean : <recycle> => vidage / nettoyage de la poubelle
 ? Multi-partition sous Windows
 ##
 
 Version 0.5.2
     * 27 jan. 2023
     + ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé)
-    + ajout de l'objet basicFolder dont héritera paddingFolder
+        + ajout de l'objet basicFolder dont héritera paddingFolder
+    + ajout de l'option -np : No Padding - Pas de "salissage" de la partition (par défaut False ...)
 
 Version 0.4.1
     * 29 dec. 2022
