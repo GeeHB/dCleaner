@@ -7,14 +7,14 @@
 ##
 
 Version 0.5.2
-    * 4 fev. 2023
+    * 27 jan. 2023
     + ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé)
         + ajout de l'objet basicFolder dont héritera paddingFolder
     + ajout de l'option -np : No Padding - Pas de "salissage" de la partition (par défaut False ...)
 
 Version 0.4.1
     * 29 dec. 2022
-    + 'sharedTools' est incorporé au projet comme sous_dossier
+    + 'sharedTools' est incorporé au projet comme sous-dossier
     - corrections mineures
 
 Version 0.3.9

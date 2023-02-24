@@ -14,7 +14,7 @@
 #
 #   Version     :   0.5.2
 #
-#   Date        :   4 fev. 2023
+#   Date        :   27 jan. 2023
 #
 
 import parameters
@@ -123,7 +123,7 @@ class dCleaner:
             # Vidage d'un dossier
             folder = basicFolder(self.options_)
 
-            done, message = folder.init(self.options_.clean_)
+            done, message = folder.init(name)
             if False == done:
                 # Erreur d'initialisation du dossier
                 raise ValueError(message)
@@ -251,8 +251,9 @@ if '__main__' == __name__:
                             cleaner.cleanPartition()
 
                 # Nettoyer un ou plusieurs dossiers ?
-                if params.clean_ is not None:
-                    cleaner.clearFolder(params.clean_)
+                if len(params.clean_) > 0:
+                    for folderName in params.clean_:
+                        cleaner.clearFolder(folderName)
 
         except ValueError as e:
             print(params.color_.colored("Erreur de paramètre(s) : " + str(e), textColor.ROUGE))

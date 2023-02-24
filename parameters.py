@@ -8,12 +8,12 @@
 #
 #   Version     :   0.5.2
 #
-#   Date        :   4 fev. 2023
+#   Date        :   27 jan. 2023
 #
 
 from sharedTools import cmdLineParser as parser
 from sharedTools import colorizer as color
-import sys, os
+import sys, os, platform
 
 # Version de l'application
 CURRENT_VERSION = "0.5.2"
@@ -63,6 +63,11 @@ FILESIZE_MAX = 1024
 MIN_ELPASE_FILES = 0.1      # Entre la gestion de deux fichiers
 MIN_ELAPSE_TASKS = 90       # Entre 2 tâches
 
+# Dossiers à nettoyer
+#
+CLEANFOLDERS_SEP = ";"              # Séparateur de liste
+CLEANFOLDERS_TRASH = "$$trash$$"    # La poubelle de l'utilisateur
+
 # Commandes reconnues
 #
 
@@ -109,7 +114,7 @@ class options(object):
         self.renewRate_ = DEF_PADDING_RATE
         self.clear_ = False
         
-        self.clean_ = None      # Nettoyage d'un dossier
+        self.clean_ = []        # Nettoyage d'un ou plusieurs dossiers
         self.cleanDepth_ = -1   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
@@ -157,8 +162,11 @@ class options(object):
              # Nettoyage d'un (ou plusieurs) dossier(s)
             res = parameters.getOptionValue(CMD_OPTION_DEST_FOLDER)
             if None != res and None != res[0]:
+                """
                 self.clean_ = res[0]
                 self.clean_ = os.path.expanduser(self.clean_)   # Remplacer le car. '~' si présent
+                """
+                self._handleCleanFolders(res[0])
 
            # Profondeur
             res = parameters.getOptionValueNum(CMD_OPTION_DEPTH, 0, 10)
@@ -220,5 +228,46 @@ class options(object):
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[color.textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {%} ]",formatAttr=[color.textAttribute.DARK]),": Taux de remplissage de la partition")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[color.textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
+    
+    #
+    # Méthodes à usage interne
+    #
+
+    # Liste des dossiers à nettoyer
+    def _handleCleanFolders(self, fList):
+        # Liste des dossiers
+        folders = fList.split(CLEANFOLDERS_SEP)
+
+        destFolders = []
+        myTrashFolder = self._trashFolder()
+
+        # Remplacement des valeurs
+        for folder in folders:
+            destFolders.append(folder.repalce(CLEANFOLDERS_TRASH, myTrashFolder))
+
+        # Les valeurs doivent être uniques ...
+        uniqueVals = set(destFolders)
+        for val in uniqueVals:
+            self.clean_.append(os.path.expanduser(val))   # Remplacer le car. '~' si présent)
+    
+    # Dossier 'poubelle' de l'agent
+    def _trashFolder(self):
+        myPlatform = platform.system()
+        if  myPlatform == "Windows":
+            folder = "mon-dossier-windows"
+        else :
+            if myPlatform == "Darwin":
+                folder = "mon-dossier-mac"
+            else:
+                if myPlatform == "Java":
+                    folder = "mon-dossier-java"
+                else:
+                    info = platform.freedesktop_os_release()
+                    if info.ID == "fedora":
+                        # ouf
+                        folder = "~/.local/share/Trash"
+                    else:
+                        folder = "mon-dossier-linux"
+        return folder
 
 # EOF
