@@ -1,10 +1,12 @@
     
 ## TODO ##
-? Vidage de la corbeille avec renomage des fcihiers (/home/your_username/.local/share/Trash)
-? clean : plusieurs dossiers
-? clean : <recycle> => vidage / nettoyage de la poubelle
 ? Multi-partition sous Windows
 ##
+
+Version 0.5.3
+    * 28 fev. 2023
+    + l'option "-clean" accepte plusieurs dossiers séparés par ";"
+        + %trash%  est remplacé par la corbeille de l'utilisateur appellant 
 
 Version 0.5.2
     * 27 jan. 2023

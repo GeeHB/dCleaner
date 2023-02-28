@@ -16,7 +16,7 @@ from sharedTools import colorizer as color
 import sys, os, platform
 
 # Version de l'application
-CURRENT_VERSION = "0.5.2"
+CURRENT_VERSION = "0.5.3"
 RELEASE_DATE = "2023-01-27"
 
 #
@@ -66,7 +66,7 @@ MIN_ELAPSE_TASKS = 90       # Entre 2 tâches
 # Dossiers à nettoyer
 #
 CLEANFOLDERS_SEP = ";"              # Séparateur de liste
-CLEANFOLDERS_TRASH = "$$trash$$"    # La poubelle de l'utilisateur
+CLEANFOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
 
 # Commandes reconnues
 #
@@ -218,7 +218,7 @@ class options(object):
         if True == fullUsage:
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_HELP + " ou " + CMD_OPTION_CHAR + CMD_OPTION_HELP_MIN + " ]", formatAttr=[color.textAttribute.DARK]), ": Aide")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Chemin du dossier de remplissage")
-            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_DEST_FOLDER + " {dossier} ]", formatAttr=[color.textAttribute.DARK]), ": Nettoyage du dossier")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_DEST_FOLDER + " {dossiers} ]", formatAttr=[color.textAttribute.DARK]), ": Nettoyage du ou des dossiers")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_DEPTH + " {n} ]", formatAttr=[color.textAttribute.DARK]), ": Suppression des dossiers en profondeur (à partir de)")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOCOLOR + " ]", formatAttr=[color.textAttribute.DARK]), ": Affichages non colorisés")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_NOPADDING + " ]", formatAttr=[color.textAttribute.DARK]), ": Pas de remplissage de la partition")
@@ -243,7 +243,7 @@ class options(object):
 
         # Remplacement des valeurs
         for folder in folders:
-            destFolders.append(folder.repalce(CLEANFOLDERS_TRASH, myTrashFolder))
+            destFolders.append(folder.replace(CLEANFOLDERS_TRASH, myTrashFolder))
 
         # Les valeurs doivent être uniques ...
         uniqueVals = set(destFolders)
@@ -263,7 +263,7 @@ class options(object):
                     folder = "mon-dossier-java"
                 else:
                     info = platform.freedesktop_os_release()
-                    if info.ID == "fedora":
+                    if info["ID"] == "fedora":
                         # ouf
                         folder = "~/.local/share/Trash"
                     else:

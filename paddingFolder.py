@@ -12,7 +12,7 @@
 #
 #   Version     :   0.5.2
 #
-#   Date        :   4 fev. 2023
+#   Date        :   27 jan. 2023
 #
 import basicFolder
 import os, random, shutil, time

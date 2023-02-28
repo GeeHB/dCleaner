@@ -70,7 +70,7 @@ class dCleaner:
                 if False == self.options_.noPadding_:
                     txt = "ajustement" if self.options_.adjust_ else "remplissage / nettoyage"
             
-            if self.options_.clean_ is not None:
+            if len(self.options_.clean_) > 0:
                 if len(txt) > 0 : 
                     txt = txt + " &"
                 txt = txt + " vidage de dossier"
@@ -93,9 +93,11 @@ class dCleaner:
                 out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
                 out += "\n\t- Contenu : " + self.paddingFolder_.size2String(self.paddingFolder_.size()) + "\n"
 
-            if self.options_.clean_ is not None:
+            if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : " 
-                out += "\n\t- Dossier : " + self.options_.color_.colored(self.options_.clean_, formatAttr=[textAttribute.GRAS])
+                out += "\n\t - " + str(len(self.options_.clean_))  + " dossiers(s) à vider :"
+                for dossier in self.options_.clean_:
+                    out += "\n\t\t- " + self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])
                 out += "\n\t- Profondeur : " + str(self.options_.cleanDepth_) + "\n"
         else :
             out = "Partition : " + self.paddingFolder_.size2String(res[0]) +  " - remplie à " + str(round(res[1] / res[0] * 100 ,0)) + "%"
