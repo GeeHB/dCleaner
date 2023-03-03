@@ -10,9 +10,9 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.5.2
+#   Version     :   0.5.3
 #
-#   Date        :   27 jan. 2023
+#   Date        :   3 mars 2023
 #
 import os, random, shutil, time
 from alive_progress import alive_bar, config_handler
@@ -264,23 +264,37 @@ class paddingFolder(basicFolder.basicFolder):
         if False == self.valid_:
             return 0, "Objet non initialisé"
 
-        count = 0
+        
+        # Nombre de fichiers dans le dossier
+        barMax = 0
+        for path in os.listdir(self.params_.folder_):
+            if os.path.isfile(os.path.join(self.params_.folder_, path)):
+                barMax += 1
+        
+        if 0 == barMax:
+            # Rien à faire ....
+            return 0
+
+        count = 0   # Ce que j'ai effectivement supprimé ...
 
         # Vidage du dossier
-        try:
-            # Analyse récursive du dossier
-            for (curPath, dirs, files) in os.walk(self.params_.folder_):
-                if curPath == self.params_.folder_:
-                    dirs[:]=[] # On arrête de parser
-            
-                # Les fichiers "fils"
-                for file in files:
-                    fullName = os.path.join(curPath, file) 
-                    count+=1
+        with alive_bar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+            try:
+                # Analyse récursive du dossier
+                for (curPath, dirs, files) in os.walk(self.params_.folder_):
+                    if curPath == self.params_.folder_:
+                        dirs[:]=[] # On arrête de parser
+                
+                    # Les fichiers "fils"
+                    for file in files:
+                        fullName = os.path.join(curPath, file) 
+                        count+=1
 
-                    self.deleteFile(fullName)
-        except:
-            return 0, "Erreur lors du vidage de "+self.params_.folder_
+                        self.deleteFile(fullName)
+
+                        bar()
+            except:
+                return 0, "Erreur lors du vidage de "+self.params_.folder_
         
         # Dossier vidé
         return count, ""       

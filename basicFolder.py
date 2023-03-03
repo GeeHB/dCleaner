@@ -10,9 +10,9 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.5.2
+#   Version     :   0.5.3
 #
-#   Date        :   27 jan. 2023
+#   Date        :   3 mars 2023
 #
 
 import os, random, datetime, math

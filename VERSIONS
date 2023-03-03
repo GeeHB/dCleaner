@@ -4,13 +4,15 @@
 ##
 
 Version 0.5.3
-    * 28 fev. 2023
+    * 3 mars 2023
     + l'option "-clean" accepte plusieurs dossiers séparés par ";"
         + la chaîne %trash%  est remplacée par le chemin vers la corbeille de l'utilisateur appellant 
     + utilisation de la librairie 'alive_progress' en remplacement des affichages du mode 'verbeux'
+        + ajout / supression de fichiers
+        + vidage du dossier de padding
 
 Version 0.5.2
-    * 27 jan. 2023
+    * 27 janvier 2023
     + ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé)
         + ajout de l'objet basicFolder dont héritera paddingFolder
     + ajout de l'option -np : No Padding - Pas de "salissage" de la partition (par défaut False ...)

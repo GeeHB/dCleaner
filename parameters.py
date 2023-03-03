@@ -6,9 +6,9 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.5.2
+#   Version     :   0.5.3
 #
-#   Date        :   27 jan. 2023
+#   Date        :   3 mars 2023
 #
 
 from sharedTools import cmdLineParser as parser
