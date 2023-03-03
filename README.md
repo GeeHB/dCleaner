@@ -19,6 +19,9 @@ Comme le montre le schéma suivant, une partition disque peut être découpée e
 |Dépôt |https://coffee.cd03.fr/JHB/dCleaner| |---|---| | **Date** | 29 décembre 2022| | **Auteur** | JHB - [henry-barnaudiere.j@allier.fr](mailto:henry-barnaudiere.j@allier.fr)| | **Version stable** | **0\.4.1 - branche** `master`| |**Version en cours** |xxx|  
 |**Dépendances** |Python 3.xx| |**Testé sur**| *Linux* / *MacOS* - *Windows* à confirmer|
 
+python-psutil (apt-get install python-psutil / dnf install python-psutil)
+alive_progress de rsalmei (pip install alive-progress) - doc : https://github.com/rsalmei/alive-progress
+
 ## Appel
 
 ### Ligne de commande
@@ -45,8 +48,16 @@ Dans l'exemple suivant deux tâches `cron` sont lancées regulièrement : une po
 # Vérification périodique que le dossier de 'padding' n'est pas trop volumineux
 0,30 * * * * /etc/scripts/dCleaner/dCleaner.py -fill 75 -log -adjust >> /var/log/dCleaner.log
 # Nettoyages quotidiens de la partition courante (3 itérations)
-15 */2 * * * /etc/scripts/dCleaner/dCleaner.py -folder -fill 75 -i 3 -log >> /var/log/dCleaner.log
+15 */2 * * * /etc/scripts/dCleaner/dCleaner.py -fill 75 -i 3 -log >> /var/log/dCleaner.log
 #
 # <<<
 # <<<
 ```
+
+-depth = -1 (defaut) => pas de suppreesion des (sous-)dossiers
+= 0 => suppression des du dossier et des sous-dossiers
+= 1 => suppression des sous-dossiers à partir des sous-dossiers fils
+
+ex. suppr du contenu du dossier ~/temp et de tous ses sous-dossiers (mais conservation du dossiers)
+
+./dCleaner.py -np -clear ~/temp -depth 1

@@ -6,7 +6,8 @@
 Version 0.5.3
     * 28 fev. 2023
     + l'option "-clean" accepte plusieurs dossiers séparés par ";"
-        + %trash%  est remplacé par la corbeille de l'utilisateur appellant 
+        + la chaîne %trash%  est remplacée par le chemin vers la corbeille de l'utilisateur appellant 
+    + utilisation de la librairie 'alive_progress' en remplacement des affichages du mode 'verbeux'
 
 Version 0.5.2
     * 27 jan. 2023

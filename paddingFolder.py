@@ -14,8 +14,9 @@
 #
 #   Date        :   27 jan. 2023
 #
-import basicFolder
 import os, random, shutil, time
+from alive_progress import alive_bar, config_handler
+import basicFolder
 import parameters
 from sharedTools.colorizer import textColor
 
@@ -101,24 +102,43 @@ class paddingFolder(basicFolder.basicFolder):
             totalSize = 0
             files = 0
             cont = True
+
+            # Barre de progression
+            barPos = 0  # On je suis ...
+            barMax = self.__convertSize2Progressbar(expectedFillSize)
+            with alive_bar(barMax, title = "Ajouts: ", monitor ="{count} Mo - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             
-            while totalSize < expectedFillSize and cont:
-                res = self.newFile(maxFileSize = still)
+                # Boucle de remplissage
+                while totalSize < expectedFillSize and cont:
+                    res = self.newFile(maxFileSize = still)
 
-                if 0 == res[1]:
-                    # Erreur ...
-                    cont = False
-                else:
-                    if self.params_.verbose_:
-                        print("  + " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(still) + " restants")
+                    if 0 == res[1]:
+                        # Fin des traitement  ou erreur ...
+                        cont = False
+                    else:
+                        
+                        totalSize+=res[1] # Ajout de la taille du fichier
+                        
+                        if self.params_.verbose_:
+                            # print("  + " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(still) + " restants")
+                            barInc = self.__convertSize2Progressbar(res[1]) 
+                            if barInc > 0:
+                                # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
+                                barPos += barInc
+                                bar(barInc)
+
+                        still-=res[1]
+                        files+=1
+
+                        # On attend ...
+                        time.sleep(self.elapseFiles_)
+                
+                if self.params_.verbose_ and barPos != barMax:
+                    # Tout n'a peut-être pas été fait
+                    # ou soucis d'arrondis ...
+                    #bar(barMax - barPos)
+                    bar(barMax - barPos)
                     
-                    totalSize+=res[1] # Ajout de la taille du fichier
-                    still-=res[1]
-                    files+=1
-
-                    # On attend ...
-                    time.sleep(self.elapseFiles_)
-
             # Terminé
             print("Remplissage de", self.size2String(totalSize), " -", str(files),"fichiers crées")
             return True
@@ -170,35 +190,67 @@ class paddingFolder(basicFolder.basicFolder):
 
                 # On mélange la liste
                 random.shuffle(files)
+
+                # Barre de progression
+                barPos = 0  # On je suis ...
                 
-                # Suppression des fichiers
-                try:
-                    # Les fichiers "fils"
-                    for file in files:
-                        fullName = os.path.join(self.params_.folder_, file) 
-                        res = self.deleteFile(fullName)
+                if not 0 == size :
+                    # Suppression sur le critère de taille => on compte les Mo
+                    barMax = self.__convertSize2Progressbar(size)
+                    barMonitor = "{count} Mo - {percent:.0%}"
+                else:
+                    # On compte les fichiers
+                    barMax = count
+                    barMonitor = "{count} / {total} - {percent:.0%}"
+                
+                with alive_bar(barMax, title = "Suppr: ", monitor = barMonitor, monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+                
+                    # Suppression des fichiers
+                    try:
+                        # Les fichiers "fils"
+                        for file in files:
+                            fullName = os.path.join(self.params_.folder_, file) 
+                            res = self.deleteFile(fullName)
 
-                        # Suppression effectuée ?
-                        if res[1] > 0:
-                            tFiles+=1       # Un fichier de + (de supprimé ...)
-                            tSize+=res[1]   # La taille en octets
+                            # Suppression effectuée ?
+                            if res[1] > 0:
+                                tFiles+=1       # Un fichier de + (de supprimé ...)
+                                tSize+=res[1]   # La taille en octets
 
-                            if self.params_.verbose_:
-                                if 0 == size:
-                                    print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
-                                else:
-                                    print("  - " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(size - tSize) + " restants")
+                                if self.params_.verbose_:
+                                    if 0 == size:
+                                        #print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
+                                        bar(1)
+                                        barPos += 1
+                                    else:
+                                        #print("  - " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(size - tSize) + " restants")
+                                        barInc = self.__convertSize2Progressbar(res[1]) 
+                                        if barInc > 0:
+                                            # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
+                                            barPos += barInc
 
-                            # Quota atteint
-                            if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
-                                break
+                                            # Ici on peut dépasser ...
+                                            if barPos > barMax:
+                                                barInc = barMax - barPos + barInc
+                                                barPos = barMax
+                                            bar(barInc)
 
-                        # On attend ...
-                        time.sleep(self.elapseFiles_)
+                                # Quota atteint
+                                if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
+                                    break
 
-                except :
-                    # Une erreur => on arrête de suite ...
-                    return False
+                            # On attend ...
+                            time.sleep(self.elapseFiles_)
+
+                    except :
+                        # Une erreur => on arrête de suite ...
+                        return False
+
+                    if self.params_.verbose_ and barPos != barMax:
+                        # Tout n'a peut-être pas été fait
+                        # ou soucis d'arrondis ...
+                        #bar(barMax - barPos)
+                        bar(barMax - barPos)
 
         # Fin des traitements
         print("Suppression de", self.size2String(tSize), " -", str(tFiles),"fichiers supprimés")
@@ -231,6 +283,10 @@ class paddingFolder(basicFolder.basicFolder):
             return 0, "Erreur lors du vidage de "+self.params_.folder_
         
         # Dossier vidé
-        return count, ""        
+        return count, ""       
+
+    # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
+    def __convertSize2Progressbar(self, number = 0):
+        return int(number / 1024 / 1024)     # conversion en Mo 
 
 # EOF

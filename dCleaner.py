@@ -19,6 +19,7 @@
 
 import parameters
 from os import path
+#from alive_progress import alive_bar
 from sharedTools import cmdLineParser as parser
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
@@ -249,7 +250,9 @@ if '__main__' == __name__:
                                     print("On attend un peu...")
                                 cleaner.paddingFolder_.wait(cleaner.paddingFolder_.elapseTasks())
 
-                            print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
+                            if params.verbose_:
+                                print("Iteration " + str(index + 1) + " / " + str(params.iterate_))
+                            
                             cleaner.cleanPartition()
 
                 # Nettoyer un ou plusieurs dossiers ?

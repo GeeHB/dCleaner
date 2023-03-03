@@ -376,7 +376,7 @@ class basicFolder:
 
                     # Génération du nom
                     name = self._newFileName()
-                    os.path.join(self.params_.folder_, name)
+                    fname = os.path.join(self.params_.folder_, name)
 
             else:
                 # Remplissage
@@ -396,7 +396,7 @@ class basicFolder:
             buffSize = pSize if pSize < fileSize else fileSize
 
             try:
-                # Ouverture / création du fihcier
+                # Ouverture / création du fichier
                 file = open(fname, 'w')
             except:
                 return name, 0
