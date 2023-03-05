@@ -10,16 +10,11 @@
 #
 #   Remarque    : 
 #
-#   Dépendances :  + Nécessite python-psutil (apt-get install / dnf install)
-#
-#   Version     :   0.5.3
-#
-#   Date        :   3 mars 2023
+#   Dépendances :  Nécessite python-psutil (apt-get install / dnf install)
 #
 
 import parameters
 from os import path
-#from alive_progress import alive_bar
 from sharedTools import cmdLineParser as parser
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder

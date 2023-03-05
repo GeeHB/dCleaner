@@ -10,13 +10,8 @@
 #
 #   Remarque    : 
 #
-#   Version     :   0.5.3
-#
-#   Date        :   3 mars 2023
-#
-
 import os, random, datetime, math
-from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
+from parameters import options as p, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 from sharedTools.colorizer import textColor
 
 # Classe basicFolder - un dossier de remplissage ou à vider ...
@@ -30,15 +25,21 @@ class basicFolder:
     maxPatternSize_ = PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
     sizes_ = None                       # Taille et # fichiers contenus
 
+    restricted_ = []                    # Liste des dossiers que l'on ne peut supprimer
+
     # Constructeur
     def __init__(self, options, pMaxSize = 0):
         # Initialisation des données membres
-       self._valid = False
-       self.name_ = ""
-       self.params_ = options
-       self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
-       size_ = None
+        self._valid = False
+        self.name_ = ""
+        self.params_ = options
+        self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
+        sizes_ = None
         
+        # Dossiers protégés
+        self.restricted_.append(os.path.expanduser(p.homeFolder())) 
+        self.restricted_.append(os.path.expanduser(p.trashFolder()))
+
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name):
@@ -146,13 +147,29 @@ class basicFolder:
             
             # Suppression du dossier courant?
             if 0 == remove:
-                os.rmdir(folder)
+                self.__rmdir(folder)
         except:
             return 0, "Erreur lors du vidage de "+self.params_.folder_
         
         
         # Dossier vidé
         return count, ""
+
+    # Suppression du dossier
+    def __rmdir(self, folder):
+        if len(folder) == 0:
+            return
+        
+        # Puis-je le supprimer ?
+        if -1 != self.restricted_[folder]:
+            # Dans la liste ....
+            return
+        
+        # oui !
+        try:
+            os.rmdir(folder)
+        except:
+            pass
 
     # Taille du dossier (et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)

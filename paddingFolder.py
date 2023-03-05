@@ -10,6 +10,8 @@
 #
 #   Remarque    : 
 #
+#   Dépendances :  Nécessite alive_progress (pip install alive-progress)
+#
 #   Version     :   0.5.3
 #
 #   Date        :   3 mars 2023

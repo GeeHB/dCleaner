@@ -54,7 +54,7 @@ Dans l'exemple suivant deux tâches `cron` sont lancées regulièrement : une po
 # <<<
 ```
 
--depth = -1 (defaut) => pas de suppreesion des (sous-)dossiers
+-depth = -1 (defaut) => pas de suppression des (sous-)dossiers
 = 0 => suppression des du dossier et des sous-dossiers
 = 1 => suppression des sous-dossiers à partir des sous-dossiers fils
 

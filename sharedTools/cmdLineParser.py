@@ -136,10 +136,18 @@ class cmdLineParser:
             rets = self.parameterOrValue(index + 1)
             if rets[1] == False : 
                 self.useFullItems_-=1
-                return rets[0], False
+                
+                # Du bon type ?
+                if isinstance(rets[0], str) :
+                    return rets[0], False
         except IndexError:
             # Pas de valeur ...
-            return None, True
+            pass
+
+        # Erreur ou mauvais type
+        return None, True
+        
+
 
     # Recherche d'une option et de sa valeur numérique à partir d'un ou plusieurs noms
     #   Lorsque les bornes min et max sont fournies, la métode s'assurera que la valeur sera dans l'intervalle

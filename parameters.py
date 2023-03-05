@@ -6,18 +6,14 @@
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
-#   Version     :   0.5.3
-#
-#   Date        :   3 mars 2023
-#
 
 from sharedTools import cmdLineParser as parser
 from sharedTools import colorizer as color
 import sys, os, platform
 
 # Version de l'application
-CURRENT_VERSION = "0.5.3"
-RELEASE_DATE = "2023-01-27"
+CURRENT_VERSION = "0.5.4"
+RELEASE_DATE = "2023-03-04"
 
 #
 # Valeurs par défaut
@@ -76,7 +72,7 @@ CMD_OPTION_CHAR = "-"                   # Caractère qui précède tjrs un param
 CMD_OPTION_LOGMODE = "log"              # Mode non verbeux (spécifique pour les fichiers de logs) - Par défaut Non
 CMD_OPTION_NOCOLOR = "nc"               # Pas de colorisation des sorties - Par défaut les sorties seront colorisées
 CMD_OPTION_ADJUST = "adjust"            # Effectue uniquement la vérification du dossier de remplissage
-CMD_OPTION_FOLDER = "fill"              # Dossier utilisé pour le remplissage (la partition associée sera saturée)
+CMD_OPTION_FOLDER = "folder"            # Dossier utilisé pour le remplissage (la partition associée sera saturée)
 
 CMD_OPTION_NOPADDING = "np"             # Pas de remplissage (juste nettoyer ou effacer)
 
@@ -118,7 +114,7 @@ class options(object):
         self.cleanDepth_ = -1   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
-        self.folder_ = os.path.join(DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER, DEF_FOLDER_NAME)   
+        self.folder_ = os.path.join(self.homeFolder(), DEF_FOLDER_NAME)   
 
     # Analyse de la ligne de commandes
     #   returne un booléen
@@ -228,6 +224,10 @@ class options(object):
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[color.textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {%} ]",formatAttr=[color.textAttribute.DARK]),": Taux de remplissage de la partition")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[color.textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
+    
+    # Dossier "root"
+    def homeFolder(self):
+        return DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER
     
     #
     # Méthodes à usage interne

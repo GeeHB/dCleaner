@@ -3,6 +3,19 @@
 ? Multi-partition sous Windows
 ##
 
+Version 0.5.4
+    * 3 mars 2023
+    + Mise à jour de README.md
+    + Modification de l'entête des fichiers
+    - Corrections
+        - paramètres -folder non fonctionnel
+        - Vérification du typage des paramètres (string attendus ?)
+        - cas ou depth = -1
+    + %trash% peut se transformer en +sieurs dossier
+        + on ne peut plus appeler des sous-dossier
+        + certains dossier (dont trash et '~') ne peuvent être supprimés
+
+
 Version 0.5.3
     * 3 mars 2023
     + l'option "-clean" accepte plusieurs dossiers séparés par ";"
