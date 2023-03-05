@@ -12,10 +12,6 @@
 #
 #   Dépendances :  Nécessite alive_progress (pip install alive-progress)
 #
-#   Version     :   0.5.3
-#
-#   Date        :   3 mars 2023
-#
 import os, random, shutil, time
 from alive_progress import alive_bar, config_handler
 import basicFolder

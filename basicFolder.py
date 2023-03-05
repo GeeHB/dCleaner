@@ -37,8 +37,11 @@ class basicFolder:
         sizes_ = None
         
         # Dossiers protégés
-        self.restricted_.append(os.path.expanduser(p.homeFolder())) 
-        self.restricted_.append(os.path.expanduser(p.trashFolder()))
+        self.restricted_.append(p.homeFolder()) 
+        
+        trashes = p.trashFolders()
+        for trash in trashes:
+            self.restricted_.append(trash)
 
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
@@ -161,8 +164,8 @@ class basicFolder:
             return
         
         # Puis-je le supprimer ?
-        if -1 != self.restricted_[folder]:
-            # Dans la liste ....
+        if folder in self.restricted_:
+            # Non, le dossier est dans la liste ....
             return
         
         # oui !

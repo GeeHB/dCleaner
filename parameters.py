@@ -114,7 +114,7 @@ class options(object):
         self.cleanDepth_ = -1   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
-        self.folder_ = os.path.join(self.homeFolder(), DEF_FOLDER_NAME)   
+        self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)   
 
     # Analyse de la ligne de commandes
     #   returne un booléen
@@ -226,9 +226,31 @@ class options(object):
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[color.textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
     
     # Dossier "root"
-    def homeFolder(self):
-        return DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER
+    def homeFolder():
+        return os.path.expanduser(DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER)
     
+    # Dossiers de la 'poubelle' de l'agent
+    def trashFolders():
+        folders = []
+        myPlatform = platform.system()
+        if  myPlatform == "Windows":
+            folders.append("mon-dossier-windows")
+        else :
+            if myPlatform == "Darwin":
+                folders.append("mon-dossier-mac")
+            else:
+                if myPlatform == "Java":
+                    folders.append("mon-dossier-java")
+                else:
+                    info = platform.freedesktop_os_release()
+                    if info["ID"] == "fedora":
+                        # ouf il y en a 2
+                        folders.append(os.path.expanduser("~/.local/share/Trash/files"))
+                        folders.append(os.path.expanduser("~/.local/share/Trash/finfos"))
+                    else:
+                        folders.append("mon-dossier-linux")
+        return folders
+
     #
     # Méthodes à usage interne
     #
@@ -239,35 +261,18 @@ class options(object):
         folders = fList.split(CLEANFOLDERS_SEP)
 
         destFolders = []
-        myTrashFolder = self._trashFolder()
+        myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs
         for folder in folders:
-            destFolders.append(folder.replace(CLEANFOLDERS_TRASH, myTrashFolder))
+            if CLEANFOLDERS_TRASH == folder:
+                # On ajoute tous les dossiers de la poubelle
+                for tFolder in myTrashFolders:
+                    destFolders.append(tFolder)
 
         # Les valeurs doivent être uniques ...
         uniqueVals = set(destFolders)
         for val in uniqueVals:
             self.clean_.append(os.path.expanduser(val))   # Remplacer le car. '~' si présent)
-    
-    # Dossier 'poubelle' de l'agent
-    def _trashFolder(self):
-        myPlatform = platform.system()
-        if  myPlatform == "Windows":
-            folder = "mon-dossier-windows"
-        else :
-            if myPlatform == "Darwin":
-                folder = "mon-dossier-mac"
-            else:
-                if myPlatform == "Java":
-                    folder = "mon-dossier-java"
-                else:
-                    info = platform.freedesktop_os_release()
-                    if info["ID"] == "fedora":
-                        # ouf
-                        folder = "~/.local/share/Trash"
-                    else:
-                        folder = "mon-dossier-linux"
-        return folder
 
 # EOF
