@@ -12,9 +12,8 @@
 #
 #   Dépendances :  Nécessite python-psutil (apt-get install / dnf install)
 #
-
 import parameters
-from os import path
+import os
 from sharedTools import cmdLineParser as parser
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
@@ -37,7 +36,7 @@ class dCleaner:
         self.options_ = options
 
         # Le dossier est-il correct ?
-        if self.options_.folder_ == "\\" or (path.exists(self.options_.folder_) and not path.isdir(self.options_.folder_)):
+        if self.options_.folder_ == "\\" or (os.path.exists(self.options_.folder_) and not os.path.isdir(self.options_.folder_)):
             message = "Le dossier '" + self.options_.folder_ + "' n'est pas correct"
             raise ValueError(message)
 
@@ -202,10 +201,26 @@ class dCleaner:
         # On supprime
         self.paddingFolder_.deleteFiles(size = renewSize)    
 
-#
+# Vérification des privilèges
+def isRootLikeUser():
+    try:
+        if os.environ.get("SUDO_UID") or os.geteuid() != 0:
+            return False
+    except:
+        # Je n'ai pas le droit
+        pass
+    
+    # Oui ...
+    return False
+
 # Corps du programme
 #
 if '__main__' == __name__:
+    
+    # Ne peut-être lancé par un compte root ou "sudoisé"
+    if isRootLikeUser() :
+        print(parameters.APP_NAME + " doit être lancé par un compte 'non root'")
+        exit()
     
     done = False
 

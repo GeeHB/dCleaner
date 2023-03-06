@@ -55,9 +55,11 @@ Dans l'exemple suivant deux tâches `cron` sont lancées regulièrement : une po
 ```
 
 -depth = -1 (defaut) => pas de suppression des (sous-)dossiers
-= 0 => suppression des du dossier et des sous-dossiers
+= 0 => suppression du dossier et des sous-dossiers
 = 1 => suppression des sous-dossiers à partir des sous-dossiers fils
 
-ex. suppr du contenu du dossier ~/temp et de tous ses sous-dossiers (mais conservation du dossiers)
+ex. suppr du contenu du dossier ~/temp et de tous ses sous-dossiers (mais conservation du dossier)
 
 ./dCleaner.py -np -clear ~/temp -depth 1
+
+Si +sieurs dossier mettre le tout entre "" ex "%trash%;~/Téléchargements"

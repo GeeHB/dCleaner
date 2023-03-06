@@ -38,7 +38,6 @@ class basicFolder:
         
         # Dossiers protégés
         self.restricted_.append(p.homeFolder()) 
-        
         trashes = p.trashFolders()
         for trash in trashes:
             self.restricted_.append(trash)

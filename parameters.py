@@ -11,9 +11,10 @@ from sharedTools import cmdLineParser as parser
 from sharedTools import colorizer as color
 import sys, os, platform
 
-# Version de l'application
-CURRENT_VERSION = "0.5.4"
-RELEASE_DATE = "2023-03-04"
+# Nom et version de l'application
+APP_NAME = "dCleaner.py"
+APP_CURRENT_VERSION = "0.5.4"
+APP_RELEASE_DATE = "06-03-2023"
 
 #
 # Valeurs par défaut
@@ -56,13 +57,13 @@ FILESIZE_MAX = 1024
 
 # Durée(s) d'attente(s) en sec.
 #
-MIN_ELPASE_FILES = 0.1      # Entre la gestion de deux fichiers
+MIN_ELPASE_FILES = 0.0      # Entre la gestion de deux fichiers
 MIN_ELAPSE_TASKS = 90       # Entre 2 tâches
 
 # Dossiers à nettoyer
 #
-CLEANFOLDERS_SEP = ";"              # Séparateur de liste
-CLEANFOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
+FOLDERS_SEP = ";"              # Séparateur de liste
+FOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
 
 # Commandes reconnues
 #
@@ -205,7 +206,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        print(self.color_.colored("dCleaner.py", formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB - version", CURRENT_VERSION, "- du", RELEASE_DATE)
+        print(self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB - version", APP_CURRENT_VERSION, "du", APP_RELEASE_DATE)
 
         if self.verbose_:
             print("")
@@ -246,7 +247,7 @@ class options(object):
                     if info["ID"] == "fedora":
                         # ouf il y en a 2
                         folders.append(os.path.expanduser("~/.local/share/Trash/files"))
-                        folders.append(os.path.expanduser("~/.local/share/Trash/finfos"))
+                        folders.append(os.path.expanduser("~/.local/share/Trash/info"))
                     else:
                         folders.append("mon-dossier-linux")
         return folders
@@ -258,21 +259,23 @@ class options(object):
     # Liste des dossiers à nettoyer
     def _handleCleanFolders(self, fList):
         # Liste des dossiers
-        folders = fList.split(CLEANFOLDERS_SEP)
+        folders = fList.split(FOLDERS_SEP)
 
         destFolders = []
         myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs
         for folder in folders:
-            if CLEANFOLDERS_TRASH == folder:
+            if FOLDERS_TRASH == folder:
                 # On ajoute tous les dossiers de la poubelle
                 for tFolder in myTrashFolders:
                     destFolders.append(tFolder)
+            else:
+                destFolders.append(os.path.expanduser(folder))
 
         # Les valeurs doivent être uniques ...
         uniqueVals = set(destFolders)
         for val in uniqueVals:
-            self.clean_.append(os.path.expanduser(val))   # Remplacer le car. '~' si présent)
+            self.clean_.append(val)
 
 # EOF

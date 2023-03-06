@@ -13,10 +13,10 @@
 #   Dépendances :  Nécessite alive_progress (pip install alive-progress)
 #
 import os, random, shutil, time
-from alive_progress import alive_bar, config_handler
+from alive_progress import alive_bar
 import basicFolder
 import parameters
-from sharedTools.colorizer import textColor
+#from sharedTools.colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
 #

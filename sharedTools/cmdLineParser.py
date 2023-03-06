@@ -65,14 +65,20 @@ class cmdLineParser:
         value = sys.argv[index + 1]
 
         # Une option ?
-        if not value[0] == self.optionChar_:
+        if value[0] == self.optionChar_:
+            next = value[1]
+            val = (next >= '0' and next <= '9')
+        else:
+            val = True
+
+        if True == val:
             # non, une valeur ...
             # est ce une chaine de caractères quotée ?
             lenV = len(value)
             if value[0] == '/"' and value[lenV - 1] == '/"':
                 value = value[1:lenV - 1]
 
-        return (value, value[0] == self.optionChar_)
+        return (value, val == False)
 
     
     # Recherche d'une option par son nom
@@ -147,8 +153,6 @@ class cmdLineParser:
         # Erreur ou mauvais type
         return None, True
         
-
-
     # Recherche d'une option et de sa valeur numérique à partir d'un ou plusieurs noms
     #   Lorsque les bornes min et max sont fournies, la métode s'assurera que la valeur sera dans l'intervalle
     #
