@@ -153,11 +153,11 @@ class basicFolder:
         except:
             return 0, "Erreur lors du vidage de "+self.params_.folder_
         
-        
         # Dossier vidé
         return count, ""
 
     # Suppression du dossier
+    #   retourne un booléen : fait ?
     def __rmdir(self, folder):
         if len(folder) == 0:
             return
@@ -165,13 +165,34 @@ class basicFolder:
         # Puis-je le supprimer ?
         if folder in self.restricted_:
             # Non, le dossier est dans la liste ....
-            return
+            return False
         
         # oui !
+        
+        # Récupération du dossier parent
+        res = os.path.split(folder)
+        if len(res[0]) == 0 or len(res[1]) == 0 :
+            # Le chemin n'est pas possible => pas de dossier parent
+            return False
+
+        # Nouveau nom
+        nFolder = self._newFolderName(res[0])
+        if 0 == len(nFolder):
+            return False
+        
+        # Renommage
         try:
-            os.rmdir(folder)
+            os.rename(folder, nFolder)
         except:
-            pass
+            # Impossible de renommer
+            nFolder = folder    # Peut-être que l'on pourra malgré tout supprimer le fichier
+        
+        # Suppression
+        try:
+            os.rmdir(nFolder)
+            return True
+        except:
+            return False
 
     # Taille du dossier (et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)
@@ -317,7 +338,6 @@ class basicFolder:
     #   Retourne un nom unique de fichier (le nom court est retourné)
     def _newFileName(self):
         now = datetime.datetime.now()
-
         name = now.strftime("%Y%m%d-%H%M%S-%f")
         fullName = os.path.join(self.name_, name)
 
@@ -327,16 +347,31 @@ class basicFolder:
             # On génère un nouveau nom
             count+=1
             name = name + "-" + str(count)
-            fullName = os.path.join(self.name_, name )
+            fullName = os.path.join(self.name_, name)
         
         return name # On retourne le nom court
+    
+    # Génération d'un nom de dossier
+    #   Retourne le chemin complet
+    def _newFolderName(self, parent):
+        now = datetime.datetime.now()
+        name = now.strftime("%Y%m%d-%H%M%S-%f")
+        fullName = os.path.join(parent, name)
+
+        # Tant qu'il existe (avec le même nom)
+        count = 0
+        while True == self.exists(fullName):
+            # On génère un nouveau nom
+            count+=1
+            name = name + "-" + str(count)
+            fullName = os.path.join(parent, name)
+        
+        return fullName # On retourne le chemin complet
 
     ## Renomage d'un fichier
     #   Retourne le "nouveau" nom ou "" en cas d'erreur
     def _renameFile(self, file):
         if self._fileExists(file):
-            
-
             # Nouveau nom "complet"
             res = os.path.split(file)
             name = os.path.join(res[0], self._newFileName())

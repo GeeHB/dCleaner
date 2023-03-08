@@ -4,16 +4,18 @@
 ##
 
 Version 0.5.4
-    * 3 mars 2023
+    * 8 mars 2023
     + Mise à jour de README.md
     + Modification de l'entête des fichiers
     + Ne peut être lancé par root !
+    + Suppression des fichiers et dossiers avec renommage
     - Corrections
-        - paramètres -folder non fonctionnel
+        - corrections diverses
+        - Bug : paramètres "-folder" non fonctionnel
+        - Bug : -depth -1 (acceptation de valeurs numériques négatives dans la ligne de commandes)
         - Vérification du typage des paramètres (string attendus ?)
-        - cas ou depth = -1
     + %trash% peut se transformer en +sieurs dossiers
-        + on ne peut plus appeler des sous-dossier de %trash%
+        + on ne peut plus nettoyer individuellement des sous-dossier de %trash%
         + certains dossiers (dont ceux de %trash% et '~') ne peuvent être supprimés
 
 Version 0.5.3

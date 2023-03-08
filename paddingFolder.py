@@ -14,18 +14,17 @@
 #
 import os, random, shutil, time
 from alive_progress import alive_bar
-import basicFolder
+from basicFolder import basicFolder
 import parameters
 #from sharedTools.colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
 #
-class paddingFolder(basicFolder.basicFolder):
+class paddingFolder(basicFolder):
 
     # Données membres
     elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
     elapseTasks_ = 0                    # Attente entre deux traitements
-
 
     files_ = 0  # Nombre de fichiers générés
 
