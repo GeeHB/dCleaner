@@ -13,8 +13,8 @@ import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.5.4"
-APP_RELEASE_DATE = "08-03-2023"
+APP_CURRENT_VERSION = "0.5.5"
+APP_RELEASE_DATE = "09-03-2023"
 
 #
 # Valeurs par défaut
@@ -57,13 +57,20 @@ FILESIZE_MAX = 1024
 
 # Durée(s) d'attente(s) en sec.
 #
-MIN_ELPASE_FILES = 0.0      # Entre la gestion de deux fichiers
-MIN_ELAPSE_TASKS = 90       # Entre 2 tâches
+MIN_ELAPSE_FILES = 0.0      # Entre la gestion de deux fichiers
+MAX_ELAPSE_FILES = 180.0
+
+MIN_ELAPSE_TASKS = 5.0      # Entre 2 tâches en sec.
+MAX_ELAPSE_TASKS = 180.0
 
 # Dossiers à nettoyer
 #
 FOLDERS_SEP = ";"              # Séparateur de liste
 FOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
+
+DEF_FOLDER_CLEAN_DEPTH = -1    # Par défaut pas de nettoyage en profondeur des dossiers (on ne supprime pas les sous-dossiers)
+MIN_FOLDER_DEPTH       = -1
+MAX_FOLDER_DEPTH       = 15
 
 # Commandes reconnues
 #
@@ -76,6 +83,9 @@ CMD_OPTION_ADJUST = "adjust"            # Effectue uniquement la vérification d
 CMD_OPTION_FOLDER = "folder"            # Dossier utilisé pour le remplissage (la partition associée sera saturée)
 
 CMD_OPTION_NOPADDING = "np"             # Pas de remplissage (juste nettoyer ou effacer)
+
+CMD_OPTION_ELAPSE_FILES = "waitFiles"   # Attente entre le traitement de 2 fichiers
+CMD_OPTION_ELAPSE_TASKS = "waitTasks"   # Attente entre 2 itérations
 
 CMD_OPTION_ITERATE = "i"                # Nombre d'itération à effectuer - Par défaut = 1
 CMD_OPTION_PARTITION_FILL_RATE = "fill" # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
@@ -110,9 +120,12 @@ class options(object):
         self.fillRate_ = DEF_PARTITION_FILL_RATE
         self.renewRate_ = DEF_PADDING_RATE
         self.clear_ = False
+
+        self.waitFiles_ = MIN_ELAPSE_FILES
+        self.waitTasks_ = MIN_ELAPSE_TASKS
         
         self.clean_ = []        # Nettoyage d'un ou plusieurs dossiers
-        self.cleanDepth_ = -1   # Profondeur du nettoyage (pas de suppression)
+        self.cleanDepth_ = DEF_FOLDER_CLEAN_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
         self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)   
@@ -134,7 +147,6 @@ class options(object):
             self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
             
             # Colorisation des affichages ?
-            #
             noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
 
             # Création de l'objet pour la gestion de la colorisation
@@ -150,7 +162,7 @@ class options(object):
                 # Ajustement ?
                 self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
 
-            # Nom du dossier
+            # Nom du dossier de remplissage
             res = parameters.getOptionValue(CMD_OPTION_FOLDER)
             if None != res and None != res[0]:
                 self.folder_ = res[0]
@@ -159,23 +171,29 @@ class options(object):
              # Nettoyage d'un (ou plusieurs) dossier(s)
             res = parameters.getOptionValue(CMD_OPTION_DEST_FOLDER)
             if None != res and None != res[0]:
-                """
-                self.clean_ = res[0]
-                self.clean_ = os.path.expanduser(self.clean_)   # Remplacer le car. '~' si présent
-                """
                 self._handleCleanFolders(res[0])
 
-           # Profondeur
-            res = parameters.getOptionValueNum(CMD_OPTION_DEPTH, 0, 10)
+           # Nombre d'itérations
+            res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
             if None != res[0]:
-                self.cleanDepth_ = res[0]
+                self.iterate_ = res[0]
+                
+           # Attente entre 2 (suppressions) de fichier
+            res = parameters.getOptionValueNum(CMD_OPTION_ELAPSE_FILES, MIN_ELAPSE_FILES, MAX_ELAPSE_TASKS)
+            if None != res[0]:
+                self.waitFiles_ = res[0]
+
+            # Attente entre 2 séries de traitement
+            res = parameters.getOptionValueNum(CMD_OPTION_ELAPSE_TASKS, MIN_ELAPSE_TASKS, MAX_ELAPSE_TASKS)
+            if None != res[0]:
+                self.waitTasks_ = res[0]
+           
+           # Profondeur
+            res = parameters.getOptionValueNum(CMD_OPTION_DEPTH, MIN_FOLDER_DEPTH, MAX_FOLDER_DEPTH)
+            if None != res[0]:
+                self.cleanDepth_ = int(res[0]) # C'est un nombre entier
 
             if False == self.clear_:
-                # Nombre d'itérations
-                res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
-                if None != res[0]:
-                    self.iterate_ = res[0]
-                
                 # Taux de remplissage permanent de la partition
                 res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
                 if None != res[0]:
@@ -225,6 +243,8 @@ class options(object):
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ITERATE + " {nombre} ]",formatAttr=[color.textAttribute.DARK]),": Nombre d'itération du process de nettoyage")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_FILL_RATE + " {%} ]",formatAttr=[color.textAttribute.DARK]),": Taux de remplissage de la partition")
             print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_PARTITION_PADDING_RATE + " {%} ]", formatAttr=[color.textAttribute.DARK]),": Taille (en % de la taille libre) à nettoyer")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ELAPSE_FILES + " {n} ]", formatAttr=[color.textAttribute.DARK]), ": durée en s. entre 2 suppressions de fichiers")
+            print("\t", self.color_.colored("[ " + CMD_OPTION_CHAR + CMD_OPTION_ELAPSE_TASKS + " {n} ]", formatAttr=[color.textAttribute.DARK]), ": durée en s. entre 2 itérations")
     
     # Dossier "root"
     def homeFolder():

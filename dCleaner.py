@@ -8,7 +8,7 @@
 #
 #   Description :   Point d'entrée du programme
 #
-#   Remarque    : 
+#   Remarques    : 
 #
 #   Dépendances :  Nécessite python-psutil (apt-get install / dnf install)
 #
@@ -73,8 +73,8 @@ class dCleaner:
             
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Attente entre 2 fichiers : " + str(self.paddingFolder_.elapseFiles()) + "s"
-            out += "\n\t- Attente entre 2 itérations : " + str(self.paddingFolder_.elapseTasks()) + "s"
+            out += "\n\t- Attente entre 2 fichiers : " + str(self.options_.waitFiles_) + "s"
+            out += "\n\t- Attente entre 2 itérations : " + str(self.options_.waitTasks_) + "s"
             
             if False == self.options_.adjust_ :
                 out += "\n\t- Itération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
@@ -102,7 +102,7 @@ class dCleaner:
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
             
             if self.options_.clean_ is not None:
-                out += "\nVider : " + self.options_.color_.colored(self.options_.clean_ + " - Profondeur : " + str(self.options_.cleanDepth_), formatAttr=[textAttribute.GRAS])
+                out += "\nVider : " + self.options_.color_.colored(str(len(self.options_.clean_)) + " dossiers(s) - Profondeur : " + str(self.options_.cleanDepth_), formatAttr=[textAttribute.GRAS])
             
             if False == self.options_.adjust_ :
                 out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
@@ -234,6 +234,8 @@ if '__main__' == __name__:
             cleaner = dCleaner(params)
             print(cleaner)
 
+            exit()
+
             if params.clear_:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.clearFolder()
@@ -258,7 +260,7 @@ if '__main__' == __name__:
                                 # On patiente un peu ...
                                 if params.verbose_:
                                     print("On attend un peu...")
-                                cleaner.paddingFolder_.wait(cleaner.paddingFolder_.elapseTasks())
+                                cleaner.paddingFolder_.wait(params.waitTasks_)
 
                             if params.verbose_:
                                 print("Iteration " + str(index + 1) + " / " + str(params.iterate_))

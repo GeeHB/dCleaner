@@ -22,18 +22,12 @@ import parameters
 #
 class paddingFolder(basicFolder):
 
-    # Données membres
-    elapseFiles_ = 0                    # Attente entre le traitement de 2 fichiers
-    elapseTasks_ = 0                    # Attente entre deux traitements
-
     files_ = 0  # Nombre de fichiers générés
 
     # Constructeur
-    def __init__(self, options, pMaxSize = 0, elapseFiles = parameters.MIN_ELPASE_FILES, elapseTasks = parameters.MIN_ELAPSE_TASKS):
+    def __init__(self, options, pMaxSize = 0):
         # Initialisation des données membres
         super().__init__(options, pMaxSize)
-        self.elapseFiles_ = elapseFiles
-        self.elapseTasks_ = elapseTasks
 
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
@@ -63,13 +57,6 @@ class paddingFolder(basicFolder):
         self.valid_ = True
         return True , ""
     
-    # Temps d'attente
-    def elapseFiles(self):
-        return self.elapseFiles_
-
-    def elapseTasks(self):
-        return self.elapseTasks_
-
     def wait(self, duration):
         time.sleep(duration)
     
@@ -128,7 +115,7 @@ class paddingFolder(basicFolder):
                         files+=1
 
                         # On attend ...
-                        time.sleep(self.elapseFiles_)
+                        time.sleep(self.params_.waitFiles_)
                 
                 if self.params_.verbose_ and barPos != barMax:
                     # Tout n'a peut-être pas été fait
@@ -237,7 +224,7 @@ class paddingFolder(basicFolder):
                                     break
 
                             # On attend ...
-                            time.sleep(self.elapseFiles_)
+                            time.sleep(self.params_.waitFiles_)
 
                     except :
                         # Une erreur => on arrête de suite ...

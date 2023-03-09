@@ -2,7 +2,7 @@
 
 ## Présentation
 
-`dCleaner` est un utilitaire en ligne de commande qui permet de nettoyer une partition disque. Il s'agit de saturer ponctuellement l'espace disponible avec des données aléatoire puis de libérer l'espace nouvellement utilisé. De la sorte, le contenu des fichiers effacés est automatiquement écrasé et ne pourra pas être récupéré par un logiciel espion.
+`dCleaner` est un utilitaire en ligne de commande qui permet de nettoyer une partition disque et de s'assurer que les fichiers effacés ne pourront pas être récupérés par une application tierce. Il s'agit de saturer ponctuellement l'espace disponible avec des données aléatoire puis de libérer l'espace nouvellement utilisé. De la sorte, le contenu des fichiers effacés est automatiquement écrasé et ne pourra pas être récupéré par un logiciel espion.
 
 En réalité, lorsqu'un fichier est "effacé , l'ensemble de ses données sont conservées sur le disque dur. L'objectif de cet utilitaire consiste à remplir le disque avec des données aléatoires afin d'effacer le contenu des fichiers précédement 'effacés'.
 
@@ -30,15 +30,35 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 ## Appel
 
-### Ligne de commande
+### Ligne de commandes
+`dCleaner` accepte différents paramètres passés en ligne de commandes. Un appel simple, sans aucun paramètres, entraine l'exécution du script avec toutes les valeurs par défaut.
 
-> Attention : le paramètre `depth` s'applique à tous les dossiers concernés par l'appel. Si plusieurs dossiers doivent bénéficier d'une profondeur spécifique, il sera nécessaire d'avoir autant d'appel de `dCleaner` que de dossiers.
+Les différents paramètres sont définis comme suit :
+
+|Paramètre|Valeur par défaut|Rôle|
+| --- |---|---|
+|*-?*| |Affichage de l'aide|
+|*-folder* {dossier}| ~/.padding|Dossier utilisé pour le remplissage de la partition. Tous les fichiers générés seront crées dans ce dossier.|
+|*-clear*||Effacement du dossier de remplissage. Tous les fichiers seront automatiquement supprimés. Ce paramètre est utile lorsque l'on a besoin de libérer de la place sur la partition.|
+|*-fill* {%}|80|Taux de remplissage attendu pour la partition.|
+|*-padding* {%}|50|Taux (en % de la taille libre) à nettoyer. Par exemple, s'il reste 70Go de libre dans la partition, un taux de 50% entrainera la génération de fichiers à hauteur de 35Go puis la suppression de 35Go de fichiers de remplissage. Tous les fichiers en question seront crées ou pris dans le dossier de remplissage.|
+|*-adjust*||Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *-fill*|
+|*-clean* {dossiers}||Suppression du contenu des {dossiers}. Les chemins des dossiers sont séparés par la caractère ';'. Lorsque {dossiers} contient plusieurs chemins il est conseillé d'encadrer la valeur par des doubles quotes. Par exemple : -clean "~/mon_dossier;/etc/temp".|
+|||**Attention :** lorsqu'un dossier à la valeur *%trash%* il est remplacé par le chemin vers la corbeille de l'utilisateur appelant.|
+|*-depth* {value}|-1|Profondeur du nettoyage des dossiers. |
+||| = -1 (par défaut) : pas de suppression des sous-dossiers.|
+||| = 0 : suppression du dossier et de ses sous-dossiers.|
+||| = 1 : suprression des sous-dossiers à partir du dossier fils.|
+|||**Attention :** le paramètre `depth` s'applique à tous les dossiers concernés par l'appel. Si plusieurs dossiers doivent bénéficier d'une profondeur spécifique, il sera nécessaire d'avoir autant d'appel de `dCleaner.py` que de dossiers.|
+|*-i*|1|Nombre d'itération(s). Ce paramètre correspond à la fois au nombre d'occurence du process de remplissage mais aussi au nombre de fopis ou les fichiers seront re-écris en mode effacement des dossiers (paramètre *-clean*).|
+|*-nc*||mode "no color" : pas de colorisation des affichages. Utile pour la génération de fichiers de logs par exemple|
+|*-np*||mode "no padding" : pas de remplissage de la partition|
+|*-log*||Mode moins verbeux à destination des fichiers de logs. Dans ce mode, les affichages et les notifiocations sont réduits aux strict minimum|
+|*-waitFiles* {value}|0|Delai d'attente en seconde entre 2 suppressions de fichiers.|
+|*-waitTasks* {value}|5|Délai d'attentes en secondes entre deux itérations (paramètre *-i* > 1)|
 
 ### Exemples d'appels
 
--depth = -1 (defaut) => pas de suppression des (sous-)dossiers
-= 0 => suppression du dossier et des sous-dossiers
-= 1 => suppression des sous-dossiers à partir des sous-dossiers fils
 
 * Lancement d'un nettoyage simple de la partition (avec les valeurs par défaut):
 ~~~
@@ -57,9 +77,9 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 ### Automatisation
 
-Le script est destiné à être appelé mais surtout à être lancé régulièrement par un gestionnaire de tâches planifiées.
+Le script est destiné à être appelé mais surtout à être lancé régulièrement par le gestionnaire de tâches planifiées.
 
-Si l'on souhaite récurer des logs, on peut utiliser le commutateur `-log` afin d'indiquer à l'utilitaire de ne pas mettre en forme (colorisation, gras, etc...) les affichages et d'être un peu moins verbeux.
+Si l'on souhaite récupérer des logs, on peut utiliser le commutateur `-log` afin d'indiquer à l'utilitaire de ne pas mettre en forme (colorisation, gras, etc...) les affichages et d'être un peu moins verbeux.
 
 Dans l'exemple suivant trois tâches `cron` sont lancées regulièrement : une pour s'assurer que la partition ne staure pas et une seconde pour nettoyer la partition, une troisième permet de nettoyer quotidiennement la poubelle ainsi que le dossier des téléchargements.
 

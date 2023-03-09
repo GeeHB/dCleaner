@@ -66,14 +66,22 @@ class cmdLineParser:
 
         # Une option ?
         if value[0] == self.optionChar_:
-            next = value[1]
-            val = (next >= '0' and next <= '9')
+            try:
+                # C'est peut-être une nombre à virgule flotante (float)
+                myValue = float(value)
+
+                # ou un entier négatif
+                myValue = int(value)
+
+                val = True
+            except:
+                val = False
         else:
             val = True
 
         if True == val:
             # non, une valeur ...
-            # est ce une chaine de caractères quotée ?
+            # est-ce une chaine de caractères quotée ?
             lenV = len(value)
             if value[0] == '/"' and value[lenV - 1] == '/"':
                 value = value[1:lenV - 1]
@@ -169,9 +177,12 @@ class cmdLineParser:
         try:
             if True == res[0].isnumeric():
                 num = int(res[0])    # Peut malgré tout poser des pb ...
+            else:
+                # Tentative de transformation en float
+                num = float(res[0])
                 
-                # Valeur bornée (et bornes valides) ?
-                return self.minMax(num, min, max) if (min!=None and max!=None and min < max) else num , False
+            # Valeur bornée (et bornes valides) ?
+            return self.minMax(num, min, max) if (min!=None and max!=None and min < max) else num , False
         except ValueError:
             # Problème de format et/ou de conversion
             pass
