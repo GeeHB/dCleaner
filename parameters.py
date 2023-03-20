@@ -13,8 +13,8 @@ import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.5.5"
-APP_RELEASE_DATE = "09-03-2023"
+APP_CURRENT_VERSION = "0.6.1"
+APP_RELEASE_DATE = "20-03-2023"
 
 #
 # Valeurs par défaut
@@ -153,7 +153,7 @@ class options(object):
             self.color_ = color.colorizer(False == noColor)
 
             # Pas de padding ?
-            self.noPadding_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOPADDING)) if self.verbose_ else True
+            self.noPadding_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOPADDING)) 
 
             # Nettoyage ?
             self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))

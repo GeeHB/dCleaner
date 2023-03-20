@@ -101,7 +101,7 @@ class dCleaner:
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])                    
             
-            if self.options_.clean_ is not None:
+            if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
                 out += "\nVider : " + self.options_.color_.colored(str(len(self.options_.clean_)) + " dossiers(s) - Profondeur : " + str(self.options_.cleanDepth_), formatAttr=[textAttribute.GRAS])
             
             if False == self.options_.adjust_ :
