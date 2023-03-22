@@ -240,8 +240,7 @@ if '__main__' == __name__:
                 if len(res[1]) > 0  :
                     print(params.color_.colored("Erreur lors de la suppression : " + res[1], textColor.ROUGE))
                 else:
-                    if params.verbose_:
-                        print(str(res[0]) + " fichier(s) supprimé(s)")
+                    print(str(res[0]) + " fichier(s) supprimé(s)")
             else:
                 # Remplissage de la partition
                 if False == params.noPadding_:

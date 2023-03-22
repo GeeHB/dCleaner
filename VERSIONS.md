@@ -6,9 +6,9 @@
 
 #### Dépendances
 
-* Tout les OS (cf. ./README.md) 
+* Tous les OS (cf. ./README.md) 
   * python-psutil
-  * alive_progress
+  * alive_progress (facultatif)
 
 #### Version 0.6.1
 
@@ -18,6 +18,8 @@
   * BUG: Affichages erronés en mode "log"
   * BUG: Decompte eroné du nombre de paramètres en ligne de commandes
   * BUG : alive_bar n'est pas importé si mode "log" 
+* Ajouts
+  * alive_progress peut le pas être présent (un message sera affiché)
 
 #### Version 0.5.5
 
@@ -26,7 +28,7 @@
 * Corrections 
   * Affichages en mode log
   * bug divers
-  * **cmdLineParser.py** : un paramètre peut-être un float, un float négatif, eniter, chaîne, etc ....
+  * **cmdLineParser.py** : un paramètre peut-être un float, un float négatif, entier, chaîne, etc ....
 * Ajouts 
   * paramètres *\-waitFiles* & *\-waitTasks* pour l'attente entre 2 fichiers et/ou traitements
 
