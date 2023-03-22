@@ -5,24 +5,21 @@
 * sous Windows pas de multi-partitions
 
 #### Dépendances
-
 * Tous les OS (cf. ./README.md) 
   * python-psutil
   * alive_progress (facultatif)
 
-#### Version 0.6.1
-
-* xxx mars 2023
+#### Version 0.6.2
+* 22 mars 2023
 * Corrections 
   * BUG: absence de traitement en mode "log"
   * BUG: Affichages erronés en mode "log"
   * BUG: Decompte eroné du nombre de paramètres en ligne de commandes
   * BUG : alive_bar n'est pas importé si mode "log" 
 * Ajouts
-  * alive_progress peut le pas être présent (un message sera affiché)
+  * fakeProgressBar.py - alive_progress peut ne pas être présent
 
 #### Version 0.5.5
-
 * 9 mars 2023
 * "VERSION" devient "VERSIONS.md"
 * Corrections 
@@ -33,7 +30,6 @@
   * paramètres *\-waitFiles* & *\-waitTasks* pour l'attente entre 2 fichiers et/ou traitements
 
 #### Version 0.5.4
-
 * 8 mars 2023
 * Mise à jour de README.md
 * Modification de l'entête des fichiers
@@ -49,7 +45,6 @@
   * certains dossiers (dont ceux de %trash% et '~') ne peuvent être supprimés
 
 #### Version 0.5.3
-
 * 3 mars 2023
 * l'option "-clean" accepte plusieurs dossiers séparés par ";" 
   * la chaîne %trash%  est remplacée par le chemin vers la corbeille de l'utilisateur appellant
@@ -60,23 +55,18 @@
   * vidage du dossier de padding
 
 #### Version 0.5.2
-
 * 27 janvier 2023
 * ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé) 
   * ajout de l'objet basicFolder dont héritera paddingFolder
 * ajout de l'option -np : No Padding - Pas de "salissage" de la partition (par défaut False ...)
 
 #### Version 0.4.1
-
 * 29 dec. 2022
 * 'sharedTools' est incorporé au projet comme sous-dossier
 * Corrections mineures
 
 #### Version 0.3.9
-
 * 26 janv. 2022
-
-
 * Corrections mineures 
   * Bug d'affichage avec l'option -clear
   * Gestion de la ligne de commandes
@@ -87,10 +77,7 @@
 * Choix aléatoire du fichier lors de la suppression (meilleur pour le salissage de la partition)
 
 #### Version 0.3.5
-
 * 15 oct. 2021
-
-
 * Corrections 
   * Si un seul mauvais param; en ligne de commmande 
     * utilisation de sharedTools v1.4.2
@@ -101,19 +88,13 @@
 * Ajout du paramètre -? et/ou -help pour afficher la ligne de commande
 
 #### Version 0.3.4
-
 * 8 octobre 2021
-
-
 * Modification des affichages 
   * Taille de la partition et taux de remplissage réel
   * Corrections mineures
 
 #### Version 0.3.2
-
 * 27 sept. 2021
-
-
 * Utilisation des modules sharedTools (à la place des fichiers dans le dossier)
 * Test(s) & corrections pour Windows
 * Possibilité de founir +sieurs dossiers (séparés par "," ou "*" pour Windows)
@@ -123,24 +104,18 @@
   * bug lorsque le dossier de padding n'existe pas
 
 #### Version 0.2.5
-
 * 21 septembre 2021
 * Corrections mineures 
   * bug d'affichage en mode logs
   * valeurs par défaut
 
 #### Version 0.2.4
-
 * 20 septembre 2021
 * Corrections mineures 
   * Moins d'accès disque (optimisations)
   * Valeur(s) par défaut pour les paramètres de la ligne de commandes 
     * dossier par défaut selon l'OS
-
-
   * Attente entre 2 tâches
-
-
   * Affichage du mode d'execution ('adjust' et/ou 'cleaner')
   * Affichage de la suppression lorsque la taille du fichier est > au quota
 * Ajout de l'option -clear pour supprimer le contenu du dossier de 'padding'
@@ -153,10 +128,8 @@
   * Aucun paramètre n'est obligatoire
 
 #### Version 0.2.1
-
 * 31 aout 2021
 * Version complète (paramètres d'execution constants)
 
 #### Version 0.1.1
-
 * Mai 2020 - Version fonctionnelle (mais basique ...)

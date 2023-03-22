@@ -85,13 +85,13 @@ class paddingFolder(basicFolder):
             cont = True
 
             if self.params_.verbose_:
-                
                 try:
                     from alive_progress import alive_bar as progressBar
                 except ImportError as e:
                     print("Le module 'alive_bar' n'a pu être importé")
-                    return False
-            else:
+                    self.params_.verbose_ = False
+            
+            if not self.params_.verbose_:
                 from fakeProgressBar import fakeProgressBar as progressBar
                 
             # Barre de progression
@@ -185,8 +185,9 @@ class paddingFolder(basicFolder):
                         from alive_progress import alive_bar as progressBar
                     except ImportError as e:
                         print("Le module 'alive_bar' n'a pu être importé")
-                        return False
-                else:
+                        self.params_.verbose_ = False
+            
+                if not self.params_.verbose_:
                     from fakeProgressBar import fakeProgressBar as progressBar
 
                 # Barre de progression
@@ -277,10 +278,12 @@ class paddingFolder(basicFolder):
             try:
                 from alive_progress import alive_bar as progressBar
             except ImportError as e:
-                return 0, "Le module 'alive_bar' n'a pu être importé"
-        else:
+                print("Le module 'alive_bar' n'a pu être importé")
+                self.params_.verbose_ = False
+            
+        if not self.params_.verbose_:
             from fakeProgressBar import fakeProgressBar as progressBar
-
+        
         # Vidage du dossier
         with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             try:
