@@ -1,13 +1,17 @@
 # *dCleaner* informations de version
 
 #### Limitations connues
-
 * sous Windows pas de multi-partitions
+* en l'état seule la poubelle associée à l'utilisateur courant sur sa partition sera vidée
 
 #### Dépendances
 * Tous les OS (cf. ./README.md) 
   * python-psutil
   * alive_progress (facultatif)
+
+#### A faire
+* fakeProgressBar avec un decorator ...
+* vider toutes les poubelles (y compris sur les support mobiles)
 
 #### Version 0.6.2
 * 22 mars 2023

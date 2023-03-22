@@ -4,26 +4,28 @@
 
 `dCleaner` est un utilitaire en ligne de commande qui permet de nettoyer une partition disque et de s'assurer que les fichiers effacés ne pourront pas être récupérés par une application tierce. Il s'agit de saturer ponctuellement l'espace disponible avec des données aléatoire puis de libérer l'espace nouvellement utilisé. De la sorte, le contenu des fichiers effacés est automatiquement écrasé et ne pourra pas être récupéré par un logiciel espion.
 
-En réalité, lorsqu'un fichier est "effacé , l'ensemble de ses données sont conservées sur le disque dur. L'objectif de cet utilitaire consiste à remplir le disque avec des données aléatoires afin d'effacer le contenu des fichiers précédemment 'effacés'.
+En réalité, lorsqu'un fichier est "effacé, ses données sont conservées sur le disque dur seul l'accès est supprimé. L'objectif de cet utilitaire consiste à remplir le disque avec des données aléatoires afin d'effacer factuellement le contenu des fichiers précédemment 'effacés'.
 
-Une partition disque peut être découpée en 3 zones :
+Pour et utilitaire une partition disque peut être découpée en 3 zones :
 
 * L'espace effectivement utilisé par l'ensemble des fichiers du système;
 * Une zone de remplissage - zone de *padding* - qui contient des fichiers aléatoires qui saturent artificiellement l'espace de stockage
-* enfin l'espace libre de la partition. Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée - à un taux paramétrable - de fichiers qui seront à leur tour effacés.
+* enfin l'espace libre de la partition.
+
+Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée - à un taux paramétrable - de fichiers qui seront à leur tour effacés.
 
 > Plus l'espace libre sera ténu et plus le taux de remplissage ponctuel de cette zone sera élevé et donc plus le disque sera protégé.
 
-En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nettoyer un ou plusieurs dossiers. Dans ce cas, le contenu des fichiers sera remplacé par une séquence de caractères aléatoires puis le fichier sera effacé. Les noms des fichiers et des sous-dossiers concernés par l'opération seront aussi générés aléatoirement afin d'effacer efficacement leur trace.
+En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nettoyer un ou plusieurs dossiers. Dans ce cas, le contenu des fichiers sera remplacé par une séquence de caractères aléatoires puis le fichier sera effacé. Les noms des fichiers et des sous-dossiers concernés par l'opération seront aussi générés aléatoirement afin d'effacer efficacement toutes leurs traces.
 
 ## Version
 
 | Dépôt | https://coffee.cd03.fr/JHB/dCleaner |
 |-------|-------------------------------------|
 | **Date** | 16 mars 2023 |
-| **Version stable** | **0\.5.6 - branche** `master` |
+| **Version stable** | **0\.6.3 - branche** `master` |
 | **Dépendances** | Python 3.xx |
-|  | alive_progress de rsalmei (pip install alive-progress) - doc : <https://github.com/rsalmei/alive-progress> |
+|  | *facultatif:* alive_progress de rsalmei (pip install alive-progress) - doc : <https://github.com/rsalmei/alive-progress> |
 |  | python-psutil (apt-get install python-psutil ou dnf install python-psutil) |
 | **Testé sur** | *Linux (Fedora 37)* / *MacOS* - *Windows* à confirmer |
 
