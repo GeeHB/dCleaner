@@ -110,12 +110,12 @@ class paddingFolder(basicFolder):
                         
                         totalSize+=res[1] # Ajout de la taille du fichier
                         
-                        if self.params_.verbose_:
-                            barInc = self.__convertSize2Progressbar(res[1]) 
-                            if barInc > 0:
-                                # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
-                                barPos += barInc
-                                bar(barInc)
+                        #if self.params_.verbose_:
+                        barInc = self.__convertSize2Progressbar(res[1]) 
+                        if barInc > 0:
+                            # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
+                            barPos += barInc
+                            bar(barInc)
 
                         still-=res[1]
                         files+=1
@@ -123,13 +123,14 @@ class paddingFolder(basicFolder):
                         # On attend ...
                         time.sleep(self.params_.waitFiles_)
                 
-                if self.params_.verbose_ and barPos != barMax:
+                #if self.params_.verbose_ and barPos != barMax:
+                if barPos != barMax:
                     # Tout n'a peut-être pas été fait
                     # ou soucis d'arrondis ...
                     bar(barMax - barPos)
                     
             # Terminé
-            print("Remplissage de", self.size2String(totalSize), " -", str(files),"fichiers crées")
+            print("Remplissage de", self.size2String(totalSize), " -", str(files),"fichiers crées" if files > 1 else "fichier crée")
             return True
         
         # Erreur
@@ -216,23 +217,23 @@ class paddingFolder(basicFolder):
                                 tFiles+=1       # Un fichier de + (de supprimé ...)
                                 tSize+=res[1]   # La taille en octets
 
-                                if self.params_.verbose_ :
-                                    if 0 == size:
-                                        #print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
-                                        bar(1)
-                                        barPos += 1
-                                    else:
-                                        #print("  - " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(size - tSize) + " restants")
-                                        barInc = self.__convertSize2Progressbar(res[1]) 
-                                        if barInc > 0:
-                                            # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
-                                            barPos += barInc
+                                #if self.params_.verbose_ :
+                                if 0 == size:
+                                    #print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
+                                    bar(1)
+                                    barPos += 1
+                                else:
+                                    #print("  - " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(size - tSize) + " restants")
+                                    barInc = self.__convertSize2Progressbar(res[1]) 
+                                    if barInc > 0:
+                                        # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
+                                        barPos += barInc
 
-                                            # Ici on peut dépasser ...
-                                            if barPos > barMax:
-                                                barInc = barMax - barPos + barInc
-                                                barPos = barMax
-                                            bar(barInc)
+                                        # Ici on peut dépasser ...
+                                        if barPos > barMax:
+                                            barInc = barMax - barPos + barInc
+                                            barPos = barMax
+                                        bar(barInc)
 
                                 # Quota atteint
                                 if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
@@ -245,13 +246,14 @@ class paddingFolder(basicFolder):
                         # Une erreur => on arrête de suite ...
                         return False
 
-                    if self.params_.verbose_ and barPos != barMax:
+                    #if self.params_.verbose_ and barPos != barMax:
+                    if barPos != barMax:
                         # Tout n'a peut-être pas été fait
                         # ou soucis d'arrondis ...
                         bar(barMax - barPos)
 
         # Fin des traitements
-        print("Suppression de", self.size2String(tSize), " -", str(tFiles),"fichiers supprimés")
+        print("Suppression de", self.size2String(tSize), " -", str(tFiles),"fichiers supprimés" if tFiles > 1 else "fichier supprimé")
         return True
 
     # Vidage du dossier
@@ -299,8 +301,8 @@ class paddingFolder(basicFolder):
 
                         self.deleteFile(fullName)
 
-                        if self.params_.verbose_:
-                            bar()
+                        #if self.params_.verbose_:
+                        bar()
             #except:
             except ValueError as e:
                 return 0, "Erreur lors du vidage de "+self.params_.folder_

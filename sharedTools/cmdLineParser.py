@@ -7,7 +7,6 @@
 #
 #   Remarque    :  
 #
-
 import sys
 
 #
@@ -88,7 +87,6 @@ class cmdLineParser:
 
         return (value, val == False)
 
-    
     # Recherche d'une option par son nom
     #   retourne son index ou NO_INDEX (-1) si l'option n'existe pas
     def findOption(self, name, remove):

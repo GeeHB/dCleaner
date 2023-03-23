@@ -7,12 +7,15 @@
 #   Description :   Interface // à alive_progress
 #
 
+from contextlib import contextmanager
+
+"""
 #
 # Ma barre ...
 #
 class fakeProgressBar:
     
-    # Constructeur // alive_progress (qui utilise  une decorator)
+    # Constructeur // alive_progress 
     def __init__(self, maxValue, title = "", monitor = "", monitor_end = "", elapsed = "", elapsed_end = "", stats = False):
         pass
     
@@ -21,5 +24,13 @@ class fakeProgressBar:
         pass
     def __exit__(self, exc_type,exc_value, exc_traceback):
         pass
+
+"""
+# Version 2 en utilisant un decorateur 
+@contextmanager
+def fakeProgressBar(maxValue = 0, title = "", monitor = "", monitor_end = "", elapsed = "", elapsed_end = "", stats = False):
+    # __enter__
+    yield fakeProgressBar
+    # __exit__
 
 # EOF

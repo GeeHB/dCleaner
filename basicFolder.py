@@ -406,9 +406,6 @@ class basicFolder:
         except:
             # print("Erreur lors de l'ouverture du fichier", self.fileName_)
             return False
-        
-        # oui
-        return True
 
     # Rempliisage d'un fichier
     #    retourne le tuple (nom du fichier, taille en octets, taille du motif aléatoire)
@@ -466,12 +463,10 @@ class basicFolder:
                     if (currentSize + buffSize) > fileSize:
                         buffSize = fileSize - currentSize
                         pattern = pattern[:buffSize]
-
-                # Terminé
-                file.close()
             except:
-                file.close()
                 return name, 0, 0
+            finally:
+                file.close()
         else:
             name = ""
 

@@ -10,8 +10,8 @@
   * alive_progress (facultatif)
 
 #### A faire
-* fakeProgressBar avec un decorator ...
 * vider toutes les poubelles (y compris sur les support mobiles)
+* gérer paramètres courts et longs en ligne de commande
 
 #### Version 0.6.2
 * 22 mars 2023
@@ -20,6 +20,7 @@
   * BUG: Affichages erronés en mode "log"
   * BUG: Decompte eroné du nombre de paramètres en ligne de commandes
   * BUG : alive_bar n'est pas importé si mode "log" 
+  * Messages de logs
 * Ajouts
   * fakeProgressBar.py - alive_progress peut ne pas être présent
 
