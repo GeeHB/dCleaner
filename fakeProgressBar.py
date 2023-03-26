@@ -2,7 +2,7 @@
 #
 #   Fichier     :   fakeProgressBar.py
 #
-#   Author      :   JHB
+#   Auteur      :   JHB
 #
 #   Description :   Interface // à alive_progress
 #
@@ -24,9 +24,9 @@ class fakeProgressBar:
         pass
     def __exit__(self, exc_type,exc_value, exc_traceback):
         pass
-
 """
-# Version 2 en utilisant un decorateur 
+
+# Version 2 en utilisant un decorateur sur la fonction (qui ne fait rien)
 @contextmanager
 def fakeProgressBar(maxValue = 0, title = "", monitor = "", monitor_end = "", elapsed = "", elapsed_end = "", stats = False):
     # __enter__

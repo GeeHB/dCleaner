@@ -2,7 +2,7 @@
 #
 #   Fichier     :   parameters.py
 #
-#   Author      :   JHB
+#   Auteur      :   JHB
 #
 #   Description :   Gestion de la ligne de commande et des constantes.
 #
