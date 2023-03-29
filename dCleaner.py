@@ -233,7 +233,7 @@ if '__main__' == __name__:
 
             cleaner = dCleaner(params)
             print(cleaner)
-
+            
             if params.clear_:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.clearFolder()

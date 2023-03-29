@@ -9,12 +9,13 @@
 
 from sharedTools import cmdLineParser as parser
 from sharedTools import colorizer as color
+from mountPoints import mountPointTrashes
 import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.6.3"
-APP_RELEASE_DATE = "26-03-2023"
+APP_RELEASE_DATE = "29-03-2023"
 
 #
 # Valeurs par défaut
@@ -263,13 +264,20 @@ class options(object):
                 if myPlatform == "Java":
                     folders.append("mon-dossier-java")
                 else:
+                    # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
+                    """
                     info = platform.freedesktop_os_release()
                     if info["ID"] == "fedora":
-                        # ouf il y en a 2
-                        folders.append(os.path.expanduser("~/.local/share/Trash/files"))
-                        folders.append(os.path.expanduser("~/.local/share/Trash/info"))
-                    else:
-                        folders.append("mon-dossier-linux")
+                    """
+                    # Les dossiers de la poubelles dans le dossier 'home' de l'utilisateur
+                    folders.append(os.path.expanduser("~/.local/share/Trash/files"))
+                    folders.append(os.path.expanduser("~/.local/share/Trash/info"))
+
+                    # puis sur tous les volumes mountés
+                    mountedTrashes = mountPointTrashes(os.getuid())
+                    for newTrash in mountedTrashes:
+                        folders.append(newTrash)
+                    
         return folders
 
     #

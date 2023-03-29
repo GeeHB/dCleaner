@@ -16,6 +16,12 @@
 * fakeProgressBar avec un decorator ...
 * gérer paramètres courts et longs en ligne de commande
 
+#### Version 0.6.3
+* 29 mars 2023
+* Ajouts
+  * Liste des dossiers "poubelle" sur les volume montés
+* refactoring
+
 #### Version 0.6.2
 * 22 mars 2023
 * Corrections 

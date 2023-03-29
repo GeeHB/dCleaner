@@ -2,11 +2,11 @@
 #
 #   Fichier     :   mountPoints.py
 #
-#   Auteur      :   JHB
+#   Auteur      :   JHB & Andrea Francia Trivolzio
 #
 #   Description :   Liste de points de mountage disposant d'une poubelle
 #
-#   Remarque    : Basé sur trash-cli par Andrea Francia Trivolzio(PV) Italy
+#   Remarque    :   Basé sur trash-cli par Andrea Francia Trivolzio(PV) Italy
 #
 #   Exemple d'usage pour l'utilisateur courant
 #
