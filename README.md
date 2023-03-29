@@ -9,8 +9,8 @@ En réalité, lorsqu'un fichier est "effacé, ses données sont conservées sur 
 Pour et utilitaire une partition disque peut être découpée en 3 zones :
 
 * L'espace effectivement utilisé par l'ensemble des fichiers du système;
-* Une zone de remplissage - zone de *padding* - qui contient des fichiers aléatoires qui saturent artificiellement l'espace de stockage
-* enfin l'espace libre de la partition.
+* une zone de remplissage - zone de *padding* - qui contient des fichiers aléatoires qui saturent artificiellement l'espace de stockage;
+* puis l'espace libre de la partition.
 
 Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée - à un taux paramétrable - de fichiers qui seront à leur tour effacés.
 
@@ -22,7 +22,7 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 | Dépôt | https://coffee.cd03.fr/JHB/dCleaner |
 |-------|-------------------------------------|
-| **Date** | 16 mars 2023 |
+| **Date** | 26 mars 2023 |
 | **Version stable** | **0\.6.3 - branche** `master` |
 | **Dépendances** | Python 3.xx |
 |  | *facultatif:* alive_progress de rsalmei (pip install alive-progress) - doc : <https://github.com/rsalmei/alive-progress> |
@@ -50,7 +50,8 @@ Les différents paramètres sont définis comme suit :
 | *\-depth* {value} | \-1 | Profondeur du nettoyage des dossiers. |
 |  |  | = -1 (par défaut) : pas de suppression des sous-dossiers. |
 |  |  | = 0 : suppression du dossier et de ses sous-dossiers. |
-|  |  | = 1 : suprression des sous-dossiers à partir du dossier fils. |
+|  |  | = 1 : suppression des sous-dossiers à partir du dossier fils. |
+|  |  | = {n} : suppression des sous-dossiers à partir de la profondeur {n} par rapport au dossier courant. |
 |  |  | **Attention :** le paramètre `depth` s'applique à tous les dossiers concernés par l'appel. Si plusieurs dossiers doivent bénéficier d'une profondeur spécifique, il sera nécessaire d'avoir autant d'appel de `dCleaner.py` que de dossiers. |
 | *\-i* | 1 | Nombre d'itération(s). Ce paramètre correspond à la fois au nombre d’occurrence du process de remplissage mais aussi au nombre de fopis ou les fichiers seront ré-écris en mode effacement des dossiers (paramètre *\-clean*). |
 | *\-nc* |  | mode "no color" : pas de colorisation des affichages. Utile pour la génération de fichiers de logs par exemple |
@@ -83,7 +84,7 @@ Les différents paramètres sont définis comme suit :
 
 Le script est destiné à être appelé mais surtout à être lancé régulièrement par le gestionnaire de tâches planifiées.
 
-Si l'on souhaite récupérer des logs, on peut utiliser le commutateur `-log` afin d'indiquer à l'utilitaire de ne pas mettre en forme (colorisation, gras, etc...) les affichages et d'être un peu moins verbeux.
+Si l'on souhaite récupérer des logs, on peut utiliser le commutateur `-log` afin d'indiquer à l'utilitaire de ne pas mettre en forme les affichages (colorisation, gras, etc...) et d'être un peu moins verbeux.
 
 Dans l'exemple suivant trois tâches `cron` sont lancées régulièrement : une pour s'assurer que la partition ne sature pas et une seconde pour nettoyer la partition, une troisième permet de nettoyer quotidiennement la poubelle ainsi que le dossier des téléchargements.
 

@@ -1,6 +1,6 @@
 # coding=UTF-8
 #
-#   File     :   basicFolder.py
+#   Fichier     :   basicFolder.py
 #
 #   Auteur      :   JHB
 #
@@ -53,7 +53,7 @@ class basicFolder:
 
         # Le dossier existe t'il ?
         if False == os.path.isdir(self.name_):
-            return False, "Le dossier '" +  self.name_ + "' n'existe pas"
+            return False, f"Le dossier '{self.name_}' n'existe pas"
         
         # Ok - pas  de message
         self.valid_ = True

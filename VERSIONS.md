@@ -11,6 +11,9 @@
 
 #### A faire
 * vider toutes les poubelles (y compris sur les support mobiles)
+  * ~/.local/share/Trash (/files et /info)
+  * .Trash-[userid] pour tous les volumes mountés
+* fakeProgressBar avec un decorator ...
 * gérer paramètres courts et longs en ligne de commande
 
 #### Version 0.6.2

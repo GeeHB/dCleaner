@@ -1,6 +1,6 @@
 # coding=UTF-8
 #
-#   File     :   paddingFolder.py
+#   Fichier     :   paddingFolder.py
 #
 #   Auteur      :   JHB
 #

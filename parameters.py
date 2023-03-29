@@ -13,8 +13,8 @@ import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.6.2"
-APP_RELEASE_DATE = "22-03-2023"
+APP_CURRENT_VERSION = "0.6.3"
+APP_RELEASE_DATE = "26-03-2023"
 
 #
 # Valeurs par défaut
@@ -72,7 +72,7 @@ DEF_FOLDER_CLEAN_DEPTH = -1    # Par défaut pas de nettoyage en profondeur des 
 MIN_FOLDER_DEPTH       = -1
 MAX_FOLDER_DEPTH       = 15
 
-# Commandes reconnues
+# Commandes reconnues (longues et courtes)
 #
 
 CMD_OPTION_CHAR = "-"                   # Caractère qui précède tjrs un paramètre
