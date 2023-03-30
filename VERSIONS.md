@@ -2,7 +2,6 @@
 
 #### Limitations connues
 * sous Windows pas de multi-partitions
-* en l'état seule la poubelle associée à l'utilisateur courant sur sa partition sera vidée
 
 #### Dépendances
 * Tous les OS (cf. ./README.md) 
@@ -10,17 +9,13 @@
   * alive_progress (facultatif)
 
 #### A faire
-* vider toutes les poubelles (y compris sur les support mobiles)
-  * ~/.local/share/Trash (/files et /info)
-  * .Trash-[userid] pour tous les volumes mountés
-* fakeProgressBar avec un decorator ...
 * gérer paramètres courts et longs en ligne de commande
 
 #### Version 0.6.3
-* 29 mars 2023
+* 30 mars 2023
 * Ajouts
-  * Liste des dossiers "poubelle" sur les volume montés
-* refactoring
+  * Suppression des dossiers "poubelle" sur les volume montés
+* Début du refactoring
 
 #### Version 0.6.2
 * 22 mars 2023

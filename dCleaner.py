@@ -37,7 +37,7 @@ class dCleaner:
 
         # Le dossier est-il correct ?
         if self.options_.folder_ == "\\" or (os.path.exists(self.options_.folder_) and not os.path.isdir(self.options_.folder_)):
-            message = "Le dossier '" + self.options_.folder_ + "' n'est pas correct"
+            message = "Le dossier '{self.options_.folder_}' n'est pas correct"
             raise ValueError(message)
 
         # Création de l'objet pour la gestion du dossier
@@ -69,31 +69,31 @@ class dCleaner:
                 if len(txt) > 0 : 
                     txt = txt + " &"
                 txt = txt + " vidage de dossier"
-            out += "\n\t- Mode : " + self.options_.color_.colored(txt, formatAttr=[textAttribute.GRAS])
+            out += f"\n\t- Mode : {self.options_.color_.colored(txt, formatAttr=[textAttribute.GRAS])}"
             
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(str(self.options_.fillRate_) + "%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(str(self.options_.renewRate_) + "%", formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Attente entre 2 fichiers : " + str(self.options_.waitFiles_) + "s"
-            out += "\n\t- Attente entre 2 itérations : " + str(self.options_.waitTasks_) + "s"
+            out += f"\n\t- Attente entre 2 fichiers : {self.options_.waitFiles_}s"
+            out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
             
             if False == self.options_.adjust_ :
-                out += "\n\t- Itération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
+                out += f"\n\t- Itération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
             
             out += "\n\nPartition : "
-            out += "\n\t- Taille : " + self.paddingFolder_.size2String(res[0])
+            out += f"\n\t- Taille : {self.paddingFolder_.size2String(res[0])}"
             out += "\n\t- Remplie à " + self.options_.color_.colored(str(round(res[1] / res[0] * 100 , 2)) + "%", formatAttr=[textAttribute.GRAS]) + " - " + self.paddingFolder_.size2String(res[1])
             
             if False == self.options_.noPadding_:
                 out += "\n\nRemplissage : " 
                 out += "\n\t- Nom : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
-                out += "\n\t- Contenu : " + self.paddingFolder_.size2String(self.paddingFolder_.size()) + "\n"
+                out += f"\n\t- Contenu : {self.paddingFolder_.size2String(self.paddingFolder_.size())}\n"
 
             if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : " 
-                out += "\n\t - " + str(len(self.options_.clean_))  + " dossiers(s) à vider :"
+                out += f"\n\t - {len(self.options_.clean_)} dossiers(s) à vider :"
                 for dossier in self.options_.clean_:
-                    out += "\n\t\t- " + self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])
-                out += "\n\t- Profondeur : " + str(self.options_.cleanDepth_) + "\n"
+                    out += f"\n\t\t- {self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])}"
+                out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
         else :
             out = "Partition : " + self.paddingFolder_.size2String(res[0]) +  " - remplie à " + str(round(res[1] / res[0] * 100 ,0)) + "%"
             out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
@@ -105,8 +105,7 @@ class dCleaner:
                 out += "\nVider : " + self.options_.color_.colored(str(len(self.options_.clean_)) + " dossiers(s) - Profondeur : " + str(self.options_.cleanDepth_), formatAttr=[textAttribute.GRAS])
             
             if False == self.options_.adjust_ :
-                out += "\nItération(s) de nettoyage : " + self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])
-            
+                out += f"\nItération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"            
         return out
 
     # Nettoyage (vidage) d'un dossier (dossier de remplissage / 'padding' si non précisé)
@@ -238,7 +237,7 @@ if '__main__' == __name__:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.clearFolder()
                 if len(res[1]) > 0  :
-                    print(params.color_.colored("Erreur lors de la suppression : " + res[1], textColor.ROUGE))
+                    print(params.color_.colored(f"Erreur lors de la suppression : {res[1]}", textColor.ROUGE))
                 else:
                     print(str(res[0]) + " fichier(s) supprimé(s)")
             else:
