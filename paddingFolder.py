@@ -39,7 +39,7 @@ class paddingFolder(basicFolder):
         # Le dossier existe t'il ?
         if False == os.path.isdir(self.params_.folder_):
             if self.params_.verbose_:
-                print("Le dossier '" +  self.params_.folder_ + "' n'existe pas")
+                print(f"Le dossier '{self.params_.folder_}' n'existe pas")
 
             # On essaye de le créer
             try:
@@ -48,7 +48,7 @@ class paddingFolder(basicFolder):
                 if self.params_.verbose_:
                     print("Dossier crée avec succès")
             except:   
-                return False, "Impossible de créer le dossier '" + self.params_.folder_ + "'"
+                return False, f"Impossible de créer le dossier '{self.params_.folder_}'"
         
         # Ok - pas  de message
         self.valid_ = True
@@ -76,7 +76,7 @@ class paddingFolder(basicFolder):
     def newFiles(self, expectedFillSize):
         if True == self.valid_ and expectedFillSize > 0:
             if self.params_.verbose_ :
-                print("Demande de remplissage de", self.size2String(expectedFillSize))
+                print(f"Demande de remplissage de {self.size2String(expectedFillSize)}")
 
             # Rien n'a été fait !!!
             still = expectedFillSize
@@ -130,7 +130,7 @@ class paddingFolder(basicFolder):
                     bar(barMax - barPos)
                     
             # Terminé
-            print("Remplissage de", self.size2String(totalSize), " -", str(files),"fichiers crées" if files > 1 else "fichier crée")
+            print(f"Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else "fichier crée")
             return True
         
         # Erreur
@@ -170,9 +170,9 @@ class paddingFolder(basicFolder):
                 
                 if self.params_.verbose_:
                     if not 0 == size :
-                        print("Demande de suppression à hauteur de", self.size2String(size))
+                        print(f"Demande de suppression à hauteur de {self.size2String(size)}")
                     else:
-                        print("Demande de suppression de " + str(count) + " fichiers")
+                        print(f"Demande de suppression de {count} fichiers")
 
                 
                 # Liste des fichiers du dossier
@@ -253,7 +253,7 @@ class paddingFolder(basicFolder):
                         bar(barMax - barPos)
 
         # Fin des traitements
-        print("Suppression de", self.size2String(tSize), " -", str(tFiles),"fichiers supprimés" if tFiles > 1 else "fichier supprimé")
+        print(f"Suppression de {self.size2String(tSize)} - {tFiles}","fichiers supprimés" if tFiles > 1 else "fichier supprimé")
         return True
 
     # Vidage du dossier
@@ -305,7 +305,7 @@ class paddingFolder(basicFolder):
                         bar()
             #except:
             except ValueError as e:
-                return 0, "Erreur lors du vidage de "+self.params_.folder_
+                return 0, f"Erreur lors du vidage de {self.params_.folder_}"
          
         # Dossier vidé
         return count, ""       

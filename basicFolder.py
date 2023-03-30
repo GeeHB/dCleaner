@@ -102,7 +102,7 @@ class basicFolder:
                         return values[1], size
                 except:
                     if self.params_.verbose_:
-                        print(self.params_.color_.colored("Erreur lors de la tentative de suppression de " + name, textColor.ROUGE))
+                        print(self.params_.color_.colored(f"Erreur lors de la tentative de suppression de {name}", textColor.ROUGE))
                     pass 
 
         # Rien n'a été fait
@@ -151,7 +151,7 @@ class basicFolder:
             if 0 == remove:
                 self.__rmdir(folder)
         except:
-            return 0, "Erreur lors du vidage de "+self.params_.folder_
+            return 0, f"Erreur lors du vidage de {self.params_.folder_}"
         
         # Dossier vidé
         return count, ""
