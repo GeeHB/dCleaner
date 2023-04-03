@@ -10,16 +10,16 @@
 
 #### A faire
 * gérer paramètres courts et longs en ligne de commande
+* getters & setters
 
 #### Version 0.7.1
-* 30 mars 2023
+* 3 avril 2023
 * Ajouts
-  * Getsion des paramètres d'appel avec argparse
-  * => retrait de cmdLineParser du projet
-  * Commandes courtes {-x} et longues {--xxx}
+  * Gestion des paramètres d'appel avec argparse
+    * => retrait de cmdLineParser du projet
+    * Commandes courtes {-x} et longues {--xxx}
 * Refactoring des sources
   * -f-strings
-  * getters & setters
 
 #### Version 0.6.3
 * 30 mars 2023
