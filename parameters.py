@@ -15,22 +15,7 @@ import sys, os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.7.1"
-APP_RELEASE_DATE = "03-04-2023"
-
-#
-# Valeurs par défaut
-#
-
-DEF_PARTITION_FILL_RATE = 80    # Pourcentage de remplissage max. de la partition
-DEF_PADDING_RATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
-
-MIN_RATE = 1
-MAX_RATE = 95                   # Il faut laisser un peu de place ...
-MAX_PADDING_RATE = 50
-
-DEF_ITERATE_COUNT = 1           # Nombre de fois ou sera lancé le processus de remplissage / nettoyage
-MIN_ITERATE_COUNT = 1
-MAX_ITERATE_COUNT = 10
+APP_RELEASE_DATE = "04-04-2023"
 
 #
 # Motif aléatoire
@@ -57,23 +42,11 @@ DEF_LINUX_ROOT_FOLDER = "~"
 FILESIZE_MIN = 1
 FILESIZE_MAX = 1024
 
-# Durée(s) d'attente(s) en sec.
-#
-MIN_ELAPSE_FILES = 0.0      # Entre la gestion de deux fichiers
-MAX_ELAPSE_FILES = 180.0
-
-MIN_ELAPSE_TASKS = 5.0      # Entre 2 tâches en sec.
-MAX_ELAPSE_TASKS = 180.0
-
 #
 # Dossiers à nettoyer
 #
 FOLDERS_SEP = ";"              # Séparateur de liste
 FOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
-
-DEF_FOLDER_CLEAN_DEPTH = -1    # Par défaut pas de nettoyage en profondeur des dossiers (on ne supprime pas les sous-dossiers)
-MIN_FOLDER_DEPTH       = -1
-MAX_FOLDER_DEPTH       = 15
 
 #
 # Commandes / arguments reconnu(e)s (longues et courtes)
@@ -125,31 +98,56 @@ ARG_DEPTH_S = "-d"
 ARG_DEPTH   = "--depth"
 COMMENT_DEPTH = "Profondeur des dossiers pour la suppression (à partir du dossier courant)"
 
+DEF_DEPTH = None    # Par défaut pas de nettoyage en profondeur des dossiers (on ne supprime pas les sous-dossiers)
+MIN__DEPTH      = 0
+MAX_DEPTH       = 15
+
 # Nombre d'itération à effectuer - Par défaut = 1
 ARG_ITERATE_S = "-i"
 ARG_ITERATE   = "-iteration"
 COMMENT_ITERATE = "Nombre d'itération du process de nettoyage"
+
+DEF_ITERATE = 1           # Nombre de fois ou sera lancé le processus de remplissage / nettoyage
+MIN_ITERATE = 1
+MAX_ITERATE = 10
 
 # Pourcentage de la partition devant être plein (y compris de padding) - Par défaut 80%
 ARG_FILLRATE_S = "-fi"
 ARG_FILLRATE   = "--fill"
 COMMENT_FILLRATE = "Taux de remplissage de la partition"
 
+DEF_FILLRATE = 80    # Pourcentage de remplissage max. de la partition
+MIN_FILLRATE = 1
+MAX_FILLRATE = 95 
+
 # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 ARG_PADDINGRATE_S = "-p"
 ARG_PADDINGRATE   = "--padding"
 COMMENT_PADDINGRATE = "Taille (en % de la taille libre) à nettoyer"
 
+DEF_PADDINGRATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
+MIN_PADDINGRATE = 1
+MAX_PADDINGRATE = 50
+
 # Attente entre le traitement de 2 fichiers
 ARG_ELAPSEFILES_S = "-wf"
 ARG_ELAPSEFILES   = "--waitfiles"
-COMMENT_ELPASEFILES = "Durée en s entre 2 suppressions de fichiers"
+COMMENT_ELAPSEFILES = "Durée en s entre 2 suppressions de fichiers"
+
+DEF_ELAPSEFILES = 0.1
+MIN_ELAPSEFILES = 0.0
+MAX_ELAPSEFILES = 180.0
+
 
 # Attente entre 2 itérations
 ARG_ELAPSETASKS_S = "-wt"
 ARG_ELAPSETASKS   = "--waittasks"
 COMMENT_ELAPSETASKS = "Durée en s entre 2 itérations"
-    
+
+DEF_ELAPSETASKS = 5.0
+MIN_ELAPSETASKS = 5.0
+MAX_ELAPSETASKS = 180.0
+   
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
@@ -167,17 +165,17 @@ class options(object):
         
         self.noPadding_ = False
         
-        self.iterate_ = DEF_ITERATE_COUNT
+        self.iterate_ = DEF_ITERATE
         
-        self.fillRate_ = DEF_PARTITION_FILL_RATE
-        self.renewRate_ = DEF_PADDING_RATE
+        self.fillRate_ = DEF_FILLRATE
+        self.renewRate_ = DEF_PADDINGRATE
         self.clear_ = False
 
-        self.waitFiles_ = MIN_ELAPSE_FILES
-        self.waitTasks_ = MIN_ELAPSE_TASKS
+        self.waitFiles_ = MIN_ELAPSEFILES
+        self.waitTasks_ = MIN_ELAPSETASKS
         
         self.clean_ = []        # Nettoyage d'un ou plusieurs dossiers
-        self.cleanDepth_ = DEF_FOLDER_CLEAN_DEPTH   # Profondeur du nettoyage (pas de suppression)
+        self.cleanDepth_ = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
         self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)   
@@ -185,89 +183,69 @@ class options(object):
     # Analyse de la ligne de commandes
     #   returne un booléen
     def parse(self):
-
-        parameters = parser.cmdLineParser(CMD_OPTION_CHAR)
-
-        # De l'aide ?
-        showUsage = ((parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_HELP)) or (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_HELP_MIN)))
         
-        # Si l'aide est demandée, rien ne sert d'analyser le reste de la ligne de commande
+        parser = argparse.ArgumentParser()
+        
+        parser.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
+        parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
+        parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
+        
+        lancement = parser.add_mutually_exclusive_group()
+        lancement.add_argument(ARG_CLEAR_S, ARG_CLEAR, action='store_true', help = COMMENT_CLEAR, required = False)
+        lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
+
+        parser.add_argument(ARG_FOLDER_S, ARG_FOLDER, help = COMMENT_FOLDER, required = False, nargs=1)
+        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE_S, help = COMMENT_ITERATE, required = False, nargs=1, default = DEF_ITERATE, type=int, choices=range(MIN_ITERATE, MAX_ITERATE))
+        parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, default = DEF_DEPTH, type=int, choices=range(MIN__DEPTH, MAX_DEPTH))
+        parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs=1)
+
+        parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = DEF_ELAPSEFILES, type=float)
+        parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = DEF_ELAPSETASKS, type=float)
+
+        parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE_S, help = COMMENT_FILLRATE, required = False, nargs=1, default = DEF_ELAPSETASKS, type=int, choices=range(MIN_FILLRATE, MAX_FILLRATE))
+        parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = DEF_PADDINGRATE, type=int, choices=range(MIN_PADDINGRATE, MAX_PADDINGRATE))
+
+        # Parse de la ligne
         #
-        if False == showUsage:
+        args = parser.parse_args()
         
-            # En mode log ?
-            self.verbose_ = (parameters.NO_INDEX == parameters.findAndRemoveOption(CMD_OPTION_LOGMODE))
-            
-            # Colorisation des affichages ?
-            noColor = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOCOLOR)) if self.verbose_ else True
+        # Mode "verbeux"
+        self.verbose_ = False == args.log
 
-            # Création de l'objet pour la gestion de la colorisation
-            self.color_ = color.colorizer(False == noColor)
+        # Colorisation des affichages ?
+        noColor = False == args.nocolor
+        self.color_ = color.colorizer(False == noColor)
 
-            # Pas de padding ?
-            self.noPadding_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_NOPADDING)) 
+        # Pas de padding ?
+        self.noPadding_ = False == args.nopadding
 
-            # Nettoyage ?
-            self.clear_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_CLEAN))
+        # Nettoyage
+        self.clear_ = False == args.clear
 
-            if False == self.clear_:
-                # Ajustement ?
-                self.adjust_ = (parameters.NO_INDEX != parameters.findAndRemoveOption(CMD_OPTION_ADJUST))
+        # Mode ajustement
+        self.adjust_ = False == args.adjust
 
-            # Nom du dossier de remplissage
-            res = parameters.getOptionValue(CMD_OPTION_FOLDER)
-            if None != res and None != res[0]:
-                self.folder_ = res[0]
-            self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
+        # Nom du dossier de remplissage
+        self.folder_ = args.folder[0]
+        self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
 
-             # Nettoyage d'un (ou plusieurs) dossier(s)
-            res = parameters.getOptionValue(CMD_OPTION_DEST_FOLDER)
-            if None != res and None != res[0]:
-                self._handleCleanFolders(res[0])
+        # Nombre d'itérations
+        self.iterate_ = args.iterate[0]
 
-           # Nombre d'itérations
-            res = parameters.getOptionValueNum(CMD_OPTION_ITERATE, min = MIN_ITERATE_COUNT, max = MAX_ITERATE_COUNT)
-            if None != res[0]:
-                self.iterate_ = res[0]
-                
-           # Attente entre 2 (suppressions) de fichier
-            res = parameters.getOptionValueNum(CMD_OPTION_ELAPSE_FILES, MIN_ELAPSE_FILES, MAX_ELAPSE_TASKS)
-            if None != res[0]:
-                self.waitFiles_ = res[0]
+        # Profondeur
+        self.cleanDepth_ = -1 if args.depth[0] is None else args.depth[0]
 
-            # Attente entre 2 séries de traitement
-            res = parameters.getOptionValueNum(CMD_OPTION_ELAPSE_TASKS, MIN_ELAPSE_TASKS, MAX_ELAPSE_TASKS)
-            if None != res[0]:
-                self.waitTasks_ = res[0]
-           
-           # Profondeur
-            res = parameters.getOptionValueNum(CMD_OPTION_DEPTH, MIN_FOLDER_DEPTH, MAX_FOLDER_DEPTH)
-            if None != res[0]:
-                self.cleanDepth_ = int(res[0]) # C'est un nombre entier
+        # Nettoyage d'un (ou plusieurs) dossier(s)
+        self._handleCleanFolders(args.clean[0])
 
-            if False == self.clear_:
-                # Taux de remplissage permanent de la partition
-                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_FILL_RATE, MIN_RATE, MAX_RATE)
-                if None != res[0]:
-                    self.fillRate_ = res[0]
+        # Attentes
+        self.waitFiles_ = self._inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
+        self.waitFTasks_ = self._inRange(args.waittakss[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
 
-                # Taux de remplissage du reste de la partition
-                res = parameters.getOptionValueNum(CMD_OPTION_PARTITION_PADDING_RATE, MIN_RATE, MAX_PADDING_RATE)
-                if None != res[0]:
-                    self.renewRate_ = res[0]
+        # Taux de remplissage
+        self.fillRate_ = args.fillrate[0]
+        self.renewRate_ =args.paddingrate[0]
 
-        # A priori il ne devrait plus y avoir de paramètres
-        """
-        a = parameters.size()            # Elements dans la ligne de cmd
-        b = parameters.options()         # Options non traitées
-        c = parameters.usefullItems()    # Elements restants (non traités) 
-        """
-        # Une erreur, trop de paramètres ou rien à faire ...
-        if True == showUsage or parameters.usefullItems() > 0 or (self.noPadding_ and self.clear_ == False and self.clean_ is None):
-            self.usage()
-            return False
-
-        # Ok
         return True
         
     # Dossier "root"
@@ -328,5 +306,11 @@ class options(object):
         uniqueVals = set(destFolders)
         for val in uniqueVals:
             self.clean_.append(val)
+
+    # Retourne une valeur dans l'intervalle
+    def _inRange(self, value, min, max):
+        return max if value > max else ( min if value < min else value)
+            
+
 
 # EOF

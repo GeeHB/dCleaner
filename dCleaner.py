@@ -14,7 +14,6 @@
 #
 import parameters
 import os
-from sharedTools import cmdLineParser as parser
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
 from sharedTools.colorizer import textAttribute, textColor
