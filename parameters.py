@@ -195,59 +195,56 @@ class options(object):
         lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
 
         parser.add_argument(ARG_FOLDER_S, ARG_FOLDER, help = COMMENT_FOLDER, required = False, nargs=1)
-        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = DEF_ITERATE, type=int, choices=range(MIN_ITERATE, MAX_ITERATE))
-        parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, default = DEF_DEPTH, type=int, choices=range(MIN__DEPTH, MAX_DEPTH))
+        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = [DEF_ITERATE], type=int, choices=range(MIN_ITERATE, MAX_ITERATE))
+        parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = [DEF_FILLRATE], type=int)
+        parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = [DEF_PADDINGRATE], type=int)
+        parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, type=int, choices=range(MIN__DEPTH, MAX_DEPTH))
         parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs=1)
 
-        parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = DEF_ELAPSEFILES, type=float)
-        parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = DEF_ELAPSETASKS, type=float)
-
-        parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = DEF_ELAPSETASKS, type=int)
-        parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = DEF_PADDINGRATE, type=int)
+        parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = [DEF_ELAPSEFILES], type=float)
+        parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = [DEF_ELAPSETASKS], type=float)
 
         # Parse de la ligne
         #
         args = parser.parse_args()
         
         # Mode "verbeux"
-        self.verbose_ = False == args.log
+        self.verbose_ = (False == args.log)
 
         # Colorisation des affichages ?
-        noColor = False == args.nocolor
-        self.color_ = color.colorizer(False == noColor)
+        self.color_ = color.colorizer( (False == args.nocolor))
 
         # Pas de padding ?
-        self.noPadding_ = False == args.nopadding
+        self.noPadding_ = args.nopadding
 
         # Nettoyage
-        self.clear_ = False == args.clear
+        self.clear_ = args.clear
 
         # Mode ajustement
-        self.adjust_ = False == args.adjust
+        self.adjust_ = args.adjust
 
         # Nom du dossier de remplissage
         if args.folder is not None:
             self.folder_ = args.folder[0]
             self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
 
-        # Nombre d'itérations
-        if args.iteration is not None:
-            self.iterate_ = args.iteration
+        # Nombre d'itérations (il y a une valeur par défaut => l'attribut existe donc tjrs !!!)
+        self.iterate_ = self._inRange(args.iteration[0], MIN_ITERATE, MAX_ITERATE)
+
+        # Taux de remplissage
+        self.fillRate_ = self._inRange(args.fill[0], MIN_FILLRATE, MAX_FILLRATE)
+        self.renewRate_ = self._inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
 
         # Profondeur
-        self.cleanDepth_ = args.depth if args.depth is not None else -1
+        self.cleanDepth_ = args.depth if args.depth[0] is not None else -1
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
             self._handleCleanFolders(args.clean[0])
 
         # Attentes
-        self.waitFiles_ = self._inRange(args.waitfiles, MIN_ELAPSEFILES, MAX_ELAPSEFILES)
-        self.waitFTasks_ = self._inRange(args.waittasks, MIN_ELAPSETASKS, MAX_ELAPSETASKS)
-
-        # Taux de remplissage
-        self.fillRate_ = self._inRange(args.fill, MIN_FILLRATE, MAX_FILLRATE)
-        self.renewRate_ = self._inRange(args.padding, MIN_PADDINGRATE, MAX_PADDINGRATE)
+        self.waitFiles_ = self._inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
+        self.waitFTasks_ = self._inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
 
         return True
         
