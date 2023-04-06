@@ -227,7 +227,7 @@ if '__main__' == __name__:
     if True == params.parse():
         try:    
             done = True
-            params.usage(False)
+            params.version()
 
             cleaner = dCleaner(params)
             print(cleaner)

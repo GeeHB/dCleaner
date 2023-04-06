@@ -104,7 +104,7 @@ MAX_DEPTH       = 15
 
 # Nombre d'itération à effectuer - Par défaut = 1
 ARG_ITERATE_S = "-i"
-ARG_ITERATE   = "-iteration"
+ARG_ITERATE   = "--iteration"
 COMMENT_ITERATE = "Nombre d'itération du process de nettoyage"
 
 DEF_ITERATE = 1           # Nombre de fois ou sera lancé le processus de remplissage / nettoyage
@@ -195,15 +195,15 @@ class options(object):
         lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
 
         parser.add_argument(ARG_FOLDER_S, ARG_FOLDER, help = COMMENT_FOLDER, required = False, nargs=1)
-        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE_S, help = COMMENT_ITERATE, required = False, nargs=1, default = DEF_ITERATE, type=int, choices=range(MIN_ITERATE, MAX_ITERATE))
+        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = DEF_ITERATE, type=int, choices=range(MIN_ITERATE, MAX_ITERATE))
         parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, default = DEF_DEPTH, type=int, choices=range(MIN__DEPTH, MAX_DEPTH))
         parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs=1)
 
         parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = DEF_ELAPSEFILES, type=float)
         parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = DEF_ELAPSETASKS, type=float)
 
-        parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE_S, help = COMMENT_FILLRATE, required = False, nargs=1, default = DEF_ELAPSETASKS, type=int, choices=range(MIN_FILLRATE, MAX_FILLRATE))
-        parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = DEF_PADDINGRATE, type=int, choices=range(MIN_PADDINGRATE, MAX_PADDINGRATE))
+        parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = DEF_ELAPSETASKS, type=int)
+        parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = DEF_PADDINGRATE, type=int)
 
         # Parse de la ligne
         #
@@ -226,25 +226,28 @@ class options(object):
         self.adjust_ = False == args.adjust
 
         # Nom du dossier de remplissage
-        self.folder_ = args.folder[0]
-        self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
+        if args.folder is not None:
+            self.folder_ = args.folder[0]
+            self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
 
         # Nombre d'itérations
-        self.iterate_ = args.iterate[0]
+        if args.iteration is not None:
+            self.iterate_ = args.iteration
 
         # Profondeur
-        self.cleanDepth_ = -1 if args.depth[0] is None else args.depth[0]
+        self.cleanDepth_ = args.depth if args.depth is not None else -1
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
-        self._handleCleanFolders(args.clean[0])
+        if args.clean is not None:
+            self._handleCleanFolders(args.clean[0])
 
         # Attentes
-        self.waitFiles_ = self._inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
-        self.waitFTasks_ = self._inRange(args.waittakss[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
+        self.waitFiles_ = self._inRange(args.waitfiles, MIN_ELAPSEFILES, MAX_ELAPSEFILES)
+        self.waitFTasks_ = self._inRange(args.waittasks, MIN_ELAPSETASKS, MAX_ELAPSETASKS)
 
         # Taux de remplissage
-        self.fillRate_ = args.fillrate[0]
-        self.renewRate_ =args.paddingrate[0]
+        self.fillRate_ = self._inRange(args.fill, MIN_FILLRATE, MAX_FILLRATE)
+        self.renewRate_ = self._inRange(args.padding, MIN_PADDINGRATE, MAX_PADDINGRATE)
 
         return True
         
@@ -280,6 +283,14 @@ class options(object):
                         folders.append(newTrash)
                     
         return folders
+    
+    # Affichage de la version de l'application
+    #
+    def version(self):
+        if None == self.color_:
+            self.color_ = color.colorizer(True)
+
+        print(self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB - version", APP_CURRENT_VERSION, "du", APP_RELEASE_DATE)
 
     #
     # Méthodes à usage interne

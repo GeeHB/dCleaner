@@ -11,6 +11,7 @@
 #### A faire
 * gérer paramètres courts et longs en ligne de commande
 * getters & setters
+* paramètre clean : --clean {folder 1} {folder 2} ... {folder n}
 
 #### Version 0.7.1
 * 3 avril 2023
