@@ -14,7 +14,7 @@
 * paramètre clean : --clean {folder 1} {folder 2} ... {folder n}
 
 #### Version 0.7.1
-* 3 avril 2023
+* 7 avril 2023
 * Ajouts
   * Gestion des paramètres d'appel avec argparse
     * => retrait de cmdLineParser du projet

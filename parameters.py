@@ -15,7 +15,7 @@ import sys, os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.7.1"
-APP_RELEASE_DATE = "04-04-2023"
+APP_RELEASE_DATE = "07-04-2023"
 
 #
 # Motif aléatoire
@@ -123,7 +123,7 @@ MAX_FILLRATE = 95
 # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 ARG_PADDINGRATE_S = "-p"
 ARG_PADDINGRATE   = "--padding"
-COMMENT_PADDINGRATE = "Taille (en % de la taille libre) à nettoyer"
+COMMENT_PADDINGRATE = "Taille (en pourcentage de la taille libre) à nettoyer"
 
 DEF_PADDINGRATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)
 MIN_PADDINGRATE = 1
@@ -137,7 +137,6 @@ COMMENT_ELAPSEFILES = "Durée en s entre 2 suppressions de fichiers"
 DEF_ELAPSEFILES = 0.1
 MIN_ELAPSEFILES = 0.0
 MAX_ELAPSEFILES = 180.0
-
 
 # Attente entre 2 itérations
 ARG_ELAPSETASKS_S = "-wt"
@@ -184,21 +183,22 @@ class options(object):
     #   returne un booléen
     def parse(self):
         
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(epilog = self.version())
         
         parser.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
         parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
         parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
         
+        # Arguments mutuellement exclusifs
         lancement = parser.add_mutually_exclusive_group()
         lancement.add_argument(ARG_CLEAR_S, ARG_CLEAR, action='store_true', help = COMMENT_CLEAR, required = False)
         lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
 
         parser.add_argument(ARG_FOLDER_S, ARG_FOLDER, help = COMMENT_FOLDER, required = False, nargs=1)
-        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = [DEF_ITERATE], type=int, choices=range(MIN_ITERATE, MAX_ITERATE))
+        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = [DEF_ITERATE], type=int, choices=range(MIN_ITERATE, MAX_ITERATE + 1))
         parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = [DEF_FILLRATE], type=int)
         parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = [DEF_PADDINGRATE], type=int)
-        parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, type=int, choices=range(MIN__DEPTH, MAX_DEPTH))
+        parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, type=int, choices=range(MIN__DEPTH, MAX_DEPTH + 1))
         parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs=1)
 
         parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = [DEF_ELAPSEFILES], type=float)
@@ -229,22 +229,22 @@ class options(object):
             self.folder_ = os.path.expanduser(self.folder_)   # Remplacer le car. '~' si présent
 
         # Nombre d'itérations (il y a une valeur par défaut => l'attribut existe donc tjrs !!!)
-        self.iterate_ = self._inRange(args.iteration[0], MIN_ITERATE, MAX_ITERATE)
+        self.iterate_ = self.inRange(args.iteration[0], MIN_ITERATE, MAX_ITERATE)
 
         # Taux de remplissage
-        self.fillRate_ = self._inRange(args.fill[0], MIN_FILLRATE, MAX_FILLRATE)
-        self.renewRate_ = self._inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
+        self.fillRate_ = self.inRange(args.fill[0], MIN_FILLRATE, MAX_FILLRATE)
+        self.renewRate_ = self.inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
 
         # Profondeur
-        self.cleanDepth_ = args.depth if args.depth[0] is not None else -1
+        self.cleanDepth_ = args.depth if args.depth is not None else -1
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
             self._handleCleanFolders(args.clean[0])
 
         # Attentes
-        self.waitFiles_ = self._inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
-        self.waitFTasks_ = self._inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
+        self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
+        self.waitFTasks_ = self.inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
 
         return True
         
@@ -287,7 +287,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        print(self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_)), "par JHB - version", APP_CURRENT_VERSION, "du", APP_RELEASE_DATE)
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_))} par JHB - version {APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     #
     # Méthodes à usage interne
@@ -316,7 +316,7 @@ class options(object):
             self.clean_.append(val)
 
     # Retourne une valeur dans l'intervalle
-    def _inRange(self, value, min, max):
+    def inRange(self, value, min, max):
         return max if value > max else ( min if value < min else value)
             
 

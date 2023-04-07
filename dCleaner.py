@@ -12,7 +12,7 @@
 #
 #   Dépendances :  Nécessite python-psutil (apt-get install / dnf install)
 #
-import parameters
+import parameters as opts
 import os
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
@@ -191,7 +191,7 @@ class dCleaner:
         renewSize = res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100 
         
         # on recadre avec l'espace effectivement dispo
-        renewSize = parser.cmdLineParser.minMax(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100)        
+        renewSize = opts.options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100)        
         
         # On remplit 
         self.paddingFolder_.newFiles(renewSize)
@@ -217,17 +217,17 @@ if '__main__' == __name__:
     
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
-        print(parameters.APP_NAME + " doit être lancé par un compte 'non root'")
+        print(opts.APP_NAME + " doit être lancé par un compte 'non root'")
         exit()
     
     done = False
 
     # Ma ligne de commandes
-    params = parameters.options()
+    params = opts.options()
     if True == params.parse():
         try:    
             done = True
-            params.version()
+            print(params.version())
 
             cleaner = dCleaner(params)
             print(cleaner)
