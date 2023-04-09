@@ -1,3 +1,5 @@
+#!/bin/python3
+
 # coding=UTF-8
 #
 #   Fichier     :   mountPoints.py
@@ -14,15 +16,15 @@
 #       for fs in myList:
 #           print(fs)
 
-import os.path
+import os, psutil
 
 # Liste des points montage 
 #   
 #   Generator - "retourne" les dossiers existants
 #
-def mountPointTrashes(id):
-    import psutil
+def mountPointTrashes(id, display = False):
     fstypes = [
+        'cifs', # JHB : for old time kernels allowing CIFS ...
         'nfs',
         'nfs4',
         'p9', # file system used in WSL 2 (Windows Subsystem for Linux)
@@ -37,7 +39,7 @@ def mountPointTrashes(id):
     for p in psutil.disk_partitions(all=True):
         trashDir = os.path.join(p.mountpoint, f".Trash-{id}")
         if os.path.isdir(trashDir) and \
-                partitions.shouldUsedAsTrash(p):
+                partitions.shouldUsedAsTrash(p, display):
             yield trashDir
 
 # La partition peut-elle accueillir une poubelle ?
@@ -46,11 +48,17 @@ class Partitions:
     def __init__(self, physical_fstypes):
         self.physical_fstypes = physical_fstypes
 
-    def shouldUsedAsTrash(self, partition):
+    def shouldUsedAsTrash(self, partition, display = False):
+        if display : print(f"Mount : {partition.mountpoint} - type : {partition.fstype}")
         if ((partition.device, partition.mountpoint,
              partition.fstype) ==
                 ('tmpfs', '/tmp', 'tmpfs')):
             return True
         return partition.fstype in self.physical_fstypes
 
-#
+if '__main__' == __name__ :
+    myList = mountPointTrashes(os.getuid(), True)
+    for fs in myList:
+        print(fs)
+
+# EOF

@@ -237,7 +237,7 @@ class options(object):
         self.renewRate_ = self.inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
 
         # Profondeur
-        self.cleanDepth_ = args.depth if args.depth is not None else -1
+        self.cleanDepth_ = args.depth[0] if args.depth is not None else -1
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
