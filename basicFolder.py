@@ -10,7 +10,7 @@
 #
 #   Remarque    : 
 #
-import os, random, datetime, math
+import os, random, datetime, math, hashlib
 from parameters import options as p, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 from sharedTools.colorizer import textColor
 
@@ -101,6 +101,7 @@ class basicFolder:
                         values = os.path.split(name)
                         return values[1], size
                 except:
+                #except ValueError as e:
                     if self.params_.verbose_:
                         print(self.params_.color_.colored(f"Erreur lors de la tentative de suppression de {name}", textColor.ROUGE))
                     pass 
@@ -337,20 +338,18 @@ class basicFolder:
     # Génération d'un nom de fichier (pour le dossier courant)
     #   Retourne un nom unique de fichier (le nom court est retourné)
     def _newFileName(self):
-        now = datetime.datetime.now()
-        name = now.strftime("%Y%m%d-%H%M%S-%f")
-        fullName = os.path.join(self.name_, name)
-
         # Tant qu'il existe (avec le même nom)
-        count = 0
-        while True == self._fileExists(fullName):
+        generate = True
+        while True == generate:
             # On génère un nouveau nom
-            count+=1
-            name = name + "-" + str(count)
+            now = datetime.datetime.now()
+            name = hashlib.sha256(str.encode(now.strftime("%Y%m%d-%H%M%S-%f"))).hexdigest()
             fullName = os.path.join(self.name_, name)
         
+            # Si le fichier existe on génère un nouveau nom
+            generate = self._fileExists(fullName)
         return name # On retourne le nom court
-    
+        
     # Génération d'un nom de dossier
     #   Retourne le chemin complet
     def _newFolderName(self, parent):

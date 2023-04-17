@@ -9,10 +9,9 @@
   * alive_progress (facultatif)
 
 #### A faire
-* gérer paramètres courts et longs en ligne de commande
 * getters & setters
 * paramètre clean : --clean {folder 1} {folder 2} ... {folder n}
-* si "mount" de la timecapsule 
+* Suppression : afficher nbre de fichiers, nbre de ko, nbre de dossiers 
 
 #### Version 0.7.1
 * 7 avril 2023
@@ -20,7 +19,8 @@
   * Gestion des paramètres d'appel avec argparse
     * => retrait de cmdLineParser du projet
     * Commandes courtes {-x} et longues {--xxx}
-    * Suppression sur les volumes CIFS
+    * Suppression sur les volumes CIFS (mountage sur la Timecpasule)
+  * les noms des fichiers sont désormais hashés
 * Refactoring des sources
   * -f-strings
 

@@ -66,8 +66,8 @@ class dCleaner:
             
             if len(self.options_.clean_) > 0:
                 if len(txt) > 0 : 
-                    txt = txt + " &"
-                txt = txt + " vidage de dossier"
+                    txt = txt + " & "
+                txt = txt + "vidage de dossier"
             out += f"\n\t- Mode : {self.options_.color_.colored(txt, formatAttr=[textAttribute.GRAS])}"
             
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
@@ -269,10 +269,8 @@ if '__main__' == __name__:
 
         except ValueError as e:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
-        """
         except :
             print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
-        """
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
