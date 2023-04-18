@@ -44,24 +44,32 @@ class basicFolder:
 
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
-    def init(self, name):
-
-        self.name_ = name
+    def init(self, name = None):
 
         # Initialisation du générateur aléatoire
         random.seed()
 
-        # Le dossier existe t'il ?
-        if False == os.path.isdir(self.name_):
-            return False, f"Le dossier '{self.name_}' n'existe pas"
+        if name is not None and False == self.setName(name):
+            return False, f"Le dossier '{name}' n'existe pas"
         
         # Ok - pas  de message
-        self.valid_ = True
         return True , ""
     
     # Nom du dossier courant
     def name(self):
         return self.name_
+    
+    def setName(self, name):
+        # Le dossier existe t'il ?
+        if False == os.path.isdir(name):
+            self.name_ = ""
+            self.valid_ = False
+            return False
+        
+        # Ok
+        self.name_ = name
+        self.valid_ = True
+        return True
 
     # Génération d'un fichier
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
@@ -124,10 +132,9 @@ class basicFolder:
          # Quel dossier vider ?
         if 0 == len(folder):
             folder = self.name_
-
-        count = 0
-
+            
         # Vidage du dossier
+        count = 0
         try:
             # Analyse récursive du dossier
             for entry in os.scandir(folder):
@@ -207,7 +214,7 @@ class basicFolder:
         try:
             # Par défaut, moi !
             if 0 == len(folder):
-                folder = self.params_.folder_
+                folder = self.name_ if len(self.name_) else self.params_.folder_
             
             # On regarde tous les éléments du dossier
             for entry in os.scandir(folder):

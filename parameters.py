@@ -15,7 +15,7 @@ import sys, os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.7.1"
-APP_RELEASE_DATE = "07-04-2023"
+APP_RELEASE_DATE = "18-04-2023"
 
 #
 # Motif aléatoire
@@ -45,7 +45,6 @@ FILESIZE_MAX = 1024
 #
 # Dossiers à nettoyer
 #
-FOLDERS_SEP = ";"              # Séparateur de liste
 FOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
 
 #
@@ -200,7 +199,7 @@ class options(object):
         parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = [DEF_FILLRATE], type=int)
         parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = [DEF_PADDINGRATE], type=int)
         parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, type=int, choices=range(MIN__DEPTH, MAX_DEPTH + 1))
-        parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs=1)
+        parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs='+')
 
         parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = [DEF_ELAPSEFILES], type=float)
         parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = [DEF_ELAPSETASKS], type=float)
@@ -241,7 +240,7 @@ class options(object):
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
-            self._handleCleanFolders(args.clean[0])
+            self._handleCleanFolders(args.clean)
 
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
@@ -295,14 +294,12 @@ class options(object):
     #
 
     # Liste des dossiers à nettoyer
-    def _handleCleanFolders(self, fList):
-        # Liste des dossiers
-        folders = fList.split(FOLDERS_SEP)
-
-        destFolders = []
+    def _handleCleanFolders(self, folders):
+        # Liste des poubelles
         myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs
+        destFolders = []
         for folder in folders:
             if FOLDERS_TRASH == folder:
                 # On ajoute tous les dossiers de la poubelle
@@ -319,7 +316,4 @@ class options(object):
     # Retourne une valeur dans l'intervalle
     def inRange(self, value, min, max):
         return max if value > max else ( min if value < min else value)
-            
-
-
 # EOF

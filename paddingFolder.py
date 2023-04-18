@@ -303,12 +303,62 @@ class paddingFolder(basicFolder):
 
                         #if self.params_.verbose_:
                         bar()
-            #except:
-            except ValueError as e:
+            except:
+            #except ValueError as e:
                 return 0, f"Erreur lors du vidage de {self.params_.folder_}"
          
         # Dossier vidé
         return count, ""       
+    
+    # Vidage d'un ou de plusieurs dossiers
+    #   
+    #   Retourne un booléen
+    #
+    def emptyFolders(self, folders, cleanDepth):
+        deletedFolders = deletedFiles = 0
+        expectedFiles = 0
+        
+        # Estimation de la taille
+        vFolders = []
+        bFolder = basicFolder(self.params_)
+        bFolder.init()
+        for folder in folders:
+            try:
+                if bFolder.setName(folder):
+                    vFolders.append(folder) # Le dossier est valide je le garde
+                    ret = bFolder.sizes()
+                    expectedFiles += ret[1] # on conserve le nombre de fihiers
+            except:
+                pass
+
+        # Rien à faire ?
+        if 0 == len(vFolders):
+            return False
+        
+        # Ajout (ou pas) des barres de progression
+        if self.params_.verbose_:
+            try:
+                from alive_progress import alive_bar as progressBar
+            except ImportError as e:
+                print("Le module 'alive_bar' n'a pu être importé")
+                self.params_.verbose_ = False
+
+        if not self.params_.verbose_:
+            from fakeProgressBar import fakeProgressBar as progressBar
+        
+        # Nettoyage des dossiers
+        with progressBar(expectedFiles, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+            for folder in vFolders:        
+                if bFolder.setName(folder):
+                    res = bFolder.empty(recurse = True, remove = cleanDepth)
+                    deletedFolders += 1
+                    deletedFiles += res[0]
+                    if res[0]:
+                        bar(res[0])
+
+        # Terminé
+        print(f"Suppression de {deletedFolders} dossier(s) - {deletedFiles} fichier(s)")
+        return True
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
     def __convertSize2Progressbar(self, number = 0):

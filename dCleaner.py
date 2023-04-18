@@ -110,11 +110,12 @@ class dCleaner:
     # Nettoyage (vidage) d'un dossier (dossier de remplissage / 'padding' si non précisé)
     #   Retourne Le tuple (# supprimé, message d'erreur / "")
     #
-    def clearFolder(self, name = ""):
-        if 0 == len(name):
+    def cleanFolders(self, fList = None):
+        if fList is None or 0 == len(fList):
             #return self.paddingFolder_.deleteFiles(count = self.paddingFolder_.files())
             return self.paddingFolder_.empty()
         else:
+            """
             # Vidage d'un dossier
             folder = basicFolder(self.options_)
 
@@ -125,6 +126,8 @@ class dCleaner:
             
             # Nettoyage ...
             return folder.empty(recurse = True, remove = self.options_.cleanDepth_)
+            """
+            return self.paddingFolder_.emptyFolders(fList, self.options_.cleanDepth_)
     
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
@@ -217,7 +220,7 @@ if '__main__' == __name__:
     
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
-        print(opts.APP_NAME + " doit être lancé par un compte 'non root'")
+        print(f"{opts.APP_NAME} doit être lancé par un compte 'non root'")
         exit()
     
     done = False
@@ -234,7 +237,7 @@ if '__main__' == __name__:
             
             if params.clear_:
                 print("Nettoyage du dossier de 'padding'")
-                res = cleaner.clearFolder()
+                res = cleaner.cleanFolders()
                 if len(res[1]) > 0  :
                     print(params.color_.colored(f"Erreur lors de la suppression : {res[1]}", textColor.ROUGE))
                 else:
@@ -247,7 +250,7 @@ if '__main__' == __name__:
                         # Il faut plutôt libérer de la place
                         cleaner.freePartition()
 
-                    # doit-on maintenant "salir" le disque ?
+                    # Doit-on maintenant "salir" le disque ?
                     if False == params.adjust_:
                         
                         for index in range(params.iterate_):
@@ -264,13 +267,19 @@ if '__main__' == __name__:
 
                 # Nettoyer un ou plusieurs dossiers ?
                 if len(params.clean_) > 0:
+                    
+                    """
                     for folderName in params.clean_:
-                        cleaner.clearFolder(folderName)
+                        cleaner.cleanFolders(folderName)
+                    """
+                    cleaner.cleanFolders(params.clean_)
 
         except ValueError as e:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
+        """
         except :
             print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
+        """
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

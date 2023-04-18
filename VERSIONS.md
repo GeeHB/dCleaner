@@ -10,17 +10,17 @@
 
 #### A faire
 * getters & setters
-* paramètre clean : --clean {folder 1} {folder 2} ... {folder n}
 * Suppression : afficher nbre de fichiers, nbre de ko, nbre de dossiers 
 
 #### Version 0.7.1
-* 7 avril 2023
+* 18 avril 2023
 * Ajouts
   * Gestion des paramètres d'appel avec argparse
     * => retrait de cmdLineParser du projet
     * Commandes courtes {-x} et longues {--xxx}
-    * Suppression sur les volumes CIFS (mountage sur la Timecpasule)
-  * les noms des fichiers sont désormais hashés
+  * Suppression des fichies dans les poubelles des volumes CIFS (mountage sur la Timecpasule)
+  * Modification du paramètre clean : -c | --clean {folder 1} {folder 2} ... {folder n} 
+  * Les noms des fichiers sont désormais hashés
 * Refactoring des sources
   * -f-strings
 
