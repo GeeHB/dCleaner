@@ -212,7 +212,7 @@ class options(object):
         self.verbose_ = (False == args.log)
 
         # Colorisation des affichages ?
-        self.color_ = color.colorizer( (False == args.nocolor))
+        self.color_ = color.colorizer(False if not self.verbose_ else not args.nocolor)
 
         # Pas de padding ?
         self.noPadding_ = args.nopadding

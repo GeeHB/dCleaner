@@ -2,9 +2,9 @@
 
 ## Présentation
 
-`dCleaner` est un utilitaire en ligne de commande qui permet de nettoyer une partition disque et de s'assurer que les fichiers effacés ne pourront pas être récupérés par une application tierce. Il s'agit de saturer ponctuellement l'espace disponible avec des données aléatoire puis de libérer l'espace nouvellement utilisé. De la sorte, le contenu des fichiers effacés est automatiquement écrasé et ne pourra pas être récupéré par un logiciel espion.
+`dCleaner` est un utilitaire en ligne de commande qui permet de nettoyer une partition disque et de s'assurer que les fichiers effacés ne pourront pas être récupérés par une application tierce. Pour cela il s'agit de saturer ponctuellement l'espace disponible avec des données aléatoires puis de libérer l'espace nouvellement utilisé. De la sorte, le contenu des fichiers effacés est automatiquement écrasé et ne pourra pas être récupéré par un logiciel espion.
 
-En réalité, lorsqu'un fichier est "effacé, ses données sont conservées sur le disque dur seul l'accès est supprimé. L'objectif de cet utilitaire consiste à remplir le disque avec des données aléatoires afin d'effacer factuellement le contenu des fichiers précédemment 'effacés'.
+En réalité, lorsqu'un fichier est "effacé, ses données sont conservées sur le disque dur seul l'accès étant supprimé. L'objectif de cet utilitaire consiste à remplir le disque avec des données aléatoires afin d'effacer factuellement le contenu des fichiers précédemment 'effacés'.
 
 Pour et utilitaire une partition disque peut être découpée en 3 zones :
 
@@ -12,7 +12,7 @@ Pour et utilitaire une partition disque peut être découpée en 3 zones :
 * une zone de remplissage - zone de *padding* - qui contient des fichiers aléatoires qui saturent artificiellement l'espace de stockage;
 * puis l'espace libre de la partition.
 
-Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée - à un taux paramétrable - de fichiers qui seront à leur tour effacés.
+Le logiciel intervient dans la zone de *padding* qui permet de maintenir l'espace libre à la taille souhaitée puis ponctuellement dans la zone libre qui sera saturée de fichiers - à un taux paramétrable - puis qui seront à leur tour effacés.
 
 > Plus l'espace libre sera ténu et plus le taux de remplissage ponctuel de cette zone sera élevé et donc plus le disque sera protégé.
 
@@ -37,22 +37,22 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 Les différents paramètres sont définis comme suit :
 
-| Paramètre court | long | Valeur par défaut | Rôle |
+| Paramètre court | Paramètre long | Valeur par défaut | Rôle |
 |-----------|-----------|-------------------|------|
-| *-?*  | *--help* |  | Affichage de l'aide |
+| *-h*  | *--help* |  | Affichage de l'aide |
 |*-f* {dossier}  | *-folder* {dossier} | ~/.padding | Dossier utilisé pour le remplissage de la partition. Tous les fichiers générés seront crées dans ce dossier. |
 | *-x* | *--clear* |  | Effacement du dossier de remplissage. Tous les fichiers seront automatiquement supprimés. Ce paramètre est utile lorsque l'on a besoin de libérer de la place sur la partition. |
 | *-fi* {%} | *--fill* {%} | 80 | Taux de remplissage attendu pour la partition. |
 | *-p* {%} | *--padding* {%} | 50 | Taux (en % de la taille libre) à nettoyer. Par exemple, s'il reste 70Go de libre dans la partition, un taux de 50% entrainera la génération de fichiers à hauteur de 35Go puis la suppression de 35Go de fichiers de remplissage. Tous les fichiers en question seront crées ou pris dans le dossier de remplissage. |
-| *-a* | *-adjust*|  | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *-fill* |
-| *-c* {dossiers} | *--clean* {dossiers} |  | Suppression du contenu des {dossiers}. Par exemple : -clean ~/mon_dossier /etc/temp |
-|  |  | **Attention :** lorsqu'un dossier à la valeur *%trash%* il est remplacé par le chemin vers les différentes corbeilles de l'utilisateur appelant. |
+| *-a* | *--adjust*|  | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *-fill* |
+| *-c* {dossiers} | *--clean* {dossiers} |  | Suppression du contenu des {dossiers}. Par exemple la suppression de 3 dossiers : -clean ~/mon_dossier /etc/temp %trash%|
+|  |  |  | **Attention :** lorsqu'un dossier à la valeur *%trash%* il est remplacé par le chemin vers les différentes corbeilles de l'utilisateur appelant.|
 | *-d* {value} | *--depth* {value} | *none* | Profondeur du nettoyage des dossiers. |
-|  |  | = *none* (par défaut) : pas de suppression des sous-dossiers. |
-|  |  | = 0 : suppression du dossier et de ses sous-dossiers. |
-|  |  | = 1 : suppression des sous-dossiers à partir du dossier fils. |
-|  |  | = {n} : suppression des sous-dossiers à partir de la profondeur {n} par rapport au dossier courant. |
-|  |  | **Attention :** le paramètre `depth` s'applique à tous les dossiers concernés par l'appel. Si plusieurs dossiers doivent bénéficier d'une profondeur spécifique, il sera nécessaire d'avoir autant d'appel de `dCleaner.py` que de dossiers. |
+|  |  |  | = *none* (par défaut) : pas de suppression des sous-dossiers. |
+|  |  |  | = 0 : suppression du dossier et de ses sous-dossiers. |
+|  |  |  | = 1 : suppression des sous-dossiers à partir du dossier fils. |
+|  |  |  | = {n} : suppression des sous-dossiers à partir de la profondeur {n} par rapport au dossier courant. |
+|  |  |  | **Attention :** le paramètre `depth` s'applique à tous les dossiers concernés par l'appel. Si plusieurs dossiers doivent bénéficier d'une profondeur spécifique, il sera nécessaire d'avoir autant d'appel de `dCleaner.py` que de dossiers. |
 | *-i* | *--iteration* | 1 | Nombre d'itération(s). Ce paramètre correspond à la fois au nombre d’occurrence du process de remplissage mais aussi au nombre de fopis ou les fichiers seront ré-écris en mode effacement des dossiers (paramètre *\-clean*). |
 | *-nc* | *--nocolor* |  | mode "no color" : pas de colorisation des affichages. Utile pour la génération de fichiers de logs par exemple |
 | *-np* | *--nopadding* |  | mode "no padding" : pas de remplissage de la partition |

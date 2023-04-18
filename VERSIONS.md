@@ -10,7 +10,6 @@
 
 #### A faire
 * getters & setters
-* Suppression : afficher nbre de fichiers, nbre de ko, nbre de dossiers 
 
 #### Version 0.7.1
 * 18 avril 2023
@@ -18,9 +17,15 @@
   * Gestion des paramètres d'appel avec argparse
     * => retrait de cmdLineParser du projet
     * Commandes courtes {-x} et longues {--xxx}
-  * Suppression des fichies dans les poubelles des volumes CIFS (mountage sur la Timecpasule)
+  * Suppression des fichiers dans les poubelles des volumes CIFS (mountage sur la Timecpasule)
   * Modification du paramètre clean : -c | --clean {folder 1} {folder 2} ... {folder n} 
   * Les noms des fichiers sont désormais hashés
+  * Affichage d'une barre de progression (si possible) lors du vidage des dossiers
+* Corrections
+  * BUG: Nom par défaut du dossier dans basicFolder
+  * BUG: Les logs sont enmode verbeux !!!
+  * Affichages ...
+  * Mise à jour de la docmuentation / README.md
 * Refactoring des sources
   * -f-strings
 

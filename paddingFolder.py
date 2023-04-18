@@ -357,7 +357,7 @@ class paddingFolder(basicFolder):
                         bar(res[0])
 
         # Terminé
-        print(f"Suppression de {deletedFolders} dossier(s) - {deletedFiles} fichier(s)")
+        print(f"Suppression {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
         return True
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
