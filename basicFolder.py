@@ -115,7 +115,7 @@ class basicFolder:
                     pass 
 
         # Rien n'a été fait
-        return "", size
+        return "", 0
 
     # Vidage du dossier
     #
@@ -188,7 +188,7 @@ class basicFolder:
         if 0 == len(nFolder):
             return False
         
-        # Renommage
+        # Renommage demandé mais pas obligatoire ...
         try:
             os.rename(folder, nFolder)
         except:
@@ -198,9 +198,10 @@ class basicFolder:
         # Suppression
         try:
             os.rmdir(nFolder)
-            return True
         except:
             return False
+        
+        return True
 
     # Taille du dossier (et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)
@@ -265,7 +266,7 @@ class basicFolder:
         # Version 3  - La plus "matheuse" et la plus ouverte aussi
         #  necessite le module math
 
-        # on effectue un log base 1024 = log 2 / 10
+        # on effectue un log base 1024 (= log 2 / 10)
         #   attention logn(0) n'existe pas !!!
         index = 0 if size == 0 else int(math.log(size,2) / 10) 
         if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
@@ -478,27 +479,27 @@ class basicFolder:
 
         return name, currentSize, pSize
 
-    # Listes (x2) des éléments à supprimer
+    # Vidage récursif d'un dossier
     #
-    #       files : liste des fichiers à supprimer
-    #       folders : liste des dossiers à supprimer
-    #       name : nom complet du dossier à vider ("" => dossier courant)
-    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)   
+    #       folder : nom complet du dossier à vider ("" => dossier courant)
+    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
+    #   
+    #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier supprimé, effectué ?}
     #
-    def _deletionLists(self, files, folders, name = None, remove = -1):
-        folderName = self.name_ if name is None else name
+    def _empty(self, folder = None, remove = -1):
+        folderName = self.name_ if folder is None else folder
         # Analyse récursive du dossier
         for entry in os.scandir(folderName):
             fullName = os.path.join(folderName, entry.name) 
             if entry.is_file():
                 # Un fichier
-                files.append(fullName)
-
+                ret = self.deleteFile(fullName)
+                yield True, fullName, ret[1] > 0
             elif entry.is_dir():
                 # Un sous dossier => appel récursif
-                self._deletionLists(files, folders, fullName, remove - 1 if remove > 0 else remove)
+                yield from self._empty(fullName, remove - 1 if remove > 0 else remove)
         
         # Suppression du dossier courant?
         if 0 == remove:
-            folders.append(folderName)
+            yield False, folderName, self._rmdir(folderName)
 # EOF

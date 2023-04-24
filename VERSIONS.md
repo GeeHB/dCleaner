@@ -10,7 +10,12 @@
 
 #### A faire
 * getters & setters
-* ??? - impossible de faire d'un générateur une fonction récursive ?
+
+#### Version 0.7.3
+* xx avril 2023
+* Ajouts
+  * Suppression récursive des dossiers via un generateur
+* Corrections
 
 #### Version 0.7.2
 * 24 avril 2023

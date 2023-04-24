@@ -315,7 +315,63 @@ class paddingFolder(basicFolder):
     #   
     #   Retourne un booléen
     #
+        # Vidage d'un ou de plusieurs dossiers
+    #   
+    #   Retourne un booléen
+    #
     def emptyFolders(self, folders, cleanDepth):
+        deletedFolders = deletedFiles = 0
+        expectedFiles = 0
+        
+        # Estimation de la taille
+        vFolders = []
+        bFolder = basicFolder(self.params_)
+        bFolder.init()
+        for folder in folders:
+            try:
+                if bFolder.setName(folder):
+                    vFolders.append(folder) # Le dossier est valide je le garde
+                    ret = bFolder.sizes()
+                    expectedFiles += ret[1] # on conserve le nombre de fichiers
+            except:
+                pass
+
+        # Rien à faire ?
+        if 0 == len(vFolders):
+            return False
+        
+        # Ajout (ou pas) des barres de progression
+        if self.params_.verbose_:
+            try:
+                from alive_progress import alive_bar as progressBar
+            except ImportError as e:
+                print("Le module 'alive_bar' n'a pu être importé")
+                self.params_.verbose_ = False
+
+        if not self.params_.verbose_:
+            from fakeProgressBar import fakeProgressBar as progressBar
+        
+        # Nettoyage des dossiers
+        with progressBar(expectedFiles, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+            for folder in vFolders:        
+                if bFolder.setName(folder):
+                    for isFile,name,done in bFolder._empty(remove = cleanDepth) :
+                        if done:
+                            if isFile:
+                                deletedFiles += 1
+                                bar()
+                            else:
+                                deletedFolders += 1
+                        else:
+                            print(self.params_.color_.colored(f"Erreur lors de la suppression de {name}", textColor.ROUGE))                            
+        # Terminé
+        if expectedFiles > deletedFiles:
+            # Des erreurs ?
+            bar(expectedFiles - deletedFiles)
+        print(f"Suppression {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
+        return True
+
+    def __emptyFolders(self, folders, cleanDepth):
         expectedDeletions = 0
         deletedFiles = 0
         deletedFolders = 0

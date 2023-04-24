@@ -23,7 +23,7 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 | Dépôt | https://coffee.cd03.fr/JHB/dCleaner |
 |-------|-------------------------------------|
 | **Date** | 24 avril 2023 |
-| **Version stable** | **0\.7.2 - branche** `dev` |
+| **Version stable** | **0\.7.3 - branche** `dev` |
 | **Dépendances** | Python 3.xx |
 |  | *facultatif:* alive_progress de rsalmei (pip install alive-progress) - doc : <https://github.com/rsalmei/alive-progress> |
 |  | python-psutil (apt-get install python-psutil ou dnf install python-psutil) |
