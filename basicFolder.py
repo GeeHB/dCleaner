@@ -413,7 +413,7 @@ class basicFolder:
             # print("Erreur lors de l'ouverture du fichier", self.fileName_)
             return False
 
-    # Rempliisage d'un fichier
+    # Remplissage d'un fichier
     #    retourne le tuple (nom du fichier, taille en octets, taille du motif aléatoire)
     def _pattern2File(self, fname, fileSize = 0, maxFileSize = 0):
         currentSize = 0
@@ -477,4 +477,29 @@ class basicFolder:
             name = ""
 
         return name, currentSize, pSize
+
+    # Vidage récursif d'un dossier
+    #
+    #       folder : nom complet du dossier à vider ("" => dossier courant)
+    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
+    #   
+    #   Generateur - Retourne le nom du fichier supprimé
+    #
+    def _empty(self, folder = None, remove = -1):
+        folderName = self.name_ if folder is None else folder
+        # Analyse récursive du dossier
+        for entry in os.scandir(folderName):
+            fullName = os.path.join(folderName, entry.name) 
+            if entry.is_file():
+                # Un fichier
+                self.deleteFile(fullName)
+                yield fullName
+
+            elif entry.is_dir():
+                # Un sous dossier => appel récursif
+                self._empty(fullName, remove - 1 if remove > 0 else remove)
+        
+        # Suppression du dossier courant?
+        if 0 == remove:
+            self.__rmdir(folderName)
 # EOF

@@ -14,8 +14,8 @@ import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.7.1"
-APP_RELEASE_DATE = "18-04-2023"
+APP_CURRENT_VERSION = "0.7.2"
+APP_RELEASE_DATE = "20-04-2023"
 
 #
 # Motif aléatoire
@@ -132,7 +132,7 @@ MAX_PADDINGRATE = 50
 # Attente entre le traitement de 2 fichiers
 ARG_ELAPSEFILES_S = "-wf"
 ARG_ELAPSEFILES   = "--waitfiles"
-COMMENT_ELAPSEFILES = "Durée en s entre 2 suppressions de fichiers"
+COMMENT_ELAPSEFILES = "Durée en sec. entre 2 suppressions de fichiers"
 
 DEF_ELAPSEFILES = 0.1
 MIN_ELAPSEFILES = 0.0
@@ -141,7 +141,7 @@ MAX_ELAPSEFILES = 180.0
 # Attente entre 2 itérations
 ARG_ELAPSETASKS_S = "-wt"
 ARG_ELAPSETASKS   = "--waittasks"
-COMMENT_ELAPSETASKS = "Durée en s entre 2 itérations"
+COMMENT_ELAPSETASKS = "Durée en sec. entre 2 itérations"
 
 DEF_ELAPSETASKS = 5.0
 MIN_ELAPSETASKS = 5.0

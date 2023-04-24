@@ -130,7 +130,7 @@ class paddingFolder(basicFolder):
                     bar(barMax - barPos)
                     
             # Terminé
-            print(f"Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else "fichier crée")
+            print(f"Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else "{files} fichier crée")
             return True
         
         # Erreur
@@ -327,7 +327,7 @@ class paddingFolder(basicFolder):
                 if bFolder.setName(folder):
                     vFolders.append(folder) # Le dossier est valide je le garde
                     ret = bFolder.sizes()
-                    expectedFiles += ret[1] # on conserve le nombre de fihiers
+                    expectedFiles += ret[1] # on conserve le nombre de fichiers
             except:
                 pass
 
@@ -349,13 +349,16 @@ class paddingFolder(basicFolder):
         # Nettoyage des dossiers
         with progressBar(expectedFiles, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             for folder in vFolders:        
-                if bFolder.setName(folder):
-                    res = bFolder.empty(recurse = True, remove = cleanDepth)
-                    deletedFolders += 1
-                    deletedFiles += res[0]
-                    if res[0]:
-                        bar(res[0])
-
+                try:
+                    if bFolder.setName(folder):
+                        for fName in bFolder._empty(remove = cleanDepth) :
+                            deletedFiles += 1
+                            bar()
+                        
+                        deletedFolders += 1
+                except:
+                    print(f"Erreur lors du nettoyage de {folder}")
+        
         # Terminé
         print(f"Suppression {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
         return True

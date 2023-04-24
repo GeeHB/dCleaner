@@ -10,6 +10,14 @@
 
 #### A faire
 * getters & setters
+? Suppression d'un dossier : affichage du nombre de fichiers à supprimer 
+  * C'est censé être déja le cas
+
+#### Version 0.7.2
+* xx avril 2023
+* Ajouts
+* Corrections
+  * Logs et affichages
 
 #### Version 0.7.1
 * 18 avril 2023
