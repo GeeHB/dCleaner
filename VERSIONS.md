@@ -10,12 +10,12 @@
 
 #### A faire
 * getters & setters
-? Suppression d'un dossier : affichage du nombre de fichiers à supprimer 
-  * C'est censé être déja le cas
+* ??? - impossible de faire d'un générateur une fonction récursive ?
 
 #### Version 0.7.2
-* xx avril 2023
+* 24 avril 2023
 * Ajouts
+  * Affichages de la progression de la suppression des fichiers et des dossiers
 * Corrections
   * Logs et affichages
 

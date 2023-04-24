@@ -14,6 +14,7 @@
 #
 import os, random, shutil, time
 from basicFolder import basicFolder
+from sharedTools.colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -315,24 +316,28 @@ class paddingFolder(basicFolder):
     #   Retourne un booléen
     #
     def emptyFolders(self, folders, cleanDepth):
-        deletedFolders = deletedFiles = 0
-        expectedFiles = 0
+        expectedDeletions = 0
+        deletedFiles = 0
+        deletedFolders = 0
         
-        # Estimation de la taille
-        vFolders = []
+        # Liste des éléments à supprimers
+        delFiles = []
+        delFolders = []
         bFolder = basicFolder(self.params_)
         bFolder.init()
         for folder in folders:
             try:
                 if bFolder.setName(folder):
-                    vFolders.append(folder) # Le dossier est valide je le garde
-                    ret = bFolder.sizes()
-                    expectedFiles += ret[1] # on conserve le nombre de fichiers
+                    # Pour pouvoir afficher les barres de progression
+                    # il est nécessaire de de-recursiver les suppressions
+                    # et donc de créer des listes des suppressions à effectuer
+                    bFolder._deletionLists(delFiles, delFolders, None, cleanDepth)
             except:
                 pass
 
         # Rien à faire ?
-        if 0 == len(vFolders):
+        expectedDeletions = len(delFiles) + len(delFolders)
+        if  0 == expectedDeletions:
             return False
         
         # Ajout (ou pas) des barres de progression
@@ -346,21 +351,32 @@ class paddingFolder(basicFolder):
         if not self.params_.verbose_:
             from fakeProgressBar import fakeProgressBar as progressBar
         
-        # Nettoyage des dossiers
-        with progressBar(expectedFiles, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
-            for folder in vFolders:        
+        # Suppressions
+        with progressBar(expectedDeletions, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+            # ... des fichiers
+            for file in delFiles:        
                 try:
-                    if bFolder.setName(folder):
-                        for fName in bFolder._empty(remove = cleanDepth) :
-                            deletedFiles += 1
-                            bar()
-                        
-                        deletedFolders += 1
+                    res = super().deleteFile(file)
+                    if res[1]:
+                        deletedFiles += 1
+                    bar()                    
                 except:
-                    print(f"Erreur lors du nettoyage de {folder}")
-        
+                    print(self.params_.color_.colored(f"Erreur lors de la suppression du fichier {file}", textColor.ROUGE))
+
+            # Puis des dossiers
+            for folder in delFolders:
+                if self._rmdir(folder):
+                    deletedFolders += 1
+                else:
+                    print(self.params_.color_.colored(f"Erreur lors de la suppression de {file}", textColor.ROUGE))
+                bar()
+
         # Terminé
-        print(f"Suppression {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
+        if expectedDeletions > (deletedFiles + deletedFolders):
+            # Des erreurs ?
+            bar(expectedDeletions - deletedFiles - deletedFolders)
+        
+        print(f"Suppression de {deletedFiles} fichier(s) et de {deletedFolders} dossier(s)")
         return True
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression

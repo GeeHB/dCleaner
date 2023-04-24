@@ -157,7 +157,7 @@ class basicFolder:
             
             # Suppression du dossier courant?
             if 0 == remove:
-                self.__rmdir(folder)
+                self._rmdir(folder)
         except:
             return 0, f"Erreur lors du vidage de {self.params_.folder_}"
         
@@ -166,7 +166,7 @@ class basicFolder:
 
     # Suppression du dossier
     #   retourne un booléen : fait ?
-    def __rmdir(self, folder):
+    def _rmdir(self, folder):
         if len(folder) == 0:
             return
         
@@ -478,28 +478,27 @@ class basicFolder:
 
         return name, currentSize, pSize
 
-    # Vidage récursif d'un dossier
+    # Listes (x2) des éléments à supprimer
     #
-    #       folder : nom complet du dossier à vider ("" => dossier courant)
-    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
-    #   
-    #   Generateur - Retourne le nom du fichier supprimé
+    #       files : liste des fichiers à supprimer
+    #       folders : liste des dossiers à supprimer
+    #       name : nom complet du dossier à vider ("" => dossier courant)
+    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)   
     #
-    def _empty(self, folder = None, remove = -1):
-        folderName = self.name_ if folder is None else folder
+    def _deletionLists(self, files, folders, name = None, remove = -1):
+        folderName = self.name_ if name is None else name
         # Analyse récursive du dossier
         for entry in os.scandir(folderName):
             fullName = os.path.join(folderName, entry.name) 
             if entry.is_file():
                 # Un fichier
-                self.deleteFile(fullName)
-                yield fullName
+                files.append(fullName)
 
             elif entry.is_dir():
                 # Un sous dossier => appel récursif
-                self._empty(fullName, remove - 1 if remove > 0 else remove)
+                self._deletionLists(files, folders, fullName, remove - 1 if remove > 0 else remove)
         
         # Suppression du dossier courant?
         if 0 == remove:
-            self.__rmdir(folderName)
+            folders.append(folderName)
 # EOF
