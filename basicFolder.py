@@ -116,92 +116,32 @@ class basicFolder:
 
         # Rien n'a été fait
         return "", 0
-
-    # Vidage du dossier
+    
+    # Vidage d'un dossier
     #
     #       folder : nom complet du dossier à vider ("" => dossier courant)
-    #       recurse : Vidage recursive des sous-dossiers
+    #       recurse : suppression recursive des sous-dossiers ?
     #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #   
-    #   Retourne Le tuple (# supprimé, message d'erreur / "")
+    #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier supprimé, effectué ?}
     #
-    def empty(self, folder = "", recurse = False, remove = -1):
-        if False == self.valid_:
-            return 0, "Objet non initialisé"
-
-         # Quel dossier vider ?
-        if 0 == len(folder):
-            folder = self.name_
-            
-        # Vidage du dossier
-        count = 0
-        try:
-            # Analyse récursive du dossier
-            for entry in os.scandir(folder):
-                if entry.is_file():
-                    # Un fichier
-                    fullName = os.path.join(folder, entry.name)
-                    res = self.deleteFile(fullName)
-                    count += 1
-                elif entry.is_dir():
-                    if recurse:
-                        # Un sous dossier => appel récursif
-                        fullName = os.path.join(folder, entry.name)
-                        subCount, message = self.empty(fullName, True, remove - 1 if remove > 0 else remove)
-                        
-                        # Une erreur ?
-                        if len(message):
-                            return 0, message
-
-                        count+=subCount
-            
-            # Suppression du dossier courant?
-            if 0 == remove:
-                self._rmdir(folder)
-        except:
-            return 0, f"Erreur lors du vidage de {self.params_.folder_}"
+    def empty(self, folder = None, recurse = False, remove = -1):
+        folderName = self.name_ if folder is None else folder
+        # Analyse récursive du dossier
+        for entry in os.scandir(folderName):
+            fullName = os.path.join(folderName, entry.name) 
+            if entry.is_file():
+                # Un fichier
+                ret = self.deleteFile(fullName)
+                yield True, fullName, ret[1] > 0
+            elif entry.is_dir():
+                # Un sous dossier => appel récursif
+                if recurse:
+                    yield from self.empty(fullName, True, remove - 1 if remove > 0 else remove)
         
-        # Dossier vidé
-        return count, ""
-
-    # Suppression du dossier
-    #   retourne un booléen : fait ?
-    def _rmdir(self, folder):
-        if len(folder) == 0:
-            return
-        
-        # Puis-je le supprimer ?
-        if folder in self.restricted_:
-            # Non, le dossier est dans la liste ....
-            return False
-        
-        # oui !
-        
-        # Récupération du dossier parent
-        res = os.path.split(folder)
-        if len(res[0]) == 0 or len(res[1]) == 0 :
-            # Le chemin n'est pas possible => pas de dossier parent
-            return False
-
-        # Nouveau nom
-        nFolder = self._newFolderName(res[0])
-        if 0 == len(nFolder):
-            return False
-        
-        # Renommage demandé mais pas obligatoire ...
-        try:
-            os.rename(folder, nFolder)
-        except:
-            # Impossible de renommer
-            nFolder = folder    # Peut-être que l'on pourra malgré tout supprimer le fichier
-        
-        # Suppression
-        try:
-            os.rmdir(nFolder)
-        except:
-            return False
-        
-        return True
+        # Suppression du dossier courant?
+        if 0 == remove:
+            yield False, folderName, self.rmdir(folderName)
 
     # Taille du dossier (et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)
@@ -252,6 +192,43 @@ class basicFolder:
         if None == self.sizes_:
             self.sizes_ = self.sizes()
         return self.sizes_[1]
+    
+    # Suppression du dossier
+    #   retourne un booléen : fait ?
+    def rmdir(self, folder):
+        if len(folder) == 0:
+            return
+        
+        # Puis-je le supprimer ?
+        if folder in self.restricted_:
+            # Non, le dossier est dans la liste ....
+            return False
+        
+        # Récupération du dossier parent
+        res = os.path.split(folder)
+        if len(res[0]) == 0 or len(res[1]) == 0 :
+            # Le chemin n'est pas possible => pas de dossier parent
+            return False
+
+        # Nouveau nom
+        nFolder = self._newFolderName(res[0])
+        if 0 == len(nFolder):
+            return False
+        
+        # Renommage demandé mais pas obligatoire ...
+        try:
+            os.rename(folder, nFolder)
+        except:
+            # Impossible de renommer
+            nFolder = folder    # Peut-être que l'on pourra malgré tout supprimer le fichier
+        
+        # Suppression
+        try:
+            os.rmdir(nFolder)
+        except:
+            return False
+        
+        return True
         
     # Représentation d'une taille (en octets)
     #   Retourne une chaine de caractères
@@ -309,10 +286,6 @@ class basicFolder:
         size/=(2**10)
         return str(round(size,2)) + " To"
         """
-
-    #
-    # Méthodes générales
-    #
 
     # Le dossier existe-il ?
     def exists(self, folderName):
@@ -478,28 +451,4 @@ class basicFolder:
             name = ""
 
         return name, currentSize, pSize
-
-    # Vidage récursif d'un dossier
-    #
-    #       folder : nom complet du dossier à vider ("" => dossier courant)
-    #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
-    #   
-    #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier supprimé, effectué ?}
-    #
-    def _empty(self, folder = None, remove = -1):
-        folderName = self.name_ if folder is None else folder
-        # Analyse récursive du dossier
-        for entry in os.scandir(folderName):
-            fullName = os.path.join(folderName, entry.name) 
-            if entry.is_file():
-                # Un fichier
-                ret = self.deleteFile(fullName)
-                yield True, fullName, ret[1] > 0
-            elif entry.is_dir():
-                # Un sous dossier => appel récursif
-                yield from self._empty(fullName, remove - 1 if remove > 0 else remove)
-        
-        # Suppression du dossier courant?
-        if 0 == remove:
-            yield False, folderName, self._rmdir(folderName)
 # EOF

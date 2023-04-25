@@ -22,8 +22,8 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 | Dépôt | https://coffee.cd03.fr/JHB/dCleaner |
 |-------|-------------------------------------|
-| **Date** | 24 avril 2023 |
-| **Version stable** | **0\.7.3 - branche** `master` |
+| **Date** | 25 avril 2023 |
+| **Version stable** | **0\.7.3 - branche** `dev` |
 | **Dépendances** | Python 3.xx |
 |  | *facultatif:* alive_progress de rsalmei (pip install alive-progress) - doc : <https://github.com/rsalmei/alive-progress> |
 |  | python-psutil (apt-get install python-psutil ou dnf install python-psutil) |
@@ -62,13 +62,13 @@ Les différents paramètres sont définis comme suit :
 
 ### Exemples d'appels
 
-* Lancement d'un nettoyage simple de la partition (avec les valeurs par défaut):
+##### Lancement d'un nettoyage simple de la partition (avec les valeurs par défaut):
 
 ```
 ./dCleaner.py 
 ```
 
-* Nettoyage intense (5 itérations) avec remplissage de la partition à 80% :
+##### Nettoyage intense (5 itérations) avec remplissage de la partition à 80% :
 
 ```
 ./dCleaner.py --fill 80 --iteration 5
@@ -77,8 +77,7 @@ Equivalent à :
 ```
 ./dCleaner.py -fi 80 -i 5
 ```
-
-* Suppression du contenu du dossier `~/temp` et des dossiers poubelle avec tous leurs sous-dossiers mais conservation des dossiers racines :
+##### Suppression du contenu du dossier `~/temp` et des dossiers poubelle avec tous leurs sous-dossiers mais conservation des dossiers racines :
 ```
 ./dCleaner.py --nopadding --clear ~/temp %trash% --depth 1
 ```
@@ -87,7 +86,6 @@ Equivalent à :
 ./dCleaner.py -np -c ~/temp %trash% -d 1
 ```
 ### Automatisation
-
 Le script est destiné à être appelé mais surtout à être lancé régulièrement par le gestionnaire de tâches planifiées.
 
 Si l'on souhaite récupérer des logs, on peut utiliser le commutateur `--log` / '-l' afin d'indiquer à l'utilitaire de ne pas mettre en forme les affichages (colorisation, gras, etc...) et d'être un peu moins verbeux.

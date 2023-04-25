@@ -257,26 +257,22 @@ class paddingFolder(basicFolder):
         print(f"Suppression de {self.size2String(tSize)} - {tFiles}","fichiers supprimés" if tFiles > 1 else "fichier supprimé")
         return True
 
-    # Vidage du dossier
+    # Vidage du dossier courant
     #   
-    #   Retourne Le tuple (# supprimé, message d'erreur / "")
+    #   Retourne Le tuple (# fichiers supprimés, message d'erreur / "")
     #
-    def empty(self):
+    def clean(self):
         if False == self.valid_:
             return 0, "Objet non initialisé"
      
         # Nombre de fichiers dans le dossier
-        barMax = 0
-        for path in os.listdir(self.params_.folder_):
-            if os.path.isfile(os.path.join(self.params_.folder_, path)):
-                barMax += 1
+        _, barMax = self.sizes()
         
         if 0 == barMax:
             # Rien à faire ....
             return 0, ""
 
         count = 0   # Ce que j'ai effectivement supprimé ...
-
         if self.params_.verbose_:
             try:
                 from alive_progress import alive_bar as progressBar
@@ -288,54 +284,27 @@ class paddingFolder(basicFolder):
             from fakeProgressBar import fakeProgressBar as progressBar
         
         # Vidage du dossier
-        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
-            try:
-                # Analyse récursive du dossier
-                for (curPath, dirs, files) in os.walk(self.params_.folder_):
-                    if curPath == self.params_.folder_:
-                        dirs[:]=[] # On arrête de parser
-                
-                    # Les fichiers "fils"
-                    for file in files:
-                        fullName = os.path.join(curPath, file) 
-                        count+=1
+        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:        
+            for ret in super().empty(self.params_.folder_):
+                if ret[2]:
+                    if ret[0]:
+                        count += 1
+                        bar()                    
+                else:
+                    print(self.params_.color_.colored(f"Erreur lors de la suppression de {ret[1]}", textColor.ROUGE))
 
-                        self.deleteFile(fullName)
-
-                        #if self.params_.verbose_:
-                        bar()
-            except:
-            #except ValueError as e:
-                return 0, f"Erreur lors du vidage de {self.params_.folder_}"
-         
+        # Ajustement de la barre de progression
+        if barMax > count:
+            bar(barMax - count)
+        
         # Dossier vidé
         return count, ""       
     
     # Vidage d'un ou de plusieurs dossiers
     #   
-    #   Retourne un booléen
+    #   Retourne le tuple {#fichiers, #dossiers, message}
     #
-    def emptyFolders(self, folders, cleanDepth):
-        deletedFolders = deletedFiles = 0
-        expectedFiles = 0
-        
-        # Estimation de la taille
-        vFolders = []
-        bFolder = basicFolder(self.params_)
-        bFolder.init()
-        for folder in folders:
-            try:
-                if bFolder.setName(folder):
-                    vFolders.append(folder) # Le dossier est valide je le garde
-                    ret = bFolder.sizes()
-                    expectedFiles += ret[1] # on conserve le nombre de fichiers
-            except:
-                pass
-
-        # Rien à faire ?
-        if 0 == len(vFolders):
-            return False
-        
+    def cleanFolders(self, folders, cleanDepth):
         # Ajout (ou pas) des barres de progression
         if self.params_.verbose_:
             try:
@@ -347,11 +316,31 @@ class paddingFolder(basicFolder):
         if not self.params_.verbose_:
             from fakeProgressBar import fakeProgressBar as progressBar
         
+        # Estimation de la taille totale
+        expectedFiles = 0
+        vFolders = []
+        bFolder = basicFolder(self.params_)
+        bFolder.init()
+        with progressBar(title = "Taille", monitor = "", elapsed= "", spinner = None, stats = False) as bar:
+            for folder in folders:
+                try:
+                    if bFolder.setName(folder):
+                        vFolders.append(folder) # Le dossier est valide je le garde
+                        ret = bFolder.sizes()
+                        expectedFiles += ret[1] # on conserve le nombre de fichiers
+                except:
+                    pass
+
+        # Rien à faire ?
+        if 0 == len(vFolders):
+            return 0, 0, "Rien à supprimer"
+        
         # Nettoyage des dossiers
-        with progressBar(expectedFiles, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+        deletedFolders = deletedFiles = 0
+        with progressBar(expectedFiles, title = "Suppr.", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             for folder in vFolders:        
                 if bFolder.setName(folder):
-                    for isFile,name,done in bFolder._empty(remove = cleanDepth) :
+                    for isFile, shortName,done in bFolder.empty(recurse = True, remove = cleanDepth) :
                         if done:
                             if isFile:
                                 deletedFiles += 1
@@ -359,13 +348,13 @@ class paddingFolder(basicFolder):
                             else:
                                 deletedFolders += 1
                         else:
-                            print(self.params_.color_.colored(f"Erreur lors de la suppression de {name}", textColor.ROUGE))                            
-        # Terminé
+                            print(self.params_.color_.colored(f"Erreur lors de la suppression de {shortName}", textColor.ROUGE))
+        # Ajustement de la barre de progression
         if expectedFiles > deletedFiles:
             # Des erreurs ?
             bar(expectedFiles - deletedFiles)
         print(f"Suppression de {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
-        return True
+        return deletedFiles, deletedFolders, ""
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
     def __convertSize2Progressbar(self, number = 0):

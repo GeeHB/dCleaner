@@ -108,14 +108,14 @@ class dCleaner:
         return out
 
     # Nettoyage (vidage) d'un dossier (dossier de remplissage / 'padding' si non précisé)
-    #   Retourne Le tuple (# supprimé, message d'erreur / "")
+    #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "")
     #
     def cleanFolders(self, fList = None):
         if fList is None or 0 == len(fList):
-            #return self.paddingFolder_.deleteFiles(count = self.paddingFolder_.files())
-            return self.paddingFolder_.empty()
+            ret = self.paddingFolder_.clean()
+            return ret[0], 0, ret[1]
         else:
-            return self.paddingFolder_.emptyFolders(fList, self.options_.cleanDepth_)
+            return self.paddingFolder_.cleanFolders(fList, self.options_.cleanDepth_)
     
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
@@ -156,7 +156,7 @@ class dCleaner:
             if gap > paddingFillSize:
                 # Tout le dossier de 'padding' n'y suffira pas ...
                 print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", textColor.JAUNE))
-                res = self.paddingFolder_.empty()
+                res = self.paddingFolder_.clean()
                 print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
                 
                 if len(res[1]) > 0:
@@ -226,8 +226,8 @@ if '__main__' == __name__:
             if params.clear_:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
-                if len(res[1]) > 0  :
-                    print(params.color_.colored(f"Erreur lors de la suppression : {res[1]}", textColor.ROUGE))
+                if len(res[2]) > 0  :
+                    print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE))
                 else:
                     print(f"{res[0]} fichier(s) supprimé(s)")
             else:
@@ -255,19 +255,12 @@ if '__main__' == __name__:
 
                 # Nettoyer un ou plusieurs dossiers ?
                 if len(params.clean_) > 0:
-                    
-                    """
-                    for folderName in params.clean_:
-                        cleaner.cleanFolders(folderName)
-                    """
                     cleaner.cleanFolders(params.clean_)
 
         except ValueError as e:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
-        """
         except :
             print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
-        """
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

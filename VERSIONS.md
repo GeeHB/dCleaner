@@ -10,16 +10,16 @@
 
 #### A faire
 * getters & setters
-* Lister les dossiers et fichiers prend du temps -> barre de progression
-* Trop de méthodes 'empty' => une seule avec facteur de récursivité !
+* Affichage de la barre de progression une fois le traitement individuel terminé ?
 
 #### Version 0.7.3
 * xx avril 2023
 * Ajouts
-  * Suppression récursive des dossiers via un generateur
+  * Suppression récursive des dossiers via un generateur (enfin !)
+  * Barre de progression affichée lors du parcours des dossiers à supprimer
 * Corrections
   * README.md - Corrections et mise à jour
-  * Répartition des méthodes entre basicFolder et paddingFolder
+  * Simplification des appels et refactoring des classes
 
 #### Version 0.7.2
 * 24 avril 2023
