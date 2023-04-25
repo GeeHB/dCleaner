@@ -10,12 +10,16 @@
 
 #### A faire
 * getters & setters
+* Lister les dossiers et fichiers prend du temps -> barre de progression
+* Trop de méthodes 'empty' => une seule avec facteur de récursivité !
 
 #### Version 0.7.3
 * xx avril 2023
 * Ajouts
   * Suppression récursive des dossiers via un generateur
 * Corrections
+  * README.md - Corrections et mise à jour
+  * Répartition des méthodes entre basicFolder et paddingFolder
 
 #### Version 0.7.2
 * 24 avril 2023

@@ -315,10 +315,6 @@ class paddingFolder(basicFolder):
     #   
     #   Retourne un booléen
     #
-        # Vidage d'un ou de plusieurs dossiers
-    #   
-    #   Retourne un booléen
-    #
     def emptyFolders(self, folders, cleanDepth):
         deletedFolders = deletedFiles = 0
         expectedFiles = 0
@@ -368,71 +364,7 @@ class paddingFolder(basicFolder):
         if expectedFiles > deletedFiles:
             # Des erreurs ?
             bar(expectedFiles - deletedFiles)
-        print(f"Suppression {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
-        return True
-
-    def __emptyFolders(self, folders, cleanDepth):
-        expectedDeletions = 0
-        deletedFiles = 0
-        deletedFolders = 0
-        
-        # Liste des éléments à supprimers
-        delFiles = []
-        delFolders = []
-        bFolder = basicFolder(self.params_)
-        bFolder.init()
-        for folder in folders:
-            try:
-                if bFolder.setName(folder):
-                    # Pour pouvoir afficher les barres de progression
-                    # il est nécessaire de de-recursiver les suppressions
-                    # et donc de créer des listes des suppressions à effectuer
-                    bFolder._deletionLists(delFiles, delFolders, None, cleanDepth)
-            except:
-                pass
-
-        # Rien à faire ?
-        expectedDeletions = len(delFiles) + len(delFolders)
-        if  0 == expectedDeletions:
-            return False
-        
-        # Ajout (ou pas) des barres de progression
-        if self.params_.verbose_:
-            try:
-                from alive_progress import alive_bar as progressBar
-            except ImportError as e:
-                print("Le module 'alive_bar' n'a pu être importé")
-                self.params_.verbose_ = False
-
-        if not self.params_.verbose_:
-            from fakeProgressBar import fakeProgressBar as progressBar
-        
-        # Suppressions
-        with progressBar(expectedDeletions, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
-            # ... des fichiers
-            for file in delFiles:        
-                try:
-                    res = super().deleteFile(file)
-                    if res[1]:
-                        deletedFiles += 1
-                    bar()                    
-                except:
-                    print(self.params_.color_.colored(f"Erreur lors de la suppression du fichier {file}", textColor.ROUGE))
-
-            # Puis des dossiers
-            for folder in delFolders:
-                if self._rmdir(folder):
-                    deletedFolders += 1
-                else:
-                    print(self.params_.color_.colored(f"Erreur lors de la suppression de {file}", textColor.ROUGE))
-                bar()
-
-        # Terminé
-        if expectedDeletions > (deletedFiles + deletedFolders):
-            # Des erreurs ?
-            bar(expectedDeletions - deletedFiles - deletedFolders)
-        
-        print(f"Suppression de {deletedFiles} fichier(s) et de {deletedFolders} dossier(s)")
+        print(f"Suppression de {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
         return True
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression

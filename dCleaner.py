@@ -115,18 +115,6 @@ class dCleaner:
             #return self.paddingFolder_.deleteFiles(count = self.paddingFolder_.files())
             return self.paddingFolder_.empty()
         else:
-            """
-            # Vidage d'un dossier
-            folder = basicFolder(self.options_)
-
-            done, message = folder.init(name)
-            if False == done:
-                # Erreur d'initialisation du dossier
-                raise ValueError(message)
-            
-            # Nettoyage ...
-            return folder.empty(recurse = True, remove = self.options_.cleanDepth_)
-            """
             return self.paddingFolder_.emptyFolders(fList, self.options_.cleanDepth_)
     
     # Remplissage initial de la partition
