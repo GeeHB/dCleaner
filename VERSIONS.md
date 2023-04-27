@@ -11,15 +11,20 @@
 #### A faire
 * getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
+* Affichage de la progression lors de la création des fichiers ?
 
 #### Version 0.7.3
 * xx avril 2023
 * Ajouts
   * Suppression récursive des dossiers via un generateur (enfin !)
   * Barre de progression affichée lors du parcours des dossiers à supprimer
+  * Si mode "clean" + "padding" => on fait le "clean" en premier !
+  * La hash des noms utilise l'algo. BLAKE2b pour un digest-size de 20
+  * Ajout de basicFile.py pour la gestion d'un fichier 
 * Corrections
   * README.md - Corrections et mise à jour
   * Simplification des appels et refactoring des classes
+  * Amélioration des affichages
 
 #### Version 0.7.2
 * 24 avril 2023
@@ -125,8 +130,6 @@
 * Corrections 
   * Si un seul mauvais param; en ligne de commmande 
     * utilisation de sharedTools v1.4.2
-
-
   * Le dossier est, par défaut, caché
   * Affichages
 * Ajout du paramètre -? et/ou -help pour afficher la ligne de commande

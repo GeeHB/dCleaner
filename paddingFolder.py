@@ -124,7 +124,6 @@ class paddingFolder(basicFolder):
                         # On attend ...
                         time.sleep(self.params_.waitFiles_)
                 
-                #if self.params_.verbose_ and barPos != barMax:
                 if barPos != barMax:
                     # Tout n'a peut-être pas été fait
                     # ou soucis d'arrondis ...
@@ -197,7 +196,7 @@ class paddingFolder(basicFolder):
                 
                 if not 0 == size :
                     # Suppression sur le critère de taille => on compte les Mo
-                    barMax = self.__convertSize2Progressbar(size)
+                    barMax = self.__convertSize2Progressbar(size * self.params_.iterate_)
                     barMonitor = "{count} Mo - {percent:.0%}"
                 else:
                     # On compte les fichiers
@@ -330,6 +329,7 @@ class paddingFolder(basicFolder):
                         expectedFiles += ret[1] # on conserve le nombre de fichiers
                 except:
                     pass
+        print(f"Analyse des dossiers terminée : {expectedFiles} fichier(s) à supprimer.")
 
         # Rien à faire ?
         if 0 == len(vFolders):

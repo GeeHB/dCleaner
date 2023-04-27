@@ -89,7 +89,6 @@ class basicFolder:
             # Le fichier doit exister
             if self._fileExists(name):
                 try:
-                    
                     # Replacement du contenu
                     if clearContent:
                         # Nouveau nom
@@ -294,7 +293,7 @@ class basicFolder:
 
         # On vérifie ...
         return os.path.isdir(folderName)
-
+    
     #
     # Méthodes internes
     #
@@ -324,7 +323,10 @@ class basicFolder:
         while True == generate:
             # On génère un nouveau nom
             now = datetime.datetime.now()
-            name = hashlib.sha256(str.encode(now.strftime("%Y%m%d-%H%M%S-%f"))).hexdigest()
+            #name = hashlib.sha256(str.encode(now.strftime("%Y%m%d-%H%M%S-%f"))).hexdigest()
+            hash = hashlib.blake2b(digest_size=20)
+            hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
+            name = hash.hexdigest()
             fullName = os.path.join(self.name_, name)
         
             # Si le fichier existe on génère un nouveau nom
@@ -392,7 +394,6 @@ class basicFolder:
     def _pattern2File(self, fname, fileSize = 0, maxFileSize = 0):
         currentSize = 0
         if True == self.valid_:
-
             # Creation ?
             if 0 == len(fname):
                 # Si la taille est nulle => on choisit aléatoirement

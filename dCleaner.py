@@ -231,6 +231,10 @@ if '__main__' == __name__:
                 else:
                     print(f"{res[0]} fichier(s) supprimé(s)")
             else:
+                # Nettoyer un ou plusieurs dossiers ?
+                if len(params.clean_) > 0:
+                    cleaner.cleanFolders(params.clean_)
+                    
                 # Remplissage de la partition
                 if False == params.noPadding_:
                     print("Vérification du dossier de 'padding'")
@@ -252,10 +256,6 @@ if '__main__' == __name__:
                                 print(f"Iteration {index+1}/{params.iterate_}")
                             
                             cleaner.cleanPartition()
-
-                # Nettoyer un ou plusieurs dossiers ?
-                if len(params.clean_) > 0:
-                    cleaner.cleanFolders(params.clean_)
 
         except ValueError as e:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
