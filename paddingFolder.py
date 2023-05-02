@@ -13,7 +13,7 @@
 #   Dépendances :  Nécessite alive_progress (pip install alive-progress)
 #
 import os, random, shutil, time
-from basicFolder import basicFolder
+from basicFolder import basicFolder, basicFile
 from sharedTools.colorizer import textColor
 
 # Classe paddingFolder - un dossier de remplissage
@@ -353,7 +353,7 @@ class paddingFolder(basicFolder):
         if expectedFiles > deletedFiles:
             # Des erreurs ?
             bar(expectedFiles - deletedFiles)
-        print(f"Suppression de {deletedFiles} fichier(s) dans {deletedFolders} dossier(s)")
+        print(f"Suppression de {deletedFiles} fichier(s) et de  {deletedFolders} dossier(s)")
         return deletedFiles, deletedFolders, ""
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression

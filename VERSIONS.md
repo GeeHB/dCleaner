@@ -13,14 +13,16 @@
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Affichage de la progression lors de la création des fichiers ?
 
-#### Version 0.7.3
+#### Version 0.8.0
 * xx avril 2023
 * Ajouts
-  * Suppression récursive des dossiers via un generateur (enfin !)
-  * Barre de progression affichée lors du parcours des dossiers à supprimer
+  * Nouvel algo reposant sur des générateurs
+    * Suppression récursive des dossiers
+    * Suppression / Création / modification de fichiers
+    * Barre de progression affichée lors du parcours des dossiers à supprimer
   * Si mode "clean" + "padding" => on fait le "clean" en premier !
   * La hash des noms utilise l'algo. BLAKE2b pour un digest-size de 20
-  * Ajout de basicFile.py pour la gestion d'un fichier 
+  * Ajout de basicFile pour la gestion d'un fichier 
 * Corrections
   * README.md - Corrections et mise à jour
   * Simplification des appels et refactoring des classes
