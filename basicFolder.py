@@ -187,9 +187,10 @@ class basicFile:
         return hash.hexdigest()
 
     # Génération d'un motif aléatoire
-    def _genPattern(self):
+    def _genPattern(self, maxPatternSize = PATTERN_MAX_LEN):
         self.pattern_ = ""
-        for _ in range(random.randint(PATTERN_MIN_LEN, PATTERN_MAX_LEN)):
+        maxSize = PATTERN_MAX_LEN if maxPatternSize > PATTERN_MAX_LEN else maxPatternSize
+        for _ in range(random.randint(PATTERN_MIN_LEN, maxSize)):
             self.pattern_+=PATTERN_BASE_STRING[random.randint(0, len(PATTERN_BASE_STRING) - 1)]
 
     # Création d'un fichier à la taille demandée
@@ -216,7 +217,7 @@ class basicFile:
             fileSize = self.size()
 
         # Nouveau motif
-        self._genPattern()
+        self._genPattern(fileSize)
         pSize = len(self.pattern_)
 
         # Taille du buffer
@@ -233,17 +234,17 @@ class basicFile:
         try:
             # Remplissage du fichier
             while currentSize < fileSize:
+                # Le dernier paquet (qui peut aussi être le premier) doit-il être tronqué ?
+                if (currentSize + buffSize) > fileSize:
+                    buffSize = fileSize - currentSize
+                    self.pattern_ = self.pattern_[:buffSize]
+
                 # Ecriture du buffer
                 file.write(self.pattern_)
                 currentSize+=buffSize
 
                 # On retourne la taille du paquet écrit
                 yield buffSize
-
-                # Le dernier paquet doit-il être tronqué ?
-                if (currentSize + buffSize) > fileSize:
-                    buffSize = fileSize - currentSize
-                    self.pattern_ = self.pattern_[:buffSize]
         except:
             self.error = f"Erreur lors de l'ecriture dans {self.name_}"
         finally:

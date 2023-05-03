@@ -21,8 +21,10 @@ if '__main__' == __name__:
         # Suppression
         total = 0
         expected = bFile.size()
-        for portion in bFile.delete():
-            print(f"Effacement de {portion}")
+        index = 0
+        for index, portion in enumerate(bFile.delete()):
+            if index % 10 == 0: 
+                print(f"Effacement de {portion} octets")
             total += portion
 
         if bFile.noError():
