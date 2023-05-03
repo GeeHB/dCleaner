@@ -207,9 +207,9 @@ class paddingFolder(basicFolder):
                 
                     # Suppression des fichiers
                     try:
-                        # Les fichiers "fils"
+                        # Les fichiers du dossier
                         for file in files:
-                            fullName = os.path.join(self.params_.folder_, file) 
+                            bFile = basicFile(self.params_.folder_, file) 
                             res = self.deleteFile(fullName)
 
                             # Suppression effectuée ?
@@ -340,7 +340,7 @@ class paddingFolder(basicFolder):
         with progressBar(expectedFiles, title = "Suppr.", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             for folder in vFolders:        
                 if bFolder.setName(folder):
-                    for isFile, shortName,done in bFolder.empty(recurse = True, remove = cleanDepth) :
+                    for isFile, shortName, done in bFolder.empty(recurse = True, remove = cleanDepth) :
                         if done:
                             if isFile:
                                 deletedFiles += 1

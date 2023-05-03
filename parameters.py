@@ -25,8 +25,8 @@ APP_RELEASE_DATE = "28-04-2023"
 PATTERN_BASE_STRING = "ABCDEFGKHIJLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/!=@&_-:;,?<>$"
 
 # Taille d'un motif aléatoire en octets
-PATTERN_MIN_LEN = 33
-PATTERN_MAX_LEN = 5121
+PATTERN_MIN_LEN = 1024
+PATTERN_MAX_LEN = 74233
 
 #
 # Gestion des fichiers

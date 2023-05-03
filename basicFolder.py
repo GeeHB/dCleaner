@@ -23,16 +23,16 @@ from sharedTools.colorizer import textColor
 class basicFile:
     
     # Constructeur
-    def __init__(self, fName = None, iterate = 1):
-        self.name_ = fName
+    def __init__(self, path = None, fName = None, iterate = 1):
+        self.name_ = fName if path is None or len(path) == 0 else os.path.join(path, fName)
         self.iterate_ = iterate
         self.pattern_ = ""
         self.error_ = ""
 
     # Nom du fichier
     @property
-    def name(self) -> str:
-        return self.name_
+    def name(self):
+        return self.name_ if self.name_ is not None else ""
     
     @name.setter
     def name(self, value):
@@ -49,7 +49,7 @@ class basicFile:
     # Gestion des erreurs
     #
     @property
-    def error(self) -> str:
+    def error(self):
         message =self.error_
         if len(message):
             # Effacement du message aprèsz consultation
@@ -111,38 +111,43 @@ class basicFile:
     #
     def delete(self, clear = True):
         # Le fichier doit exister
-        if self.exists():
-            
+        if self.exists():   
             # Remplacement du contenu ?
             if clear:
+                # Nouveau contenu (on itère l'effacement)
+                for _ in range(self.iterate_):
+                    for fragment in self._createFile():
+                        yield fragment
+
+                if False == self.noError():
+                    return
+
                 # Nouveau nom
-                if len(self.rename()) > 0:
-                    # Nouveau contenu (on itère l'effacement)
-                    for _ in range(self.iterate_):
-                        yield from self._createFile()
+                if len(self.rename()) == 0:
+                    self.error = f"Impossible de renommer {self.name_}"     
             try:
                 # (puis) effacement
                 if len(self.name_)>0:
                     os.remove(self.name_)
             except:
-                self.error_ = f"Erreur lors de la tentative de suppression de {self.name_}"
+                self.error = f"Erreur lors de la tentative de suppression de {self.name_}"
 
     # Taille en octets (ou None en cas d'erreur)
     def size(self):
         return None if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
 
     # Le fichier existe t'il ?
-    def exists(self, fileName = None):
+    def exists(self, fName = None):
         # Le nom est-il renseigné ?
-        if len(self.name_) == 0 and len(fileName) == 0:
+        if len(self.name_) == 0 and (fName is None or len(fName) == 0):
             return False
 
         # On va essayer d'ouvrir le fichier en lecture
         try:
-            file = open(fileName if fileName is not None else self.name_, 'r')
+            file = open(self.name if len(self.name) > 0 else fName, 'r')
             file.close()
             return True
-        except:
+        except FileNotFoundError :
             return False
             
     # Génération d'un nom de fichier pour un fichier existant ou un nouveau fichier
@@ -163,7 +168,8 @@ class basicFile:
             fName = os.path.join(folder, self._genName())
         
             # Si le fichier ou le dossier existe on génère un nouveau nom
-            generate = os.path.isdir(fName) if folder else self.exists(fName)
+            #generate = os.path.isdir(fName) if folder else self.exists(fName)
+            generate = basicFolder._exists(fName) if folder else self.exists(fName)
 
         # Retour du nom complet
         return fName
@@ -175,8 +181,9 @@ class basicFile:
     # Génération d'un nouveau nom (fichier ou dossier)
     #   Retourne le nouveau nom
     def _genName(self):
+        now = datetime.datetime.now()
         hash = hashlib.blake2b(digest_size=20)
-        hash.update(str.encode(now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f")))
+        hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
         return hash.hexdigest()
 
     # Génération d'un motif aléatoire
@@ -188,8 +195,6 @@ class basicFile:
     # Création d'un fichier à la taille demandée
     #  Si le fichier existe son contenu sera remplacé
     def _createFile(self, fileSize = 0, maxFileSize = 0, isNew = False):
-        currentSize = 0
-        
         # Création ?
         if isNew:
             # Si la taille est nulle => on choisit aléatoirement
@@ -204,7 +209,7 @@ class basicFile:
         else:
             # Remplissage
             if False == self.exists():
-                self.error_ = f"Erreur, le fichier '{self.name_}' n'existe pas"
+                self.error = f"Erreur, le fichier '{self.name_}' n'existe pas"
                 return
 
             # On conserve la taille
@@ -218,17 +223,18 @@ class basicFile:
         buffSize = pSize if pSize < fileSize else fileSize
 
         # Ouverture / création du fichier            
+        currentSize = 0
         try:
             file = open(self.name_, 'w')
         except:
-            self.error_ = f"Impossible d'ouvrir {self.name_}"
+            self.error = f"Impossible d'ouvrir {self.name_}"
             return
 
         try:
             # Remplissage du fichier
             while currentSize < fileSize:
                 # Ecriture du buffer
-                file.write(pattern)
+                file.write(self.pattern_)
                 currentSize+=buffSize
 
                 # On retourne la taille du paquet écrit
@@ -237,9 +243,9 @@ class basicFile:
                 # Le dernier paquet doit-il être tronqué ?
                 if (currentSize + buffSize) > fileSize:
                     buffSize = fileSize - currentSize
-                    pattern = pattern[:buffSize]
+                    self.pattern_ = self.pattern_[:buffSize]
         except:
-            self.error_ = f"Erreur lors de l'ecriture dans {self.name_}"
+            self.error = f"Erreur lors de l'ecriture dans {self.name_}"
         finally:
             file.close()
 
@@ -348,8 +354,8 @@ class basicFolder:
     
     # Vidage d'un dossier
     #
-    #       folder : nom complet du dossier à vider ("" => dossier courant)
-    #       recurse : suppression recursive des sous-dossiers ?
+    #       folder : Nom complet du dossier à vider ("" => dossier courant)
+    #       recurse : Suppression recursive des sous-dossiers ?
     #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #   
     #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier supprimé, effectué ?}
@@ -517,12 +523,14 @@ class basicFolder:
         """
 
     # Le dossier existe-il ?
-    def exists(self, folderName):
-        if 0 == len(folderName):
-            folderName = self.name_
-
+    @staticmethod
+    def _exists(folderName):
         # On vérifie ...
         return os.path.isdir(folderName)
+    
+    def exists(self, folderName = None):
+        # On vérifie ...
+        return self._exists(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
     
     #
     # Méthodes internes
