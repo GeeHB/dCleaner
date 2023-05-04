@@ -16,6 +16,7 @@ import parameters as opts
 import os
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
+from basicFolder import basicFile
 from sharedTools.colorizer import textAttribute, textColor
 
 # Classe dCleaner
@@ -84,7 +85,7 @@ class dCleaner:
             
             if False == self.options_.noPadding_:
                 out += "\n\nRemplissage : " 
-                out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])}"
+                out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
                 out += f"\n\t- Contenu : {self.paddingFolder_.size2String(self.paddingFolder_.size())}\n"
 
             if len(self.options_.clean_) > 0 :
@@ -213,6 +214,9 @@ if '__main__' == __name__:
     
     done = False
 
+    # Initialisations
+    basicFile.init()
+
     # Ma ligne de commandes
     params = opts.options()
     if True == params.parse():
@@ -259,8 +263,8 @@ if '__main__' == __name__:
 
         except ValueError as e:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
-        except :
-            print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
+        #except :
+        #    print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

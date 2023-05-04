@@ -102,27 +102,25 @@ class paddingFolder(basicFolder):
             
                 # Boucle de remplissage
                 while totalSize < expectedFillSize and cont:
-                    res = self.newFile(maxFileSize = still)
+                    # Création d'un fichier
+                    bFile = basicFile(self.name, None)
+                    for fragment in bFile.create(maxFileSize = still) :   
+                        totalSize+=fragment
 
-                    if 0 == res[1]:
-                        # Fin des traitement  ou erreur ...
-                        cont = False
-                    else:
-                        
-                        totalSize+=res[1] # Ajout de la taille du fichier
-                        
                         #if self.params_.verbose_:
-                        barInc = self.__convertSize2Progressbar(res[1]) 
+                        barInc = self.__convertSize2Progressbar(fragment) 
                         if barInc > 0:
                             # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
                             barPos += barInc
                             bar(barInc)
 
-                        still-=res[1]
-                        files+=1
+                        still-=fragment
+                        
+                    # Un fichier de plus
+                    files+=1
 
-                        # On attend ...
-                        time.sleep(self.params_.waitFiles_)
+                    # On attend ...
+                    time.sleep(self.params_.waitFiles_)
                 
                 if barPos != barMax:
                     # Tout n'a peut-être pas été fait

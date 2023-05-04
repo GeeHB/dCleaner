@@ -47,7 +47,7 @@ def create(bFile, rename, size):
         print(f"Erreur : {bFile.error}")
     
 # Remplissage et/ou suppression
-def fillDelete(bFile):
+def fillorDelete(bFile):
     
     if bFile.exists():
         # Suppression
@@ -73,7 +73,7 @@ if '__main__' == __name__:
     # basicFile
     bFile = basicFile("/home/jhb/Téléchargements/temp", "other.mkv")
 
-    # fillDelete(bFile)
+    # fillorDelete(bFile)
     create(bFile, False, 456789)
     #create(bFile, True, 2340539)
     

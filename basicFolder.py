@@ -24,10 +24,28 @@ class basicFile:
     
     # Constructeur
     def __init__(self, path = None, fName = None, iterate = 1):
-        self.name_ = fName if path is None or len(path) == 0 else os.path.join(path, fName)
+        
+        if path is not None and basicFolder.existsFolder(path):
+            # Le dossier est valide
+            if fName is not None and len(fName)>0 :
+                # Le nom est "correct"
+                self.name = os.path.join(path, fName)
+            else:
+                # Génération d'un nom nouveau
+                name = basicFile.genName(path, False)
+                if name is None:
+                    self.error = "Impossible de générer un nom pour le dossier  {path}"
+                else:
+                    self.name = name
+
         self.iterate_ = iterate
         self.pattern_ = ""
         self.error_ = ""
+
+    # Initialisation du générateur aléatoire
+    @staticmethod
+    def init():
+        random.seed()
 
     # Nom du fichier
     @property
@@ -285,21 +303,35 @@ class basicFolder:
 
     # Données membres
     valid_ = False                      # L'objet est-il correctement initialisé ?
-    name_ = ""                          # Nom complet du dossier
     params_ = None
     maxPatternSize_ = PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
     sizes_ = None                       # Taille et # fichiers contenus
 
     restricted_ = []                    # Liste des dossiers que l'on ne peut supprimer
 
+    # Nom du fichier
+    @property
+    def name(self):
+        return self.name_ if self.name_ is not None else ""
+    
+    @name.setter
+    def name(self, value):
+        # Le dossier existe t'il ?
+        if value is None or value == "" or False == os.path.isdir(value):
+            self.name_ = ""
+            self.valid_ = False
+            
+        # Ok
+        self.name_ = value
+        self.valid_ = True
+    
     # Constructeur
     def __init__(self, options, pMaxSize = 0):
         # Initialisation des données membres
-        self._valid = False
-        self.name_ = ""
+        self.name = ""
         self.params_ = options
         self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
-        sizes_ = None
+        self.sizes_ = None
         
         # Dossiers protégés
         self.restricted_.append(p.homeFolder()) 
@@ -314,32 +346,12 @@ class basicFolder:
         # Initialisation du générateur aléatoire
         random.seed()
 
-        if name is not None and False == self.setName(name):
+        if name is not None and False == basicFolder.existsFolder(name):
             return False, f"Le dossier '{name}' n'existe pas"
         
         # Ok - pas  de message
+        self.name = name
         return True , ""
-    
-    # Nom du dossier courant
-    def name(self):
-        return self.name_
-    
-    def setName(self, name):
-        # Le dossier existe t'il ?
-        if False == os.path.isdir(name):
-            self.name_ = ""
-            self.valid_ = False
-            return False
-        
-        # Ok
-        self.name_ = name
-        self.valid_ = True
-        return True
-
-    # Génération d'un fichier
-    #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
-    def newFile(self, fileSize = 0, maxFileSize = 0):
-        return self._pattern2File("", fileSize, maxFileSize)
 
     # Remplissage et renommage d'un fichier existant
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
