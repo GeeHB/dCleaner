@@ -45,6 +45,18 @@ class basicFile:
         res = os.path.split(self.name_)
         return res[1]
     
+    # Retrait du nom ...
+    def clearName(self):
+        self.name = ""
+
+    # Dossier
+    def folder(self):
+        if 0 == len(self.name):
+            return None
+
+        f, _ = os.path.split(self.name)
+        return f
+    
     #
     # Gestion des erreurs
     #
@@ -60,8 +72,8 @@ class basicFile:
     def error(self, value):
         self.error_ = value
 
-    # Une erreur ?
-    def noError(self):
+    # La dernière opération s'est correctement déroulée ?
+    def success(self):
         return 0 == len(self.error_)
 
     #
@@ -73,31 +85,51 @@ class basicFile:
     #   Generator qui énumère les blocks d'octets supprimés
     #
     def create(self, fileSize = 0, maxFileSize = 0):
-        if self.exists():
-            if len(self.rename(True)) > 0:
-                yield from self._createFile(fileSize, maxFileSize, True)  
+        if len(self.name):
+            # Si le fichier existe, je le supprime ...
+            if self.exists():
+                self.delete()
+        else:
+            # Pas de nom
+            self.error = f"Impossible de créer le fichier. Il n'a pas de nom"
+                
+        if self.success():
+            # Creation à la "bonne taille"
+            for fragment in self._createFile(fileSize, maxFileSize, True):
+                yield fragment
 
     # Remplissage d'un fichier existant
     #
     #   Generator qui énumère les blocks d'octets supprimés
     #
-    def fill(self):
+    def fill(self, rename = False):
         if self.exists():
-            if len(self.rename()) > 0:
-                for _ in range(self.iterate_):
-                    yield from self._createFile()
+            for _ in range(self.iterate_):
+                for fragment in self._createFile():
+                    yield fragment
+
+            if False == self.success():
+                return
+
+            # Nouveau nom
+            if rename and len(self.rename()) == 0:
+                self.error = f"Impossible de renommer {self.name_}"
+            
     # Renomage
-    #   Retourne le nouveau nom (ou l'ancien en cas d'erreur)
+    #   Retourne le nouveau nom (ou None en cas d'erreur)
     def rename(self, force = False):
         if (not force and self.exists()) or force:
+            
+            folder, _ = os.path.split(self.name)
+            
             # Nouveau nom "complet"
-            name = self.genName()
+            name = self.genName(folder)
             try:
                 os.rename(self.name_, name)
                 self.name_ = name
             except:
                 # une erreur
-                return self.name_
+                return None
 
             return name
 
@@ -119,7 +151,7 @@ class basicFile:
                     for fragment in self._createFile():
                         yield fragment
 
-                if False == self.noError():
+                if False == self.success():
                     return
 
                 # Nouveau nom
@@ -137,39 +169,39 @@ class basicFile:
         return None if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
 
     # Le fichier existe t'il ?
-    def exists(self, fName = None):
+    @staticmethod
+    def existsFile(fName):
         # Le nom est-il renseigné ?
-        if len(self.name_) == 0 and (fName is None or len(fName) == 0):
+        if fName is None or 0 == len(fName):
             return False
 
         # On va essayer d'ouvrir le fichier en lecture
         try:
-            file = open(self.name if len(self.name) > 0 else fName, 'r')
+            file = open(fName, 'r')
             file.close()
             return True
         except FileNotFoundError :
             return False
+    
+    def exists(self):
+        return False if len(self.name) == 0 else basicFile.existsFile(self.name)
             
     # Génération d'un nom de fichier pour un fichier existant ou un nouveau fichier
-    #   Retourne le nouveau nom complet ou "" en cas d'anomalie
-    def genName(self, parentFolder = None, folder = False):
+    #   Retourne le nouveau nom complet ou None en cas d'anomalie
+    @staticmethod
+    def genName(parentFolder, folder = False):
         # Dossier parent
         if parentFolder is None:
-            # Utilisation du nom courant
-            if len(self.name_) == 0:
-                return ""
-            folder, _ = os.path.split(self.name_)
-        else:
-            folder = parentFolder
-        
+            return None
+            
         # Tant qu'il existe (avec le même nom)
         generate = True
         while True == generate:
-            fName = os.path.join(folder, self._genName())
+            fName = os.path.join(parentFolder, basicFile._genName())
         
             # Si le fichier ou le dossier existe on génère un nouveau nom
             #generate = os.path.isdir(fName) if folder else self.exists(fName)
-            generate = basicFolder._exists(fName) if folder else self.exists(fName)
+            generate = basicFolder.existsFolder(fName) if folder else basicFile.existsFile(fName)
 
         # Retour du nom complet
         return fName
@@ -180,7 +212,8 @@ class basicFile:
 
     # Génération d'un nouveau nom (fichier ou dossier)
     #   Retourne le nouveau nom
-    def _genName(self):
+    @staticmethod
+    def _genName():
         now = datetime.datetime.now()
         hash = hashlib.blake2b(digest_size=20)
         hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
@@ -208,11 +241,6 @@ class basicFile:
                 if maxFileSize >0 and fileSize > maxFileSize:
                     fileSize = maxFileSize
         else:
-            # Remplissage
-            if False == self.exists():
-                self.error = f"Erreur, le fichier '{self.name_}' n'existe pas"
-                return
-
             # On conserve la taille
             fileSize = self.size()
 
@@ -525,13 +553,13 @@ class basicFolder:
 
     # Le dossier existe-il ?
     @staticmethod
-    def _exists(folderName):
+    def existsFolder(folderName):
         # On vérifie ...
         return os.path.isdir(folderName)
     
     def exists(self, folderName = None):
         # On vérifie ...
-        return self._exists(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
+        return self.existsFolder(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
     
     #
     # Méthodes internes

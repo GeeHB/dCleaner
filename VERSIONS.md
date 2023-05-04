@@ -22,7 +22,8 @@
     * Barre de progression affichée lors du parcours des dossiers à supprimer
   * Si mode "clean" + "padding" => on fait le "clean" en premier !
   * La hash des noms utilise l'algo. BLAKE2b pour un digest-size de 20
-  * Ajout de basicFile pour la gestion d'un fichier 
+  * Ajout de basicFile pour la gestion d'un fichier
+    * Ajout de getters et setters
 * Corrections
   * README.md - Corrections et mise à jour
   * Simplification des appels et refactoring des classes
