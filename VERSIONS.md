@@ -12,9 +12,10 @@
 * getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Affichage de la progression lors de la création des fichiers ?
+* ??? gestion des itérations
 
 #### Version 0.8.0
-* xx avril 2023
+* xx mai 2023
 * Ajouts
   * Nouvel algo reposant sur des générateurs
     * Suppression récursive des dossiers

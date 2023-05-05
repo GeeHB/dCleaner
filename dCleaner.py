@@ -261,7 +261,8 @@ if '__main__' == __name__:
                             
                             cleaner.cleanPartition()
 
-        except ValueError as e:
+        #except ValueError as e:
+        except IOError as e:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
         #except :
         #    print(params.color_.colored("Erreur inconnue", textColor.ROUGE))

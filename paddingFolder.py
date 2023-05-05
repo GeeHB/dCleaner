@@ -10,7 +10,7 @@
 #
 #   Remarque    : 
 #
-#   Dépendances :  Nécessite alive_progress (pip install alive-progress)
+#   Dépendances :  Utilise alive_progress (pip install alive-progress)
 #
 import os, random, shutil, time
 from basicFolder import basicFolder, basicFile
@@ -38,17 +38,15 @@ class paddingFolder(basicFolder):
             return False, "Erreur de paramètres"
 
         # Le dossier existe t'il ?
-        if False == os.path.isdir(self.params_.folder_):
+        if not basicFolder.existsFolder(self.params_.folder_):
             if self.params_.verbose_:
                 print(f"Le dossier '{self.params_.folder_}' n'existe pas")
 
             # On essaye de le créer
-            try:
-                os.makedirs(self.params_.folder_)
-
+            if self.create(self.params_.folder_):
                 if self.params_.verbose_:
                     print("Dossier crée avec succès")
-            except:   
+            else:
                 return False, f"Impossible de créer le dossier '{self.params_.folder_}'"
         
         # Ok - pas  de message
@@ -61,16 +59,12 @@ class paddingFolder(basicFolder):
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
     #   Retourne le tuple (total, used, free)
     def partitionUsage(self):
+        #return shutil.disk_usage(self.params_.folder_) if self.valid_ else 0,0,0
         if True == self.valid_:
             total, used, free = shutil.disk_usage(self.params_.folder_)
             return total, used, free
         else:
             return 0,0,0
-
-    # Contenu du dossier
-    #   retourne le contenu du dossier
-    def content(self):
-        return 0
 
     # Remplissage avec un taille totale à atteindre ...
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
@@ -98,19 +92,16 @@ class paddingFolder(basicFolder):
             # Barre de progression
             barPos = 0  # On je suis ...
             barMax = self.__convertSize2Progressbar(expectedFillSize)
-            with progressBar(barMax, title = "Ajouts: ", monitor ="{count} Mo - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+            with progressBar(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             
                 # Boucle de remplissage
                 while totalSize < expectedFillSize and cont:
-                    # Création d'un fichier
+                    # Création d'un fichier sans nom
                     bFile = basicFile(self.name, None)
                     for fragment in bFile.create(maxFileSize = still) :   
                         totalSize+=fragment
-
-                        #if self.params_.verbose_:
                         barInc = self.__convertSize2Progressbar(fragment) 
                         if barInc > 0:
-                            # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
                             barPos += barInc
                             bar(barInc)
 
@@ -123,8 +114,7 @@ class paddingFolder(basicFolder):
                     time.sleep(self.params_.waitFiles_)
                 
                 if barPos != barMax:
-                    # Tout n'a peut-être pas été fait
-                    # ou soucis d'arrondis ...
+                    # Tout n'a peut-être pas été fait ou soucis d'arrondis ...
                     bar(barMax - barPos)
                     
             # Terminé
@@ -134,31 +124,9 @@ class paddingFolder(basicFolder):
         # Erreur
         return False
 
-    # Suppression d'un fichier (le nom doit être complet)
-    #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
-    def deleteFile(self, name):
-        if True == self.valid_:
-            # Pas de nom ?
-            if 0 == len(name):
-                # On supprime le premier qui vient ...
-                name = ""
-                for file in os.listdir(self.params_.folder_):
-                    fName = os.path.join(self.params_.folder_, file)
-                    
-                    # Un fichier ?
-                    if self._fileExists(fName):
-                        name = fName
-                        break
-
-            return super().deleteFile(name, False)
-
-        # Rien n'a été fait
-        return "", 0
-
     # Suppression d'un ou plusieurs fichiers sur un critère de nombre ou de taille à libérer
     #   retourne True lorsque l'opération s'est déroulée correctement
-    def deleteFiles(self, count = 0, size = 0):
-        
+    def deleteFiles(self, count = 0, size = 0): 
         tSize = 0
         tFiles = 0
         
@@ -190,12 +158,12 @@ class paddingFolder(basicFolder):
                     from fakeProgressBar import fakeProgressBar as progressBar
 
                 # Barre de progression
-                barPos = 0  # On je suis ...
+                barPos = 0  # Là ou je suis ...
                 
                 if not 0 == size :
-                    # Suppression sur le critère de taille => on compte les Mo
+                    # Suppression sur le critère de taille => on compte les ko
                     barMax = self.__convertSize2Progressbar(size * self.params_.iterate_)
-                    barMonitor = "{count} Mo - {percent:.0%}"
+                    barMonitor = "{count} ko - {percent:.0%}"
                 else:
                     # On compte les fichiers
                     barMax = count
@@ -208,34 +176,35 @@ class paddingFolder(basicFolder):
                         # Les fichiers du dossier
                         for file in files:
                             bFile = basicFile(self.params_.folder_, file) 
-                            res = self.deleteFile(fullName)
-
-                            # Suppression effectuée ?
-                            if res[1] > 0:
-                                tFiles+=1       # Un fichier de + (de supprimé ...)
-                                tSize+=res[1]   # La taille en octets
-
-                                #if self.params_.verbose_ :
-                                if 0 == size:
-                                    #print("  -v" + res[0] + " - " + str(tFiles) + " / " + str(count) + " restant(s)")
-                                    bar(1)
-                                    barPos += 1
-                                else:
-                                    #print("  - " + res[0] + " - " + self.size2String(res[1]) + " / " + self.size2String(size - tSize) + " restants")
-                                    barInc = self.__convertSize2Progressbar(res[1]) 
+                            
+                            # Suppression d'un fichier
+                            for frag in bFile.delete(True):
+                                if size:
+                                    # Suppression sur critère de taille
+                                    tSize += frag
+                                    barInc = self.__convertSize2Progressbar(frag) 
                                     if barInc > 0:
-                                        # Si on appelle bar(0) => incrémente qd même de 1 (bug ?)
-                                        barPos += barInc
-
                                         # Ici on peut dépasser ...
-                                        if barPos > barMax:
-                                            barInc = barMax - barPos + barInc
-                                            barPos = barMax
-                                        bar(barInc)
+                                        if (barPos + barInc) > barMax:
+                                            barInc = barMax - barPos
 
-                                # Quota atteint
-                                if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
-                                    break
+                                        barPos += barInc
+                                        
+                                        # !!!
+                                        if barInc:
+                                            bar(barInc)
+
+                            # Un fichier de moins
+                            tFiles+=1
+
+                            if 0 == size:
+                                # Suppression sur critère de nombre (de fichier)
+                                bar(1)
+                                barPos += 1
+                                
+                            # Quota atteint
+                            if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
+                                break
 
                             # On attend ...
                             time.sleep(self.params_.waitFiles_)
@@ -244,10 +213,8 @@ class paddingFolder(basicFolder):
                         # Une erreur => on arrête de suite ...
                         return False
 
-                    #if self.params_.verbose_ and barPos != barMax:
                     if barPos != barMax:
-                        # Tout n'a peut-être pas été fait
-                        # ou soucis d'arrondis ...
+                        # Tout n'a peut-être pas été fait ou soucis d'arrondis ...
                         bar(barMax - barPos)
 
         # Fin des traitements
@@ -356,6 +323,6 @@ class paddingFolder(basicFolder):
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
     def __convertSize2Progressbar(self, number = 0):
-        return int(number / 1024 / 1024)     # conversion en Mo 
+        return int(number / 1024)     # conversion en ko 
 
 # EOF

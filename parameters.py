@@ -134,7 +134,7 @@ ARG_ELAPSEFILES_S = "-wf"
 ARG_ELAPSEFILES   = "--waitfiles"
 COMMENT_ELAPSEFILES = "Durée en sec. entre 2 suppressions de fichiers"
 
-DEF_ELAPSEFILES = 0.1
+DEF_ELAPSEFILES = 0.0
 MIN_ELAPSEFILES = 0.0
 MAX_ELAPSEFILES = 180.0
 

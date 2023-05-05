@@ -25,6 +25,12 @@ class basicFile:
     # Constructeur
     def __init__(self, path = None, fName = None, iterate = 1):
         
+        # Initialisation des données membres
+        self.iterate_ = iterate
+        self.pattern_ = ""
+        self.error_ = ""
+
+        # Nom du fichier
         if path is not None and basicFolder.existsFolder(path):
             # Le dossier est valide
             if fName is not None and len(fName)>0 :
@@ -34,13 +40,9 @@ class basicFile:
                 # Génération d'un nom nouveau
                 name = basicFile.genName(path, False)
                 if name is None:
-                    self.error = "Impossible de générer un nom pour le dossier  {path}"
+                    self.error = "Impossible de générer un nom de fichier pour le dossier  {path}"
                 else:
                     self.name = name
-
-        self.iterate_ = iterate
-        self.pattern_ = ""
-        self.error_ = ""
 
     # Initialisation du générateur aléatoire
     @staticmethod
@@ -60,14 +62,10 @@ class basicFile:
     def shortName(self):
         if len(self.name_) == 0:
             return ""
-        res = os.path.split(self.name_)
-        return res[1]
+        _, sName = os.path.split(self.name_)
+        return sName
     
-    # Retrait du nom ...
-    def clearName(self):
-        self.name = ""
-
-    # Dossier
+    # Nom du dossier
     def folder(self):
         if 0 == len(self.name):
             return None
@@ -95,7 +93,7 @@ class basicFile:
         return 0 == len(self.error_)
 
     #
-    # Gestion des fichiers
+    # Gestion du fichier
     #
 
     # Création d'un nouveau fichier
@@ -240,7 +238,8 @@ class basicFile:
     # Génération d'un motif aléatoire
     def _genPattern(self, maxPatternSize = PATTERN_MAX_LEN):
         self.pattern_ = ""
-        maxSize = PATTERN_MAX_LEN if maxPatternSize > PATTERN_MAX_LEN else maxPatternSize
+        iSize = int(maxPatternSize)
+        maxSize = PATTERN_MAX_LEN if iSize > PATTERN_MAX_LEN else (iSize if iSize > PATTERN_MIN_LEN else PATTERN_MIN_LEN)
         for _ in range(random.randint(PATTERN_MIN_LEN, maxSize)):
             self.pattern_+=PATTERN_BASE_STRING[random.randint(0, len(PATTERN_BASE_STRING) - 1)]
 
@@ -352,6 +351,16 @@ class basicFolder:
         # Ok - pas  de message
         self.name = name
         return True , ""
+    
+    # Création du dossier
+    #   retourne un booléen
+    def create(self, name):
+        # On essaye de le créer
+        try:
+            os.makedirs(name)
+            return True
+        except:   
+            return False
 
     # Remplissage et renommage d'un fichier existant
     #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
