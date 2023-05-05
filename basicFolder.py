@@ -43,6 +43,9 @@ class basicFile:
                     self.error = "Impossible de générer un nom de fichier pour le dossier  {path}"
                 else:
                     self.name = name
+        else:
+            # pas de nom (pour l'instant)
+            self.name = ""
 
     # Initialisation du générateur aléatoire
     @staticmethod
@@ -173,8 +176,9 @@ class basicFile:
                 # Nouveau nom
                 if len(self.rename()) == 0:
                     self.error = f"Impossible de renommer {self.name_}"     
+            
+            # Dans tous les cas, effacement
             try:
-                # (puis) effacement
                 if len(self.name_)>0:
                     os.remove(self.name_)
             except:
@@ -300,14 +304,6 @@ class basicFile:
 #
 class basicFolder:
 
-    # Données membres
-    valid_ = False                      # L'objet est-il correctement initialisé ?
-    params_ = None
-    maxPatternSize_ = PATTERN_MAX_LEN   # Taille maximale du motif aléatoire
-    sizes_ = None                       # Taille et # fichiers contenus
-
-    restricted_ = []                    # Liste des dossiers que l'on ne peut supprimer
-
     # Nom du fichier
     @property
     def name(self):
@@ -323,14 +319,25 @@ class basicFolder:
         # Ok
         self.name_ = value
         self.valid_ = True
+
+    # Les données internes sont-elles valides ?
+    @property
+    def valid(self):
+        return self.valid_
     
+    @valid.setter
+    def valid(self, value):
+        self.valid_ = value
+
     # Constructeur
     def __init__(self, options, pMaxSize = 0):
         # Initialisation des données membres
         self.name = ""
+        self.valid = False
         self.params_ = options
         self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
         self.sizes_ = None
+        self.restricted_ = []                    # Liste des dossiers que l'on ne peut supprimer
         
         # Dossiers protégés
         self.restricted_.append(p.homeFolder()) 
@@ -361,73 +368,32 @@ class basicFolder:
             return True
         except:   
             return False
-
-    # Remplissage et renommage d'un fichier existant
-    #   retourne le tuple (nom du fichier crée, taille en octets, taille du motif aléatoire)
-    def fillFile(self, name):
-        return self._pattern2File(name)
     
-    # Suppression d'un fichier (le nom doit être complet)
-    #   retourne le tuple (nom du fichier, nombre d'octets libérés) ou ("" , 0) en cas d'erreur
-    def deleteFile(self, name, clearContent = True):
-        size = 0
-        if True == self.valid_:
-            # Le fichier doit exister
-            if self._fileExists(name):
-                try:
-                    # Replacement du contenu
-                    if clearContent:
-                        # Nouveau nom
-                        name = self._renameFile(name)
-
-                        if len(name) > 0:
-                            # Nouveau contenu (on itère l'effacement)
-                            for count in range(self.params_.iterate_):
-                                self._pattern2File(name)
-                    
-                    # Effacement
-                    if len(name)>0:
-                        size = os.path.getsize(name)
-                        os.remove(name)
-                    
-                        # On retourne le nom court
-                        values = os.path.split(name)
-                        return values[1], size
-                except:
-                #except ValueError as e:
-                    if self.params_.verbose_:
-                        print(self.params_.color_.colored(f"Erreur lors de la tentative de suppression de {name}", textColor.ROUGE))
-                    pass 
-
-        # Rien n'a été fait
-        return "", 0
-    
-    # Vidage d'un dossier
+    # Parcours récursif d'un dossier en vue de le vider
     #
-    #       folder : Nom complet du dossier à vider ("" => dossier courant)
-    #       recurse : Suppression recursive des sous-dossiers ?
+    #       folder : Nom complet du dossier de départ ("" => dossier courant)
+    #       recurse : Parcours recursive des sous-dossiers ?
     #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #   
-    #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier supprimé, effectué ?}
+    #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier}
     #
-    def empty(self, folder = None, recurse = False, remove = -1):
+    def browse(self, folder = None, recurse = False, remove = -1):
         folderName = self.name_ if folder is None else folder
         # Analyse récursive du dossier
         for entry in os.scandir(folderName):
             fullName = os.path.join(folderName, entry.name) 
             if entry.is_file():
                 # Un fichier
-                ret = self.deleteFile(fullName)
-                yield True, fullName, ret[1] > 0
+                yield True, fullName
             elif entry.is_dir():
                 # Un sous dossier => appel récursif
                 if recurse:
-                    yield from self.empty(fullName, True, remove - 1 if remove > 0 else remove)
+                    yield from self.browse(fullName, True, remove - 1 if remove > 0 else remove)
         
         # Suppression du dossier courant?
         if 0 == remove:
-            yield False, folderName, self.rmdir(folderName)
-
+            yield False, folderName
+    
     # Taille du dossier (et de tout ce qu'il contient)
     #   Retourne le tuple (taille en octets, nombre de fichiers)
     def sizes(self, folder = ""):   
@@ -496,8 +462,8 @@ class basicFolder:
             return False
 
         # Nouveau nom
-        nFolder = self._newFolderName(res[0])
-        if 0 == len(nFolder):
+        nFolder = basicFile.genName(res[0], True)
+        if nFolder is None:
             return False
         
         # Renommage demandé mais pas obligatoire ...
@@ -533,44 +499,6 @@ class basicFolder:
         index = 0 if size == 0 else int(math.log(size,2) / 10) 
         if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
         return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
-        
-        """
-        # Version 2 - La plus élégante
-        max = len(sizeUnits) - 1    # Après on ne sait plus nommer
-
-        # Log base 1024 ...
-        while index < max and size > 1024:
-            size/=1024
-            index+=1
-        return str(round(size,2)) + " " + sizeUnits[index]
-        """
-
-        """
-        # Version 1 - Plutôt bourine (et surtout très limitée ...)
-
-        # en octets
-        if size < 1024:
-            return str(round(size,2)) + " octet(s)"
-        
-        # en k
-        size/=(2**10)
-        if size < 1024:
-            return str(round(size,2)) + " ko"
-
-        # en Mo
-        size/=(2**10)
-        if size < 1024:
-            return str(round(size,2)) + " Mo"
-
-        # en Go
-        size/=(2**10)
-        if size < 1024:
-            return str(round(size,2)) + " Go"
-
-        # On s'arrête au To
-        size/=(2**10)
-        return str(round(size,2)) + " To"
-        """
 
     # Le dossier existe-il ?
     @staticmethod
@@ -582,162 +510,4 @@ class basicFolder:
         # On vérifie ...
         return self.existsFolder(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
     
-    #
-    # Méthodes internes
-    #
-
-    # Génération d'un motif aléatoire
-    #   retourne une chaine aléatoire "lisible"
-    def _newPattern(self):
-        
-        # Taille du motif
-        patternSize = random.randint(PATTERN_MIN_LEN, self.maxPatternSize_)
-        
-        # Génération de la chaine
-        out = ""
-        maxIndex = len(PATTERN_BASE_STRING) - 1
-        for _ in range(patternSize):
-            # Valeur aléatoire
-            out+=PATTERN_BASE_STRING[random.randint(0, maxIndex)]
-
-        # Terminé
-        return out
-
-    # Génération d'un nom de fichier (pour le dossier courant)
-    #   Retourne un nom unique de fichier (le nom court est retourné)
-    def _newFileName(self):
-        # Tant qu'il existe (avec le même nom)
-        generate = True
-        while True == generate:
-            # On génère un nouveau nom
-            now = datetime.datetime.now()
-            #name = hashlib.sha256(str.encode(now.strftime("%Y%m%d-%H%M%S-%f"))).hexdigest()
-            hash = hashlib.blake2b(digest_size=20)
-            hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
-            name = hash.hexdigest()
-            fullName = os.path.join(self.name_, name)
-        
-            # Si le fichier existe on génère un nouveau nom
-            generate = self._fileExists(fullName)
-        return name # On retourne le nom court
-        
-    # Génération d'un nom de dossier
-    #   Retourne le chemin complet
-    def _newFolderName(self, parent):
-        now = datetime.datetime.now()
-        name = now.strftime("%Y%m%d-%H%M%S-%f")
-        fullName = os.path.join(parent, name)
-
-        # Tant qu'il existe (avec le même nom)
-        count = 0
-        while True == self.exists(fullName):
-            # On génère un nouveau nom
-            count+=1
-            name = name + "-" + str(count)
-            fullName = os.path.join(parent, name)
-        
-        return fullName # On retourne le chemin complet
-
-    ## Renomage d'un fichier
-    #   Retourne le "nouveau" nom ou "" en cas d'erreur
-    def _renameFile(self, file):
-        if self._fileExists(file):
-            # Nouveau nom "complet"
-            res = os.path.split(file)
-            name = os.path.join(res[0], self._newFileName())
-
-            try:
-                os.rename(file, name)
-            except:
-                # une erreur
-                return file
-
-            return name
-
-        # sinon on retourne le nom de base
-        return file
-
-    # Le fichier existe t'il ?
-    def _fileExists(self, fileName):
-        # Le nom est-il renseigné ?
-        if len(fileName) == 0:
-            return False
-
-        # On va essayer d'ouvrir le fichier en lecture
-        try:
-            file = open(fileName, 'r')
-
-            # Le fichier existe, il est donc ouvert
-            file.close()
-            return True
-        except IOError: 
-            # print("Le fichier ", self.fileName_, " n'existe pas")
-            return False
-        except:
-            # print("Erreur lors de l'ouverture du fichier", self.fileName_)
-            return False
-
-    # Remplissage d'un fichier
-    #    retourne le tuple (nom du fichier, taille en octets, taille du motif aléatoire)
-    def _pattern2File(self, fname, fileSize = 0, maxFileSize = 0):
-        currentSize = 0
-        if True == self.valid_:
-            # Creation ?
-            if 0 == len(fname):
-                # Si la taille est nulle => on choisit aléatoirement
-                if 0 == fileSize:
-                    # 1 => ko, 2 = Mo
-                    unit = 1 + random.randint(1, 1024) % 2
-                    fileSize = 2 ** (unit * 10) * random.randint(FILESIZE_MIN, FILESIZE_MAX)
-
-                    # On remplit (mais on ne déborde pas !)
-                    if maxFileSize >0 and fileSize > maxFileSize:
-                        fileSize = maxFileSize
-
-                    # Génération du nom
-                    name = self._newFileName()
-                    fname = os.path.join(self.params_.folder_, name)
-
-            else:
-                # Remplissage
-                if False == self._fileExists(fname):
-                    # Le fichier n'existe pas
-                    return fname, 0, 0
-
-                # On conserve la taille
-                fileSize = os.path.getsize(fname)
-                name = fname
-
-            # Le motif
-            pattern = self._newPattern()
-            pSize = len(pattern)
-
-            # Taille du buffer
-            buffSize = pSize if pSize < fileSize else fileSize
-
-            try:
-                # Ouverture / création du fichier
-                file = open(fname, 'w')
-            except:
-                return name, 0
-
-            try:
-                # Remplissage du fichier
-                while currentSize < fileSize:
-                    # Ecriture du buffer
-                    file.write(pattern)
-                    currentSize+=buffSize
-
-                    # Le dernier paquet doit-il être tronqué ?
-                    if (currentSize + buffSize) > fileSize:
-                        buffSize = fileSize - currentSize
-                        pattern = pattern[:buffSize]
-            except:
-                return name, 0, 0
-            finally:
-                file.close()
-        else:
-            name = ""
-
-        return name, currentSize, pSize
 # EOF
