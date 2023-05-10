@@ -156,15 +156,19 @@ class basicFile:
         return self.name_
 
     # Suppression
-    #   clear : Doit-on effacer le contenu ?
+    #   replace : Doit-on remplacer le contenu ?
     #
     #   Generator qui énumère les blocks d'octets supprimés
     #
-    def delete(self, clear = True):
+    def delete(self, replace = True):
         # Le fichier doit exister
         if self.exists():   
             # Remplacement du contenu ?
-            if clear:
+            if replace:
+                # Nouveau nom
+                if len(self.rename()) == 0:
+                    self.error = f"Impossible de renommer {self.name_}"     
+                    
                 # Nouveau contenu (on itère l'effacement)
                 for _ in range(self.iterate_):
                     for fragment in self._createFile():
@@ -172,10 +176,6 @@ class basicFile:
 
                 if False == self.success():
                     return
-
-                # Nouveau nom
-                if len(self.rename()) == 0:
-                    self.error = f"Impossible de renommer {self.name_}"     
             
             # Dans tous les cas, effacement
             try:

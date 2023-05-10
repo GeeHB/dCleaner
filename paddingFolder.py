@@ -54,7 +54,7 @@ class paddingFolder(basicFolder):
         return True , ""
     
     def wait(self, duration):
-        time.sleep(duration)
+        if duration > 0 : time.sleep(duration)
     
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
     #   Retourne le tuple (total, used, free)
@@ -111,7 +111,7 @@ class paddingFolder(basicFolder):
                     files+=1
 
                     # On attend ...
-                    time.sleep(self.params_.waitFiles_)
+                    self.wait(self.params_.waitFiles_)
                 
                 if barPos != barMax:
                     # Tout n'a peut-être pas été fait ou soucis d'arrondis ...
@@ -169,8 +169,7 @@ class paddingFolder(basicFolder):
                     barMax = count
                     barMonitor = "{count} / {total} - {percent:.0%}"
                 
-                with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
-                
+                with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:     
                     # Suppression des fichiers
                     try:
                         # Les fichiers du dossier
@@ -207,7 +206,7 @@ class paddingFolder(basicFolder):
                                 break
 
                             # On attend ...
-                            time.sleep(self.params_.waitFiles_)
+                            self.wait(self.params_.waitFiles_)
 
                     except :
                         # Une erreur => on arrête de suite ...
@@ -347,11 +346,10 @@ class paddingFolder(basicFolder):
                             else:
                                 print(self.params_.color_.colored(f"Erreur lors de la suppression de {fullName}", textColor.ROUGE))
                             
+            # Ajustement de la barre de progression
+            if barMax > barPos:
+                bar(barMax - barPos)
 
-        # Ajustement de la barre de progression
-        if expectedFiles > deletedFiles:
-            # Des erreurs ?
-            bar(expectedFiles - deletedFiles)
         print(f"Suppression de {deletedFiles} fichier(s) et de  {deletedFolders} dossier(s)")
         print(f"{self.size2String(freed)} libérés")
 

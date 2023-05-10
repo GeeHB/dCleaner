@@ -11,11 +11,10 @@
 #### A faire
 * getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
-* Affichage de la progression lors de la création des fichiers ?
 * ??? gestion des itérations
 
 #### Version 0.8.0
-* xx mai 2023
+* 10 mai 2023
 * Ajouts
   * Nouvel algo reposant sur des générateurs
     * Suppression récursive des dossiers
@@ -24,7 +23,7 @@
   * Si mode "clean" + "padding" => on fait le "clean" en premier !
   * La hash des noms utilise l'algo. BLAKE2b pour un digest-size de 20
   * Ajout de basicFile pour la gestion d'un fichier
-    * Ajout de getters et setters
+  * Ajout de getters et setters
 * Corrections
   * README.md - Corrections et mise à jour
   * Simplification des appels et refactoring des classes
