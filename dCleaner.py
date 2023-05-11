@@ -96,7 +96,7 @@ class dCleaner:
                 out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
         else :
             out = f"Partition : {self.paddingFolder_.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
-            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name(), formatAttr=[textAttribute.GRAS])
+            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
             out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])                    

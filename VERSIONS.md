@@ -13,6 +13,14 @@
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * ??? gestion des itérations
 
+#### Version 0.8.1
+* xx mai 2023
+* Ajouts
+  
+* Corrections
+  * BUG : Appel des getters
+  * BUG : progressBar::spinner inexistant
+
 #### Version 0.8.0
 * 10 mai 2023
 * Ajouts

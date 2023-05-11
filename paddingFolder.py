@@ -292,7 +292,7 @@ class paddingFolder(basicFolder):
         vFolders = []
         bFolder = basicFolder(self.params_)
         bFolder.init()
-        with progressBar(title = "Taille", monitor = "", elapsed= "", spinner = None, stats = False) as bar:
+        with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False) as bar:
             for folder in folders:
                 try:
                     bFolder.name = folder
