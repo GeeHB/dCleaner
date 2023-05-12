@@ -12,11 +12,12 @@
 * getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * ??? gestion des itérations
+* exceptions => Toujours afficher un message ...
 
 #### Version 0.8.1
 * xx mai 2023
 * Ajouts
-  
+  * Vérification de l'existence des dossiers avant de les nettoyer  
 * Corrections
   * BUG : Appel des getters
   * BUG : progressBar::spinner inexistant

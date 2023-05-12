@@ -122,7 +122,6 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
     def fillPartition(self):
-
         res = self.paddingFolder_.partitionUsage()
         maxFill = res[0] * self.options_.fillRate_ / 100
 
@@ -224,6 +223,16 @@ if '__main__' == __name__:
             done = True
             print(params.version())
 
+            # Des dossiers à nettoyer ?
+            if params.clean_ is not None and len(params.clean_) > 0:
+                # On s'assure qu'ils existent ...
+                for index, folder in enumerate(params.clean_):
+                    if not basicFolder.existsFolder(folder):
+                        # Le dossier n'existe pas => retrait de la liste
+                        params.clean_.pop(index)
+                        print(params.color_.colored(f"Nettoyage des dossiers : '{folder}' n'existe pas", textColor.JAUNE))
+                        
+            # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
             print(cleaner)
             
@@ -236,7 +245,7 @@ if '__main__' == __name__:
                     print(f"{res[0]} fichier(s) supprimé(s)")
             else:
                 # Nettoyer un ou plusieurs dossiers ?
-                if len(params.clean_) > 0:
+                if params.clean_ is not None and len(params.clean_) > 0:
                     cleaner.cleanFolders(params.clean_)
                     
                 # Remplissage de la partition

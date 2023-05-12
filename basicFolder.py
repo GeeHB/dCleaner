@@ -448,7 +448,7 @@ class basicFolder:
     #   retourne un booléen : fait ?
     def rmdir(self, folder):
         if len(folder) == 0:
-            return
+            return False
         
         # Puis-je le supprimer ?
         if folder in self.restricted_:
@@ -463,16 +463,16 @@ class basicFolder:
 
         # Nouveau nom
         nFolder = basicFile.genName(res[0], True)
-        if nFolder is None:
-            return False
-        
-        # Renommage demandé mais pas obligatoire ...
-        try:
-            os.rename(folder, nFolder)
-        except:
-            # Impossible de renommer
-            nFolder = folder    # Peut-être que l'on pourra malgré tout supprimer le fichier
-        
+        if nFolder is not None:    
+            # Renommage demandé mais pas obligatoire ...
+            try:
+                os.rename(folder, nFolder)
+            except:
+                # Impossible de renommer
+                nFolder = folder    # Peut-être que l'on pourra malgré tout supprimer le fichier
+        else:
+            nFolder = folder
+            
         # Suppression
         try:
             os.rmdir(nFolder)

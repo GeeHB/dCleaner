@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": [ "-np", "-c", "~/Téléchargements/test"]
+            "args": [ "-np", "-c", "~/Téléchargements/temp", "-d", "0"]
         },
         {
             "name": "Python : Pas de ligne de commande",

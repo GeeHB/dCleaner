@@ -350,7 +350,7 @@ class paddingFolder(basicFolder):
             if barMax > barPos:
                 bar(barMax - barPos)
 
-        print(f"Suppression de {deletedFiles} fichier(s) et de  {deletedFolders} dossier(s)")
+        print(f"Suppression de {deletedFiles} fichier(s) et de {deletedFolders} dossier(s)")
         print(f"{self.size2String(freed)} libérés")
 
         return deletedFiles, deletedFolders, ""

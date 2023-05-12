@@ -173,7 +173,7 @@ class options(object):
         self.waitFiles_ = MIN_ELAPSEFILES
         self.waitTasks_ = MIN_ELAPSETASKS
         
-        self.clean_ = []        # Nettoyage d'un ou plusieurs dossiers
+        self.clean_ = []               # Nettoyage d'un ou plusieurs dossiers
         self.cleanDepth_ = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
