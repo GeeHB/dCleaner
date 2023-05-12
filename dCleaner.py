@@ -195,12 +195,12 @@ def isRootLikeUser():
     try:
         if os.environ.get("SUDO_UID") or os.geteuid() != 0:
             return False
-    except:
+    except OSError:
         # Je n'ai pas le droit
         pass
     
     # Oui ...
-    return False
+    return True
 
 # Corps du programme
 #
@@ -226,16 +226,25 @@ if '__main__' == __name__:
             # Des dossiers à nettoyer ?
             if params.clean_ is not None and len(params.clean_) > 0:
                 # On s'assure qu'ils existent ...
-                for index, folder in enumerate(params.clean_):
-                    if not basicFolder.existsFolder(folder):
+                index = 0
+                while index < len(params.clean_):
+                    if not basicFolder.existsFolder(params.clean_[index]):
                         # Le dossier n'existe pas => retrait de la liste
-                        params.clean_.pop(index)
+                        folder = params.clean_.pop(index)
                         print(params.color_.colored(f"Nettoyage des dossiers : '{folder}' n'existe pas", textColor.JAUNE))
+
+                        # Le dossier a été supprimé, index pointe donc sur le dossier suivant (ou pas si la liste est terminée)
+                    else:
+                        # Le dossier existe, allons voir le suivant
+                        index+=1
+
+                if len(params.clean_) == 0:
+                    print(params.color_.colored("Pas de dossier à nettoyer", textColor.ROUGE))
                         
             # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
             print(cleaner)
-            
+
             if params.clear_:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
@@ -270,11 +279,10 @@ if '__main__' == __name__:
                             
                             cleaner.cleanPartition()
 
-        #except ValueError as e:
-        except IOError as e:
-            print(params.color_.colored(f"Erreur de paramètre(s) : {str(e)}", textColor.ROUGE))
-        #except :
-        #    print(params.color_.colored("Erreur inconnue", textColor.ROUGE))
+        except IOError as ioe:
+            print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE))
+        except Exception as e:
+            print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

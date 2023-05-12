@@ -146,7 +146,7 @@ class basicFile:
             try:
                 os.rename(self.name_, name)
                 self.name_ = name
-            except:
+            except OSError:
                 # une erreur
                 return None
 
@@ -181,7 +181,7 @@ class basicFile:
             try:
                 if len(self.name_)>0:
                     os.remove(self.name_)
-            except:
+            except OSError:
                 self.error = f"Erreur lors de la tentative de suppression de {self.name_}"
 
     # Taille en octets (ou None en cas d'erreur)
@@ -276,7 +276,7 @@ class basicFile:
         currentSize = 0
         try:
             file = open(self.name_, 'w')
-        except:
+        except OSError:
             self.error = f"Impossible d'ouvrir {self.name_}"
             return
 
@@ -366,7 +366,7 @@ class basicFolder:
         try:
             os.makedirs(name)
             return True
-        except:   
+        except OSError:   
             return False
     
     # Parcours récursif d'un dossier en vue de le vider
@@ -467,7 +467,7 @@ class basicFolder:
             # Renommage demandé mais pas obligatoire ...
             try:
                 os.rename(folder, nFolder)
-            except:
+            except OSError:
                 # Impossible de renommer
                 nFolder = folder    # Peut-être que l'on pourra malgré tout supprimer le fichier
         else:
@@ -476,7 +476,7 @@ class basicFolder:
         # Suppression
         try:
             os.rmdir(nFolder)
-        except:
+        except OSError:
             return False
         
         return True

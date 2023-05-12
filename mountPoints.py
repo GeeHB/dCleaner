@@ -10,13 +10,20 @@
 #
 #   Remarque    :   Basé sur trash-cli par Andrea Francia Trivolzio(PV) Italy
 #
+#   Dépendances :   Nécessite python-psutil (apt-get install / dnf install)
+#
 #   Exemple d'usage pour l'utilisateur courant
 #
 #       mmyList = mountPointTrashes(os.getuid())
 #       for fs in myList:
 #           print(fs)
 
-import os, psutil
+import os
+try:
+    import psutil
+except ModuleNotFoundError:
+    print("Erreur - Le moduule 'psutil' n'a pu être importé")
+    exit(1)
 
 # Liste des points montage 
 #   
