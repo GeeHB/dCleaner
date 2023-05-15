@@ -14,7 +14,7 @@
 * Ralentissements entre 2 suppressions ?
 
 #### Version 0.8.1
-* xx mai 2023
+* 15 mai 2023
 * Ajouts
   * Vérification de l'existence des dossiers avant de les nettoyer  
   * Gestion des exceptions
