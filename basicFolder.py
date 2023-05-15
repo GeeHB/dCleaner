@@ -114,8 +114,9 @@ class basicFile:
                 
         if self.success():
             # Creation à la "bonne taille"
-            for fragment in self._createFile(fileSize, maxFileSize, True):
-                yield fragment
+            for _ in range(self.iterate_):
+                for fragment in self._createFile(fileSize, maxFileSize, True):
+                    yield fragment
 
     # Remplissage d'un fichier existant
     #

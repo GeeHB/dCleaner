@@ -11,13 +11,16 @@
 #### A faire
 * getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
-* ??? gestion des itérations
-* exceptions => Toujours afficher un message ...
+* Ralentissements entre 2 suppressions ?
 
 #### Version 0.8.1
 * xx mai 2023
 * Ajouts
   * Vérification de l'existence des dossiers avant de les nettoyer  
+  * Gestion des exceptions
+    * Granularité des interceptions (le + petit niveau possible)
+    * Tjrs un message (par défaut)
+  * Mise en place de la gestion des itérations
 * Corrections
   * BUG : Appel des getters
   * BUG : progressBar::spinner inexistant

@@ -90,7 +90,7 @@ class paddingFolder(basicFolder):
                 from fakeProgressBar import fakeProgressBar as progressBar
                 
             # Barre de progression
-            barPos = 0  # On je suis ...
+            barPos = 0  # Ou je suis ...
             barMax = self.__convertSize2Progressbar(expectedFillSize)
             with progressBar(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             
@@ -162,7 +162,7 @@ class paddingFolder(basicFolder):
                 
                 if not 0 == size :
                     # Suppression sur le critère de taille => on compte les ko
-                    barMax = self.__convertSize2Progressbar(size * self.params_.iterate_)
+                    barMax = self.__convertSize2Progressbar(size)
                     barMonitor = "{count} ko - {percent:.0%}"
                 else:
                     # On compte les fichiers
@@ -174,7 +174,7 @@ class paddingFolder(basicFolder):
                     try:
                         # Les fichiers du dossier
                         for file in files:
-                            bFile = basicFile(self.params_.folder_, file) 
+                            bFile = basicFile(self.params_.folder_, file )
                             
                             # Suppression d'un fichier
                             for frag in bFile.delete(True):
@@ -312,7 +312,7 @@ class paddingFolder(basicFolder):
         
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0
-        barMax = self.__convertSize2Progressbar(barMax)
+        barMax = self.__convertSize2Progressbar(barMax * self.params_.iterate_)
         with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
             for folder in vFolders:        
                 bFolder.name = folder
@@ -320,7 +320,7 @@ class paddingFolder(basicFolder):
                     for isFile, fullName in bFolder.browse(recurse = True, remove = cleanDepth) :
                         if isFile:
                             # Suppression du fichier
-                            bFile = basicFile()
+                            bFile = basicFile(iterate = self.params_.iterate_)
                             bFile.name = fullName
                             for fragment in bFile.delete():
                                 freed+=fragment
