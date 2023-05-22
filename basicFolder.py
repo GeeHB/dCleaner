@@ -295,7 +295,7 @@ class basicFile:
 
                 # On retourne la taille du paquet écrit
                 yield buffSize
-        except:
+        except OSError:
             self.error = f"Erreur lors de l'ecriture dans {self.name_}"
         finally:
             file.close()

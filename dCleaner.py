@@ -31,13 +31,13 @@ class dCleaner:
     def __init__(self, options):
         # Initialisation des données membres
         if None == options or None == options.folder_:
-            raise ValueError("Pas de paramètres")
+            raise ValueError("Pas de paramètres ou paramètres incorrects")
 
         self.options_ = options
 
         # Le dossier est-il correct ?
         if self.options_.folder_ == "\\" or (os.path.exists(self.options_.folder_) and not os.path.isdir(self.options_.folder_)):
-            message = f"Le dossier '{self.options_.folder_}' n'est pas correct"
+            message = f"'{self.options_.folder_}' ne correspond pas à un dossier correct"
             raise ValueError(message)
 
         # Création de l'objet pour la gestion du dossier
@@ -164,6 +164,8 @@ class dCleaner:
                     return False
             else:
                 # Retrait du "minimum"
+                if not self.options_.verbose_:
+                    print(params.color_.colored(f"Suppression de {self.paddingFolder_.size2String(gap)}", datePrefix = True))
                 self.paddingFolder_.deleteFiles(size=gap)
             
             return True
@@ -179,16 +181,20 @@ class dCleaner:
         res = self.paddingFolder_.partitionUsage()
         
         # Valeur max. théorique
-        renewSize = res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100 
+        renewSize = int(res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100) 
         
         # on recadre avec l'espace effectivement dispo
-        renewSize = opts.options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100)        
+        renewSize = int(opts.options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100))
         
-        # On remplit 
-        self.paddingFolder_.newFiles(renewSize)
+        if not self.options_.verbose_:
+            print(params.color_.colored("Remplissage", datePrefix = True))
+        self.paddingFolder_.newFiles(renewSize, iterate = True)
         
-        # On supprime
-        self.paddingFolder_.deleteFiles(size = renewSize)    
+        if not self.options_.verbose_:
+            print(params.color_.colored("Suppression", datePrefix = True))
+        self.paddingFolder_.deleteFiles(size = renewSize, iterate = True) 
+        if not self.options_.verbose_:
+            print(params.color_.colored("Terminé", datePrefix = True))   
 
 # Vérification des privilèges
 def isRootLikeUser():
@@ -275,12 +281,14 @@ if '__main__' == __name__:
                                 cleaner.paddingFolder_.wait(params.waitTasks_)
 
                             if params.verbose_:
-                                print(f"Iteration {index+1}/{params.iterate_}")
+                                print(f"Itération {index+1}/{params.iterate_}")
                             
                             cleaner.cleanPartition()
 
         except IOError as ioe:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE))
+        except KeyboardInterrupt as kbe:
+            print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
     # La fin, la vraie !

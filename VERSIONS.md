@@ -12,6 +12,14 @@
 * getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Ralentissements entre 2 suppressions ?
+* Test sur MacOS
+
+#### Version 0.8.2
+* 22 mai 2023
+* Corrections
+  * Messages d'erreurs
+  * Affichages
+  * BUG : La taille des fichiers ou du buffer est un entier !!!
 
 #### Version 0.8.1
 * 15 mai 2023

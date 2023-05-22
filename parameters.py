@@ -14,8 +14,8 @@ import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.8.1"
-APP_RELEASE_DATE = "15-05-2023"
+APP_CURRENT_VERSION = "0.8.2"
+APP_RELEASE_DATE = "22-05-2023"
 
 #
 # Motif aléatoire
@@ -95,7 +95,7 @@ COMMENT_CLEANFOLDER = "Nettoyage du ou des dossiers"
 # Profondeur du nettoyage (et de l'effacement des dossiers)
 ARG_DEPTH_S = "-d"
 ARG_DEPTH   = "--depth"
-COMMENT_DEPTH = "Profondeur des dossiers pour la suppression (à partir du dossier courant)"
+COMMENT_DEPTH = "Profondeur des dossiers pour la suppression (0 = dossier courant)"
 
 DEF_DEPTH = None    # Par défaut pas de nettoyage en profondeur des dossiers (on ne supprime pas les sous-dossiers)
 MIN__DEPTH      = 0
@@ -104,7 +104,7 @@ MAX_DEPTH       = 15
 # Nombre d'itération à effectuer - Par défaut = 1
 ARG_ITERATE_S = "-i"
 ARG_ITERATE   = "--iteration"
-COMMENT_ITERATE = "Nombre d'itération du process de nettoyage"
+COMMENT_ITERATE = "Nombre d'itérations du process de nettoyage"
 
 DEF_ITERATE = 1           # Nombre de fois ou sera lancé le processus de remplissage / nettoyage
 MIN_ITERATE = 1

@@ -67,11 +67,16 @@ class paddingFolder(basicFolder):
             return 0,0,0
 
     # Remplissage avec un taille totale à atteindre ...
+    #
+    #   expectedFillSize : Taille du remplissage en octets
+    #   iterate : Dans une bouicle d'itérations ?   
+    #
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
-    def newFiles(self, expectedFillSize):
+    def newFiles(self, expectedFillSize, iterate = False):
         if True == self.valid_ and expectedFillSize > 0:
             if self.params_.verbose_ :
-                print(f"Demande de remplissage de {self.size2String(expectedFillSize)}")
+                offset = "\t-" if iterate else ""
+                print(f"{offset}Demande de remplissage de {self.size2String(expectedFillSize)}")
 
             # Rien n'a été fait !!!
             still = expectedFillSize
@@ -118,15 +123,22 @@ class paddingFolder(basicFolder):
                     bar(barMax - barPos)
                     
             # Terminé
-            print(f"Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else "{files} fichier crée")
+            offset = "\t " if iterate else ""
+            print(f"{offset}Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else "{files} fichier crée")
             return True
         
         # Erreur
         return False
 
     # Suppression d'un ou plusieurs fichiers sur un critère de nombre ou de taille à libérer
+    #
+    #   count : Suppression de {count} fichiers
+    #       ou
+    #   size  : Supression de {size octets}
+    #   iterate : Sans une boucle d'itérations ?
+    #
     #   retourne True lorsque l'opération s'est déroulée correctement
-    def deleteFiles(self, count = 0, size = 0): 
+    def deleteFiles(self, count = 0, size = 0, iterate = False): 
         tSize = 0
         tFiles = 0
         
@@ -135,10 +147,11 @@ class paddingFolder(basicFolder):
             if not 0 == count or not 0 == size:
                 
                 if self.params_.verbose_:
+                    offset = "\t-" if iterate else ""    
                     if not 0 == size :
-                        print(f"Demande de suppression à hauteur de {self.size2String(size)}")
+                        print(f"{offset}Demande de suppression à hauteur de {self.size2String(size)}")
                     else:
-                        print(f"Demande de suppression de {count} fichiers")
+                        print(f"{offset}Demande de suppression de {count} fichiers")
 
                 
                 # Liste des fichiers du dossier
@@ -207,9 +220,8 @@ class paddingFolder(basicFolder):
 
                             # On attend ...
                             self.wait(self.params_.waitFiles_)
-
-                    except :
-                        # Une erreur => on arrête de suite ...
+                    except KeyboardInterrupt as kbe:
+                        print("Interruption de la suppression")
                         return False
 
                     if barPos != barMax:
@@ -217,7 +229,8 @@ class paddingFolder(basicFolder):
                         bar(barMax - barPos)
 
         # Fin des traitements
-        print(f"Suppression de {self.size2String(tSize)} dans {tFiles}","fichiers" if tFiles > 1 else "fichier")
+        offset = "\t " if iterate else ""
+        print(f"{offset}Suppression de {self.size2String(tSize)} avec {tFiles}","fichiers" if tFiles > 1 else "fichier")
         return True
 
     # Vidage du dossier courant
@@ -301,7 +314,7 @@ class paddingFolder(basicFolder):
                         ret = bFolder.sizes()
                         barMax += ret[0]
                         expectedFiles += ret[1]
-                except:
+                except OSError:
                     pass
         
         print(f"Analyse des dossiers terminée : {expectedFiles} fichier(s) à supprimer.")
@@ -351,7 +364,8 @@ class paddingFolder(basicFolder):
                 bar(barMax - barPos)
 
         print(f"Suppression de {deletedFiles} fichier(s) et de {deletedFolders} dossier(s)")
-        print(f"{self.size2String(freed)} libérés")
+        if freed > 0 :
+            print(f"{self.size2String(freed)} libérés")
 
         return deletedFiles, deletedFolders, ""
 
