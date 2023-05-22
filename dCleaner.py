@@ -291,6 +291,7 @@ if '__main__' == __name__:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
+            
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

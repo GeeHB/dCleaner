@@ -79,7 +79,7 @@ class paddingFolder(basicFolder):
                 print(f"{offset}Demande de remplissage de {self.size2String(expectedFillSize)}")
 
             # Rien n'a été fait !!!
-            still = expectedFillSize
+            still = int(expectedFillSize)
             totalSize = 0
             files = 0
             cont = True
@@ -124,7 +124,7 @@ class paddingFolder(basicFolder):
                     
             # Terminé
             offset = "\t " if iterate else ""
-            print(f"{offset}Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else "{files} fichier crée")
+            print(f"{offset}Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
             return True
         
         # Erreur
