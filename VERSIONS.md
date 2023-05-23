@@ -12,24 +12,20 @@
 
 #### A faire
 
-* getters & setters
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Ralentissements entre 2 suppressions ?
 * Test sur MacOS
 
 #### Version 0.8.3
 
-* xx mai 2023
-* Corrections 
-  * BUG : "slice indices must be integers or None or have an __index__ method"
-
-#### Version 0.8.2
-
-* 22 mai 2023
+* 23 mai 2023
+* Ajouts:
+  * Documentation du code
+  * Fiabilisation du code
 * Corrections 
   * Messages d'erreurs
   * Affichages
-  * BUG : La taille des fichiers ou du buffer est un entier !!!
+  * BUG : "slice indices must be integers or None or have an __index__ method"
 
 #### Version 0.8.1
 

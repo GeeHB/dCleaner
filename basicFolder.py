@@ -101,7 +101,10 @@ class basicFile:
 
     # Création d'un nouveau fichier
     #
-    #   Generator qui énumère les blocks d'octets supprimés
+    #   Generator qui énumère les blocks d'octets crées
+    #
+    #   fileSize : Taille en octets du fichier (ou 0 si taille aléatoire)
+    #   maxFileSize : Taille max. n octets d'un fichier
     #
     def create(self, fileSize = 0, maxFileSize = 0):
         if len(self.name):
@@ -122,6 +125,8 @@ class basicFile:
     #
     #   Generator qui énumère les blocks d'octets supprimés
     #
+    #   rename : Doit-on renomer le fichier (avec un nom aléatoire) ?
+    #
     def fill(self, rename = False):
         if self.exists():
             for _ in range(self.iterate_):
@@ -136,10 +141,11 @@ class basicFile:
                 self.error = f"Impossible de renommer {self.name_}"
             
     # Renomage
+    #
     #   Retourne le nouveau nom (ou None en cas d'erreur)
-    def rename(self, force = False):
-        if (not force and self.exists()) or force:
-            
+    def rename(self):
+        #if (not force and self.exists()) or force:
+        if self.exists():
             folder, _ = os.path.split(self.name)
             
             # Nouveau nom "complet"
@@ -157,6 +163,7 @@ class basicFile:
         return self.name_
 
     # Suppression
+    #
     #   replace : Doit-on remplacer le contenu ?
     #
     #   Generator qui énumère les blocks d'octets supprimés
@@ -190,6 +197,9 @@ class basicFile:
         return None if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
 
     # Le fichier existe t'il ?
+    #
+    #   fName : Nom complet du fichier à tester
+    #
     @staticmethod
     def existsFile(fName):
         # Le nom est-il renseigné ?
@@ -208,6 +218,10 @@ class basicFile:
         return False if len(self.name) == 0 else basicFile.existsFile(self.name)
             
     # Génération d'un nom de fichier pour un fichier existant ou un nouveau fichier
+    #
+    #   parentFolder : dossier parent (qui contiendra le nouvel élément)
+    #   folder : S'agit'il d'un dossier ?
+    #
     #   Retourne le nouveau nom complet ou None en cas d'anomalie
     @staticmethod
     def genName(parentFolder, folder = False):
@@ -250,6 +264,11 @@ class basicFile:
 
     # Création d'un fichier à la taille demandée
     #  Si le fichier existe son contenu sera remplacé
+    #
+    #   fileSize : Taille en octets du fichier (ou 0 si taille aléatoire)
+    #   maxFileSize : Taille max. n octets d'un fichier
+    #   isNew : Est-ce une création de fichier ?
+    #
     def _createFile(self, fileSize = 0, maxFileSize = 0, isNew = False):
         # Création ?
         if isNew:
@@ -347,6 +366,9 @@ class basicFolder:
             self.restricted_.append(trash)
 
     # Initalisation
+    #
+    #   name : nom du dossier (ou None si dossier 'vierge')
+    #
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name = None):
 
@@ -361,8 +383,14 @@ class basicFolder:
         return True , ""
     
     # Création du dossier
-    #   retourne un booléen
+    #
+    #   name : nom du dossier à créer
+    #
+    #   retourne le booléen : crée ?
     def create(self, name):
+        if name is None or len(name) == 0 :
+            return False
+        
         # On essaye de le créer
         try:
             os.makedirs(name)
@@ -396,6 +424,9 @@ class basicFolder:
             yield False, folderName
     
     # Taille du dossier (et de tout ce qu'il contient)
+    #
+    #   folder : nom du dossier à analyser ou none pour le dossier courant
+    #
     #   Retourne le tuple (taille en octets, nombre de fichiers)
     def sizes(self, folder = ""):   
         if False == self.valid_ :
@@ -446,9 +477,12 @@ class basicFolder:
         return self.sizes_[1]
     
     # Suppression du dossier
+    #   
+    #   folder : nom du dossier à supprimer
+    #
     #   retourne un booléen : fait ?
     def rmdir(self, folder):
-        if len(folder) == 0:
+        if folder is None or len(folder) == 0:
             return False
         
         # Puis-je le supprimer ?
@@ -483,6 +517,10 @@ class basicFolder:
         return True
         
     # Représentation d'une taille (en octets)
+    #   Conversion int -> str
+    #
+    #   size : Taille en octets à convertir
+    #
     #   Retourne une chaine de caractères
     def size2String(self, size):
         

@@ -53,6 +53,9 @@ class paddingFolder(basicFolder):
         self.valid_ = True
         return True , ""
     
+    # Attente
+    #
+    #   duration : duréee d'attente en s
     def wait(self, duration):
         if duration > 0 : time.sleep(duration)
     
@@ -286,9 +289,16 @@ class paddingFolder(basicFolder):
     
     # Vidage d'un ou de plusieurs dossiers
     #   
+    #   folders : liste des dossier à vider
+    #   cleanDepth : Profondeur pour la suppression
+    #
     #   Retourne le tuple {#fichiers, #dossiers, message}
     #
     def cleanFolders(self, folders, cleanDepth):
+        
+        if folders is None or len(folders) == 0:
+            return 0, 0, "Le paramètre 'folders' n'est pas renseigné" 
+        
         # Ajout (ou pas) des barres de progression
         if self.params_.verbose_:
             try:
