@@ -27,8 +27,8 @@ LOG_DATE_FORMAT = "[%d/%m/%Y - %H:%M:%S] "
 
 # Messages d'erreur
 #
-#MSG_NO_TERM_COLOR = "Attention - le package termcolor (python-termcolor) n'est pas installé"
-MSG_NO_TERM_COLOR = "Warning - termcolor package (python-termcolor) is not installed"
+MSG_NO_TERM_COLOR = "Attention - le package termcolor (python-termcolor) n'est pas installé"
+#MSG_NO_TERM_COLOR = "Warning - termcolor package (python-termcolor) is not installed"
 
 #
 # backColor - Couleurs de fond
@@ -79,15 +79,16 @@ class colorizer:
         
         colored_ = False       # Doit-on coloriser ?
         
-        self.setColorized(colored)
-        if True == colored and False == packageTermColor:
-            self.colored_ = False
-            if message:
-                print(MSG_NO_TERM_COLOR)
+        self.setColorized(colored, message)
                         
     # Mise en place de la colorisation
-    def setColorized(self, colored = True):
+    def setColorized(self, colored = True, message = None):
         self.colored_ = colored
+
+        if True == colored and False == packageTermColor:
+            self.colored_ = False
+            if message is not None:
+                print(MSG_NO_TERM_COLOR)
     
     # Formatage d'une ligne de texte
     #   Retourne la chaine complète

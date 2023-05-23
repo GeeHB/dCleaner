@@ -199,7 +199,7 @@ class dCleaner:
 # Vérification des privilèges
 def isRootLikeUser():
     try:
-        if os.environ.get("SUDO_UID") or os.geteuid() != 0:
+        if os.environ.get("SUDO_UID") or os.getpid() != 0:
             return False
     except OSError:
         # Je n'ai pas le droit
@@ -289,8 +289,10 @@ if '__main__' == __name__:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE))
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
+        """
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
+        """
             
     # La fin, la vraie !
     if done:

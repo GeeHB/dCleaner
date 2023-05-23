@@ -16,6 +16,16 @@
 * Ralentissements entre 2 suppressions ?
 * Test sur MacOS
 
+#### Version 0.8.4
+
+* xx juin 2023
+* Ajouts:
+  * 
+* Corrections 
+  * Appels psutils erronés sous Windows
+  * Multi instanciation de termcolor
+  * colorizer::setColorized - Erreur lors du changement de mode de colorisation
+
 #### Version 0.8.3
 
 * 23 mai 2023

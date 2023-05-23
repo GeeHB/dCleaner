@@ -14,8 +14,8 @@ import sys, os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.8.3"
-APP_RELEASE_DATE = "23-05-2023"
+APP_CURRENT_VERSION = "0.8.4"
+APP_RELEASE_DATE = "xx-06-2023"
 
 #
 # Motif aléatoire
@@ -212,7 +212,10 @@ class options(object):
         self.verbose_ = (False == args.log)
 
         # Colorisation des affichages ?
-        self.color_ = color.colorizer(False if not self.verbose_ else not args.nocolor)
+        if None == self.color_:
+            self.color_ = color.colorizer(False if not self.verbose_ else not args.nocolor)
+        else:
+            self.color_.setColorized(False if not self.verbose_ else not args.nocolor)
 
         # Pas de padding ?
         self.noPadding_ = args.nopadding
@@ -257,31 +260,35 @@ class options(object):
         folders = []
         myPlatform = platform.system()
         if  myPlatform == "Windows":
-            folders.append("mon-dossier-windows")
+            # Il y a bien un ou plusieurs dossiers Windows mais on ne peut y accéder
+            try :
+                # Pour la coloration des sorties terminal
+                import winshell
+            except ModuleNotFoundError:
+                print("Le module winshell est absent")
+                return folders
+            
+            # On peut essayer de la vider
+            winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
         else :
             if myPlatform == "Darwin":
                 folders.append("mon-dossier-mac")
-            else:
-                if myPlatform == "Java":
-                    folders.append("mon-dossier-java")
-                else:
-                    # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
-                    """
-                    info = platform.freedesktop_os_release()
-                    if info["ID"] == "fedora":
-                    """
-                    # Les dossiers de la poubelles dans le dossier 'home' de l'utilisateur
-                    folders.append(os.path.expanduser("~/.local/share/Trash/files"))
-                    folders.append(os.path.expanduser("~/.local/share/Trash/info"))
+            else:                
+                # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
+                # Les dossiers de la poubelles dans le dossier 'home' de l'utilisateur
+                folders.append(os.path.expanduser("~/.local/share/Trash/files"))
+                folders.append(os.path.expanduser("~/.local/share/Trash/info"))
 
-                    # puis sur tous les volumes "mountés"
-                    mountedTrashes = mountPointTrashes(os.getuid())
-                    for newTrash in mountedTrashes:
-                        folders.append(newTrash)
+                # ... puis sur tous les volumes "mountés"
+                mountedTrashes = mountPointTrashes(os.getuid())
+                for newTrash in mountedTrashes:
+                    folders.append(newTrash)
                     
         return folders
     
     # Affichage de la version de l'application
+    #
+    #   retourne la chaine caractérisant la version
     #
     def version(self):
         if None == self.color_:
