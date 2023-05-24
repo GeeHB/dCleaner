@@ -156,6 +156,8 @@ class options(object):
     #
     def __init__(self):
 
+        self.done_ = False
+
         # Valeurs par défaut
         self.color_ = None      # Outil de colorisation
         self.verbose_ = True    # Par défaut l'application trace tout ...
@@ -252,11 +254,13 @@ class options(object):
         return True
         
     # Dossier "root"
+    @staticmethod
     def homeFolder():
         return os.path.expanduser(DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER)
     
     # Dossiers de la 'poubelle' de l'agent
-    def trashFolders():
+    @staticmethod
+    def trashFolders(verbose = False, action = True):
         folders = []
         myPlatform = platform.system()
         if  myPlatform == "Windows":
@@ -265,17 +269,28 @@ class options(object):
                 # Pour la coloration des sorties terminal
                 import winshell
             except ModuleNotFoundError:
-                print("Le module winshell est absent")
-                return folders
+                if verbose :
+                    print("Le module winshell est absent")
+                return []
             
             # On peut essayer de la vider
-            winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=False)
+            if action:
+                try:
+                    # Nombre d'éléments à supprimer
+                    bin = winshell.recycle_bin()
+                    allDeletedFiles = list(bin)
+                    
+                    if len(allDeletedFiles) > 0:
+                        winshell.recycle_bin().empty(False, False, False)
+                        print(f"{len(allDeletedFiles)} fichiers supprimés")
+                except:
+                    pass
         else :
             if myPlatform == "Darwin":
                 folders.append("mon-dossier-mac")
             else:                
                 # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
-                # Les dossiers de la poubelles dans le dossier 'home' de l'utilisateur
+                # Les dossiers de la poubelle dans le dossier 'home' de l'utilisateur
                 folders.append(os.path.expanduser("~/.local/share/Trash/files"))
                 folders.append(os.path.expanduser("~/.local/share/Trash/info"))
 

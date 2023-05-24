@@ -25,9 +25,10 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 | **Date** | xxx mai 2023 |
 | **Version stable** | **0.8.4 - branche** `dev` |
 | **Dépendances** | Python 3.xx |
-|  | *facultatif:* alive_progress de rsalmei (pip install alive-progress) - doc : <https://github.com/rsalmei/alive-progress> |
-|  | python-psutil (apt-get install python-psutil ou dnf install python-psutil) |
-| **Testé sur** | *Linux (Fedora 37-38)* / *MacOS* - *Windows* à confirmer |
+|  | **Tous** - *facultatif:* : **alive_progress** de rsalmei (`pip install alive-progress`) - doc : <https://github.com/rsalmei/alive-progress> |
+|  | **Tous** - **psutil** : {`apt-get` / `dnf`} `install python-psutil` ou `pip install psutil` (Windows) |
+|  | **Windows** - **winshell** et ses dépendances :   `pip install pypiwin32 winshell`|
+| **Testé sur** | *Linux (Fedora 37-38)* / *MacOS* - *Wind winshellows 10* |
 
 ## Appel
 

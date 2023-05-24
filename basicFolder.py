@@ -14,7 +14,7 @@
 #   Remarque    : 
 #
 import os, random, datetime, math, hashlib
-from parameters import options as p, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
+from parameters import options, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 from sharedTools.colorizer import textColor
 
 #
@@ -118,7 +118,7 @@ class basicFile:
         if self.success():
             # Creation à la "bonne taille"
             for _ in range(self.iterate_):
-                for fragment in self._createFile(fileSize, maxFileSize, True):
+                for fragment in self._create(fileSize, maxFileSize, True):
                     yield fragment
 
     # Remplissage d'un fichier existant
@@ -130,7 +130,7 @@ class basicFile:
     def fill(self, rename = False):
         if self.exists():
             for _ in range(self.iterate_):
-                for fragment in self._createFile():
+                for fragment in self._create():
                     yield fragment
 
             if False == self.success():
@@ -179,7 +179,7 @@ class basicFile:
                     
                 # Nouveau contenu (on itère l'effacement)
                 for _ in range(self.iterate_):
-                    for fragment in self._createFile():
+                    for fragment in self._create():
                         yield fragment
 
                 if False == self.success():
@@ -269,7 +269,7 @@ class basicFile:
     #   maxFileSize : Taille max. n octets d'un fichier
     #   isNew : Est-ce une création de fichier ?
     #
-    def _createFile(self, fileSize = 0, maxFileSize = 0, isNew = False):
+    def _create(self, fileSize = 0, maxFileSize = 0, isNew = False):
         # Création ?
         if isNew:
             # Si la taille est nulle => on choisit aléatoirement
@@ -350,18 +350,18 @@ class basicFolder:
         self.valid_ = value
 
     # Constructeur
-    def __init__(self, options, pMaxSize = 0):
+    def __init__(self, opts, pMaxSize = 0):
         # Initialisation des données membres
         self.name = ""
         self.valid = False
-        self.params_ = options
+        self.params_ = opts
         self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
         self.sizes_ = None
         self.restricted_ = []                    # Liste des dossiers que l'on ne peut supprimer
         
         # Dossiers protégés
-        self.restricted_.append(p.homeFolder()) 
-        trashes = p.trashFolders()
+        self.restricted_.append(opts.homeFolder()) 
+        trashes = opts.trashFolders(True, False)
         for trash in trashes:
             self.restricted_.append(trash)
 

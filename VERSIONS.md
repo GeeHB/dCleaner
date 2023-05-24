@@ -9,6 +9,8 @@
 * Tous les OS (cf. ./README.md) 
   * python-psutil
   * alive_progress (facultatif)
+* Windows
+  * winshell
 
 #### A faire
 
@@ -20,11 +22,13 @@
 
 * xx juin 2023
 * Ajouts:
-  * 
+  * Tests et corrections pour la compatibilité Windows 10
+    * Gestion de la poubelle via le module winshell
+  * Méthodes statiques pour la gestion des dossiers spéciaux par parameters.py
 * Corrections 
-  * Appels psutils erronés sous Windows
-  * Multi instanciation de termcolor
-  * colorizer::setColorized - Erreur lors du changement de mode de colorisation
+  * BUG : Appels psutils erronés sous Windows
+  * BUG : Multi instanciation de termcolor
+  * BUG : colorizer::setColorized - Erreur lors du changement de mode de colorisation
 
 #### Version 0.8.3
 
