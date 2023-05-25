@@ -10,7 +10,7 @@
 import argparse
 from sharedTools import colorizer as color
 from mountPoints import mountPointTrashes
-import sys, os, platform
+import os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
@@ -35,8 +35,8 @@ PATTERN_MAX_LEN = 74233
 # Nom du sous-dossier
 DEF_FOLDER_NAME = ".padding"
 
-DEF_WIN_ROOT_FOLDER = "c:\\"      # Dossiers par défaut
-DEF_LINUX_ROOT_FOLDER = "~"
+# Dossier racine de l'utilisateur courant (fonctionne sous Windows !!!)
+DEF_ROOT_FOLDER = "~"           
 
 # Taille d'un fichier (en k ou M octets)
 FILESIZE_MIN = 1
@@ -45,7 +45,8 @@ FILESIZE_MAX = 1024
 #
 # Dossiers à nettoyer
 #
-FOLDERS_TRASH = "%trash%"      # La poubelle de l'utilisateur
+FOLDERS_TRASH = "%trash%"          # La poubelle de l'utilisateur
+WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de Windows
 
 #
 # Commandes / arguments reconnu(e)s (longues et courtes)
@@ -256,38 +257,21 @@ class options(object):
     # Dossier "root"
     @staticmethod
     def homeFolder():
-        return os.path.expanduser(DEF_WIN_ROOT_FOLDER if sys.platform.startswith("win") else DEF_LINUX_ROOT_FOLDER)
+        return os.path.expanduser(DEF_ROOT_FOLDER)
     
     # Dossiers de la 'poubelle' de l'agent
     @staticmethod
-    def trashFolders(verbose = False, action = True):
+    def trashFolders():
         folders = []
         myPlatform = platform.system()
         if  myPlatform == "Windows":
             # Il y a bien un ou plusieurs dossiers Windows mais on ne peut y accéder
-            try :
-                # Pour la coloration des sorties terminal
-                import winshell
-            except ModuleNotFoundError:
-                if verbose :
-                    print("Le module winshell est absent")
-                return []
+            # on ajoute un dossier bidon pour pouvoir le vider le moment venu
+            folders.append(WINDOWS_TRASH)
             
-            # On peut essayer de la vider
-            if action:
-                try:
-                    # Nombre d'éléments à supprimer
-                    bin = winshell.recycle_bin()
-                    allDeletedFiles = list(bin)
-                    
-                    if len(allDeletedFiles) > 0:
-                        winshell.recycle_bin().empty(False, False, False)
-                        print(f"{len(allDeletedFiles)} fichiers supprimés")
-                except:
-                    pass
         else :
             if myPlatform == "Darwin":
-                folders.append("mon-dossier-mac")
+                folders.append(os.path.expanduser("~/.Trash"))
             else:                
                 # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
                 # Les dossiers de la poubelle dans le dossier 'home' de l'utilisateur

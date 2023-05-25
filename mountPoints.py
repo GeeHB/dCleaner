@@ -22,7 +22,7 @@ import os
 try:
     import psutil
 except ModuleNotFoundError:
-    print("Erreur - Le moduule 'psutil' n'a pu être importé")
+    print("Erreur - Le module 'psutil' n'a pu être importé")
     exit(1)
 
 # Liste des points montage 

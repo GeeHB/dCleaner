@@ -14,8 +14,7 @@
 #   Remarque    : 
 #
 import os, random, datetime, math, hashlib
-from parameters import options, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
-from sharedTools.colorizer import textColor
+from parameters import WINDOWS_TRASH, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 
 #
 # Classe basicFile - un fichier (à créer, salir ou supprimer)
@@ -174,7 +173,8 @@ class basicFile:
             # Remplacement du contenu ?
             if replace:
                 # Nouveau nom
-                if len(self.rename()) == 0:
+                nName = self.rename() 
+                if nName is None or len(nName) == 0:
                     self.error = f"Impossible de renommer {self.name_}"     
                     
                 # Nouveau contenu (on itère l'effacement)
@@ -331,10 +331,17 @@ class basicFolder:
     
     @name.setter
     def name(self, value):
-        # Le dossier existe t'il ?
-        if value is None or value == "" or False == os.path.isdir(value):
-            self.name_ = ""
+        # Poubelle Windows => non géré ...
+        if value != WINDOWS_TRASH:
+            # Le dossier existe t'il ?
+            if value is None or value == "" or False == os.path.isdir(value):
+                self.name_ = ""
+                self.valid_ = False
+                return
+        else:
+            self.name_ = WINDOWS_TRASH
             self.valid_ = False
+            return
             
         # Ok
         self.name_ = value
@@ -361,7 +368,7 @@ class basicFolder:
         
         # Dossiers protégés
         self.restricted_.append(opts.homeFolder()) 
-        trashes = opts.trashFolders(True, False)
+        trashes = opts.trashFolders()
         for trash in trashes:
             self.restricted_.append(trash)
 

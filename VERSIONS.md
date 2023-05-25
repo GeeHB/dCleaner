@@ -6,24 +6,29 @@
 
 #### Dépendances
 
-* Tous les OS (cf. ./README.md) 
-  * python-psutil
+* Pour tous les OS (cf. ./README.md) 
+  * psutil
   * alive_progress (facultatif)
-* Windows
-  * winshell
+* Windows uniquement :
+  * winshell, pypiwin32 (pour la gestion de la poubelle)
 
 #### A faire
 
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Ralentissements entre 2 suppressions ?
+* Plantage ou comportements imprévus lorsque le disque est plein
 * Test sur MacOS
 
 #### Version 0.8.4
 
 * xx juin 2023
 * Ajouts:
-  * Tests et corrections pour la compatibilité Windows 10
+  * Utilisation de '~' comme racine du dossier de padding pour tous les OS
+  * Windows 10
     * Gestion de la poubelle via le module winshell
+    * Pas de 'nettoyage' des fichiers ...
+  * MacOS
+    * %trash% = ~/.Trash
   * Méthodes statiques pour la gestion des dossiers spéciaux par parameters.py
 * Corrections 
   * BUG : Appels psutils erronés sous Windows
@@ -63,7 +68,7 @@
     * Suppression / Création / modification de fichiers
     * Barre de progression affichée lors du parcours des dossiers à supprimer
   * Si mode "clean" + "padding" => on fait le "clean" en premier !
-  * La hash des noms utilise l'algo. BLAKE2b pour un digest-size de 20
+  * Le hash des noms utilise l'algo. BLAKE2b pour un digest-size de 20
   * Ajout de basicFile pour la gestion d'un fichier
   * Ajout de getters et setters
 * Corrections 

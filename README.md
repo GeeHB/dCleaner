@@ -28,7 +28,7 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 |  | **Tous** - *facultatif:* : **alive_progress** de rsalmei (`pip install alive-progress`) - doc : <https://github.com/rsalmei/alive-progress> |
 |  | **Tous** - **psutil** : {`apt-get` / `dnf`} `install python-psutil` ou `pip install psutil` (Windows) |
 |  | **Windows** - **winshell** et ses dépendances :   `pip install pypiwin32 winshell`|
-| **Testé sur** | *Linux (Fedora 37-38)* / *MacOS* - *Wind winshellows 10* |
+| **Testé sur** | *Linux (Fedora 37-38)* / *MacOS* - *Windows 10* |
 
 ## Appel
 
@@ -46,7 +46,7 @@ Les différents paramètres sont définis comme suit :
 | *-fi* {%} | *--fill* {%} | 80 | Taux de remplissage attendu pour la partition. |
 | *-p* {%} | *--padding* {%} | 50 | Taux (en % de la taille libre) à nettoyer. Par exemple, s'il reste 70Go de libre dans la partition, un taux de 50% entrainera la génération de fichiers à hauteur de 35Go puis la suppression de 35Go de fichiers de remplissage. Tous les fichiers en question seront crées ou pris dans le dossier de remplissage. |
 | *-a* | *--adjust*|  | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *-fill* |
-| *-c* {dossiers} | *--clean* {dossiers} |  | Suppression du contenu des {dossiers}. Par exemple la suppression de 3 dossiers : -clean ~/mon_dossier /etc/temp %trash%|
+| *-c* {dossiers} | *--clean* {dossiers} |  | Suppression du contenu des {dossiers}. Par exemple la suppression de 3 dossiers : -clean ~/mon_dossier /etc/temp %trash%. **Le mot clé *%trash%* désigne le ou les dossiers corbeilles de l'utilisateur.**|
 |  |  |  | **Attention :** lorsqu'un dossier à la valeur *%trash%* il est remplacé par le chemin vers les différentes corbeilles de l'utilisateur appelant.|
 | *-d* {value} | *--depth* {value} | *none* | Profondeur du nettoyage des dossiers. |
 |  |  |  | = *none* (par défaut) : pas de suppression des sous-dossiers. |

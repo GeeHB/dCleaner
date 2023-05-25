@@ -12,9 +12,10 @@
 #
 #   Dépendances :  Utilise alive_progress (pip install alive-progress)
 #
-import os, random, shutil, time
+import os, random, shutil, time, platform
 from basicFolder import basicFolder, basicFile
 from sharedTools.colorizer import textColor
+from parameters import WINDOWS_TRASH
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -324,6 +325,10 @@ class paddingFolder(basicFolder):
                         ret = bFolder.sizes()
                         barMax += ret[0]
                         expectedFiles += ret[1]
+                    else:
+                        # La poubelle de Windows ?
+                        if folder == WINDOWS_TRASH:
+                            vFolders.append(folder)
                 except OSError:
                     pass
         
@@ -368,6 +373,12 @@ class paddingFolder(basicFolder):
                                 deletedFolders += 1
                             else:
                                 print(self.params_.color_.colored(f"Erreur lors de la suppression de {fullName}", textColor.ROUGE))
+                else:
+                    # Dossier windows ?
+                    if folder == WINDOWS_TRASH:
+                        # On essaye de le vider ...
+                        self.__emptyWindowsTrash()
+
                             
             # Ajustement de la barre de progression
             if barMax > barPos:
@@ -382,5 +393,29 @@ class paddingFolder(basicFolder):
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
     def __convertSize2Progressbar(self, number = 0):
         return int(number / 1024)     # conversion en ko 
+    
+    # Vidage de le corbeille de Windows
+    #
+    # retourne le booléen fait ?
+    def __emptyWindowsTrash(self):
+        myPlatform = platform.system()
+        if  myPlatform == "Windows":
+            try :
+                import winshell
+            except ModuleNotFoundError:
+                print(self.params_.color_.colored("Erreur - Le module winshell est absent", textColor.ROUGE))
+                return False
+            
+            # On peut essayer de la vider
+            try:
+                winshell.recycle_bin().empty(False, False, False)
+            except:
+                print(self.params_.color_.colored("Erreur - impossible de vider la corbeille Windows", textColor.ROUGE))
+                return False
+            
+            return True
+        
+        # Pas sous Windows ...
+        return False
 
 # EOF

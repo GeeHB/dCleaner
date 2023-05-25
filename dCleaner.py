@@ -12,7 +12,7 @@
 #
 #   Dépendances :  Nécessite python-psutil (apt-get install / dnf install)
 #
-import parameters as opts
+from parameters import options, APP_NAME, WINDOWS_TRASH
 import os
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
@@ -31,7 +31,7 @@ class dCleaner:
     def __init__(self, options):
         # Initialisation des données membres
         if None == options or None == options.folder_:
-            raise ValueError("Pas de paramètres ou paramètres incorrects")
+            raise ValueError("Pas de paramètre ou paramètres incorrects")
 
         self.options_ = options
 
@@ -184,7 +184,7 @@ class dCleaner:
         renewSize = int(res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100) 
         
         # on recadre avec l'espace effectivement dispo
-        renewSize = int(opts.options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100))
+        renewSize = int(options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100))
         
         if not self.options_.verbose_:
             print(params.color_.colored("Remplissage", datePrefix = True))
@@ -214,7 +214,7 @@ if '__main__' == __name__:
     
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
-        print(f"{opts.APP_NAME} doit être lancé par un compte 'non root'")
+        print(f"{APP_NAME} doit être lancé par un compte 'non root'")
         exit()
     
     done = False
@@ -223,7 +223,7 @@ if '__main__' == __name__:
     basicFile.init()
 
     # Ma ligne de commandes
-    params = opts.options()
+    params = options()
     if True == params.parse():
         try:    
             done = True
@@ -234,16 +234,21 @@ if '__main__' == __name__:
                 # On s'assure qu'ils existent ...
                 index = 0
                 while index < len(params.clean_):
-                    if not basicFolder.existsFolder(params.clean_[index]):
-                        # Le dossier n'existe pas => retrait de la liste
-                        folder = params.clean_.pop(index)
-                        print(params.color_.colored(f"Nettoyage des dossiers : '{folder}' n'existe pas", textColor.JAUNE))
+                    folderName = params.clean_[index]
+                    if folderName != WINDOWS_TRASH:
+                        if not basicFolder.existsFolder(folderName):
+                            # Le dossier n'existe pas => retrait de la liste
+                            params.clean_.pop(index)
+                            print(params.color_.colored(f"Nettoyage des dossiers : '{folderName}' n'existe pas", textColor.JAUNE))
 
-                        # Le dossier a été supprimé, index pointe donc sur le dossier suivant (ou pas si la liste est terminée)
+                            # Le dossier a été supprimé, index pointe donc sur le dossier suivant (ou pas si la liste est terminée)
+                        else:
+                            # Le dossier existe, allons voir le suivant
+                            index+=1
                     else:
-                        # Le dossier existe, allons voir le suivant
                         index+=1
 
+                # Encore des dossiers dans la liste ?
                 if len(params.clean_) == 0:
                     print(params.color_.colored("Pas de dossier à nettoyer", textColor.ROUGE))
                         
@@ -292,8 +297,7 @@ if '__main__' == __name__:
         """
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
-        """
-            
+        """ 
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
