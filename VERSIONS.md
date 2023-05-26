@@ -17,7 +17,6 @@
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Ralentissements entre 2 suppressions ?
 * Plantage ou comportements imprévus lorsque le disque est plein
-* Test sur MacOS
 
 #### Version 0.8.4
 

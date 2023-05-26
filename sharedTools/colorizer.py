@@ -8,15 +8,15 @@
 #                     - textColor : Liste des couleurs de texte
 #                     - backColor : Liste des couleurs de fond
 #
-#   Commentaire :  le module termcolor doit être installé (pip3 install termcolor)
+#   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
 
 try :
     # Pour la coloration des sorties terminal
     from termcolor import colored
-    packageTermColor = True
+    packageTermColor__ = True
 except ModuleNotFoundError:
-    packageTermColor = False
+    packageTermColor__ = False
 
 # Pour l'ajout de la date et de l'heure en mode "logs
 from datetime import datetime
@@ -85,7 +85,7 @@ class colorizer:
     def setColorized(self, colored = True, message = None):
         self.colored_ = colored
 
-        if True == colored and False == packageTermColor:
+        if True == colored and False == packageTermColor__:
             self.colored_ = False
             if message is not None:
                 print(MSG_NO_TERM_COLOR)
