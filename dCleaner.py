@@ -4,13 +4,13 @@
 #
 #   File     :   dCleaner.py
 #
-#   Auteur      :   JHB
+#   Auteur      :  JHB
 #
-#   Description :   Point d'entrée du programme
+#   Description :  Outil de nettoyage de la partition utilisateur
 #
-#   Remarques    : 
+#   Remarques    : Point d'entrée du programme
 #
-#   Dépendances :  Nécessite python-psutil (apt-get install / dnf install)
+#   Dépendances :  Nécessite psutil
 #
 from parameters import options, APP_NAME, WINDOWS_TRASH
 import os
@@ -235,13 +235,14 @@ if '__main__' == __name__:
                 index = 0
                 while index < len(params.clean_):
                     folderName = params.clean_[index]
-                    if folderName != WINDOWS_TRASH:
+                    if WINDOWS_TRASH != folderName:
                         if not basicFolder.existsFolder(folderName):
                             # Le dossier n'existe pas => retrait de la liste
                             params.clean_.pop(index)
                             print(params.color_.colored(f"Nettoyage des dossiers : '{folderName}' n'existe pas", textColor.JAUNE))
 
-                            # Le dossier a été supprimé, index pointe donc sur le dossier suivant (ou pas si la liste est terminée)
+                            # Le dossier a été supprimé de la liste
+                            # index pointe donc sur le dossier suivant (ou sur None si la liste est terminée)
                         else:
                             # Le dossier existe, allons voir le suivant
                             index+=1
@@ -294,10 +295,8 @@ if '__main__' == __name__:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE))
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
-        """
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
-        """ 
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

@@ -15,8 +15,10 @@
 #### A faire
 
 * Affichage de la barre de progression une fois le traitement individuel terminé ?
-* Ralentissements entre 2 suppressions ?
-* Plantage ou comportements imprévus lorsque le disque est plein
+* Corrections
+  * Ralentissements entre 2 suppressions ?
+  * Plantage ou comportements imprévus lorsque le disque est plein
+  * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
 #### Version 0.8.4
 
@@ -28,7 +30,9 @@
     * Pas de 'nettoyage' des fichiers ...
   * MacOS
     * %trash% = ~/.Trash
+    * Rien de spécifique pour cette plate-forme !
   * Méthodes statiques pour la gestion des dossiers spéciaux par parameters.py
+  * Les itérations s'appliquent à tous les traitements
 * Corrections 
   * BUG : Appels psutils erronés sous Windows
   * BUG : Multi instanciation de termcolor

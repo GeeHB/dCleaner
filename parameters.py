@@ -4,7 +4,7 @@
 #
 #   Auteur      :   JHB
 #
-#   Description :   Gestion de la ligne de commande et des constantes.
+#   Description :   Gestion de la ligne de commande et des constantes
 #
 
 import argparse
@@ -266,11 +266,11 @@ class options(object):
         myPlatform = platform.system()
         if  myPlatform == "Windows":
             # Il y a bien un ou plusieurs dossiers Windows mais on ne peut y accéder
-            # on ajoute un dossier bidon pour pouvoir le vider le moment venu
+            # on ajoute un dossier "bidon" pour pouvoir le faire vider le moment venu
             folders.append(WINDOWS_TRASH)
-            
         else :
             if myPlatform == "Darwin":
+                # MacOS
                 folders.append(os.path.expanduser("~/.Trash"))
             else:                
                 # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
