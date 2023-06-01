@@ -15,7 +15,7 @@ import os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.8.4"
-APP_RELEASE_DATE = "xx-06-2023"
+APP_RELEASE_DATE = "01-06-2023"
 
 #
 # Motif aléatoire

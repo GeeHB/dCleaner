@@ -22,7 +22,7 @@
 
 #### Version 0.8.4
 
-* xx juin 2023
+* 1er juin 2023
 * Ajouts:
   * Utilisation de '~' comme racine du dossier de padding pour tous les OS
   * Windows 10
