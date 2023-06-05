@@ -14,11 +14,18 @@
 
 #### A faire
 
-* Affichage de la barre de progression une fois le traitement individuel terminé ?
 * Corrections
   * Ralentissements entre 2 suppressions ?
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
+
+#### Version 0.8.5
+
+* 1er juin 2023
+* Ajouts:
+  * Retrait des barres de progressions un fois terminé
+* Correction
+  * BUG : Taille en octets fausse si itérations
 
 #### Version 0.8.4
 

@@ -101,7 +101,7 @@ class paddingFolder(basicFolder):
             # Barre de progression
             barPos = 0  # Ou je suis ...
             barMax = self.__convertSize2Progressbar(expectedFillSize * self.params_.iterate_)
-            with progressBar(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+            with progressBar(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", elapsed = "en {elapsed}",stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
             
                 # Boucle de remplissage
                 while totalSize < expectedFillSize and cont:
@@ -121,14 +121,16 @@ class paddingFolder(basicFolder):
 
                     # On attend ...
                     self.wait(self.params_.waitFiles_)
-                
-                if barPos != barMax:
-                    # Tout n'a peut-être pas été fait ou soucis d'arrondis ...
-                    bar(barMax - barPos)
                     
             # Terminé
+            #
+
+            if self.params_.verbose_:
+                # Retrait de la barre de progression
+                print('\033[F', end='')
+
             offset = "\t " if iterate else ""
-            print(f"{offset}Remplissage de {self.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
+            print(f"{offset}Remplissage de {self.size2String(totalSize / self.params_.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
             return True
         
         # Erreur
@@ -186,7 +188,7 @@ class paddingFolder(basicFolder):
                     barMax = count
                     barMonitor = "{count} / {total} - {percent:.0%}"
                 
-                with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:     
+                with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
                     # Suppression des fichiers
                     try:
                         # Les fichiers du dossier
@@ -228,13 +230,13 @@ class paddingFolder(basicFolder):
                         print("Interruption de la suppression")
                         return False
 
-                    if barPos != barMax:
-                        # Tout n'a peut-être pas été fait ou soucis d'arrondis ...
-                        bar(barMax - barPos)
+                    # Retrait de la barre de progression
+                    if self.params_.verbose_:
+                        print('\033[F', end='')
 
         # Fin des traitements
         offset = "\t " if iterate else ""
-        print(f"{offset}Suppression de {self.size2String(tSize)} avec {tFiles}","fichiers" if tFiles > 1 else "fichier")
+        print(f"{offset}Suppression de {self.size2String(tSize / self.params_.iterate_)} avec {tFiles}","fichiers" if tFiles > 1 else "fichier")
         return True
 
     # Vidage du dossier courant
@@ -264,7 +266,7 @@ class paddingFolder(basicFolder):
             from fakeProgressBar import fakeProgressBar as progressBar
         
         # Vidage du dossier (sans récursivité)
-        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:        
+        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
             for isFile, fName in super().browse(self.params_.folder_):    
                 if isFile:
                     # Suppression du fichier
@@ -281,9 +283,9 @@ class paddingFolder(basicFolder):
                     # Dans tous les cas on fait avancer la barre
                     bar()
 
-        # Ajustement de la barre de progression
-        if barMax > count:
-            bar(barMax - count)
+        # Retrait de la barre de progression
+        if self.params_.verbose_:
+            print('\033[F', end='')
         
         # Dossier vidé
         return count, ""       
@@ -316,7 +318,7 @@ class paddingFolder(basicFolder):
         vFolders = []
         bFolder = basicFolder(self.params_)
         bFolder.init()
-        with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False) as bar:
+        with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
             for folder in folders:
                 try:
                     bFolder.name = folder
@@ -332,6 +334,10 @@ class paddingFolder(basicFolder):
                 except OSError:
                     pass
         
+        # Retrait de la barre de progression
+        if self.params_.verbose_:
+            print('\033[F', end='')
+
         print(f"Analyse des dossiers terminée : {expectedFiles} fichier(s) à supprimer.")
 
         # Rien à faire ?
@@ -341,7 +347,7 @@ class paddingFolder(basicFolder):
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.params_.iterate_)
-        with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", monitor_end = "Terminé", elapsed = "en {elapsed}", elapsed_end = "en {elapsed}", stats = False) as bar:
+        with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
             for folder in vFolders:        
                 bFolder.name = folder
                 if bFolder.valid:
@@ -380,9 +386,9 @@ class paddingFolder(basicFolder):
                         self.__emptyWindowsTrash()
 
                             
-            # Ajustement de la barre de progression
-            if barMax > barPos:
-                bar(barMax - barPos)
+            # Retrait de la barre
+            if self.params_.verbose_:
+                print('\033[F', end='')
 
         print(f"Suppression de {deletedFiles} fichier(s) et de {deletedFolders} dossier(s)")
         if freed > 0 :
