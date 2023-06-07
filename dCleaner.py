@@ -12,8 +12,9 @@
 #
 #   Dépendances :  Nécessite psutil
 #
-from parameters import options, APP_NAME, WINDOWS_TRASH
+from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX
 import os
+from datetime import datetime
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
 from basicFolder import basicFile
@@ -186,15 +187,25 @@ class dCleaner:
         # on recadre avec l'espace effectivement dispo
         renewSize = int(options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100))
         
-        if not self.options_.verbose_:
-            print(params.color_.colored("Remplissage", datePrefix = True))
+        if self.options_.verbose_:
+            self.indented_print("Remplissage", True)
         self.paddingFolder_.newFiles(renewSize, iterate = True)
         
-        if not self.options_.verbose_:
-            print(params.color_.colored("Suppression", datePrefix = True))
+        if self.options_.verbose_:
+            self.indented_print("Suppression", True)
         self.paddingFolder_.deleteFiles(size = renewSize, iterate = True) 
-        if not self.options_.verbose_:
-            print(params.color_.colored("Terminé", datePrefix = True))   
+        if  self.options_.verbose_:
+            self.indented_print("Terminé", True)   
+
+    # Affichage d'une ligne indentée
+    #
+    def indented_print(self, line, date = False):
+        if date:
+            today = datetime.now()
+            prefix = today.strftime(TIME_PREFIX)
+        else:
+            prefix = ""
+        print("\t-"+prefix+line)
 
 # Vérification des privilèges
 def isRootLikeUser():
@@ -281,9 +292,8 @@ if '__main__' == __name__:
                         
                         for index in range(params.iterate_):
                             if index > 0:
-                                # On patiente un peu ...
                                 if params.verbose_:
-                                    print("On attend un peu...")
+                                    cleaner.indented_print("On attend un peu...")
                                 cleaner.paddingFolder_.wait(params.waitTasks_)
 
                             if params.verbose_:

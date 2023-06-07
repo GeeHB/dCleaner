@@ -79,7 +79,7 @@ class paddingFolder(basicFolder):
     def newFiles(self, expectedFillSize, iterate = False):
         if True == self.valid_ and expectedFillSize > 0:
             if self.params_.verbose_ :
-                offset = "\t-" if iterate else ""
+                offset = "\t- " if iterate else ""
                 print(f"{offset}Demande de remplissage de {self.size2String(expectedFillSize)}")
 
             # Rien n'a été fait !!!
@@ -102,7 +102,6 @@ class paddingFolder(basicFolder):
             barPos = 0  # Ou je suis ...
             barMax = self.__convertSize2Progressbar(expectedFillSize * self.params_.iterate_)
             with progressBar(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", elapsed = "en {elapsed}",stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
-            
                 # Boucle de remplissage
                 while totalSize < expectedFillSize and cont:
                     # Création d'un fichier sans nom
@@ -123,8 +122,6 @@ class paddingFolder(basicFolder):
                     self.wait(self.params_.waitFiles_)
                     
             # Terminé
-            #
-
             if self.params_.verbose_:
                 # Retrait de la barre de progression
                 print('\033[F', end='')
@@ -153,7 +150,7 @@ class paddingFolder(basicFolder):
             if not 0 == count or not 0 == size:
                 
                 if self.params_.verbose_:
-                    offset = "\t-" if iterate else ""    
+                    offset = "\t- " if iterate else ""    
                     if not 0 == size :
                         print(f"{offset}Demande de suppression à hauteur de {self.size2String(size)}")
                     else:
@@ -234,6 +231,11 @@ class paddingFolder(basicFolder):
                     if self.params_.verbose_:
                         print('\033[F', end='')
 
+        # Terminé
+        if self.params_.verbose_:
+            # Retrait de la barre de progression
+            print('\033[F', end='')
+        
         # Fin des traitements
         offset = "\t " if iterate else ""
         print(f"{offset}Suppression de {self.size2String(tSize / self.params_.iterate_)} avec {tFiles}","fichiers" if tFiles > 1 else "fichier")

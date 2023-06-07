@@ -14,7 +14,7 @@ import os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.8.4-1"
+APP_CURRENT_VERSION = "0.8.4-2"
 APP_RELEASE_DATE = "xx-06-2023"
 
 #
@@ -25,7 +25,7 @@ APP_RELEASE_DATE = "xx-06-2023"
 PATTERN_BASE_STRING = "ABCDEFGKHIJLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/!=@&_-:;,?<>$"
 
 # Taille d'un motif aléatoire en octets
-PATTERN_MIN_LEN = 1024
+PATTERN_MIN_LEN = 10240
 PATTERN_MAX_LEN = 74233
 
 #
@@ -47,6 +47,10 @@ FILESIZE_MAX = 1024
 #
 FOLDERS_TRASH = "%trash%"          # La poubelle de l'utilisateur
 WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de Windows
+
+# Constantes générales
+#
+TIME_PREFIX = "[%H:%M:%S] "
 
 #
 # Commandes / arguments reconnu(e)s (longues et courtes)

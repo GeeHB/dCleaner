@@ -24,6 +24,7 @@
 * 1er juin 2023
 * Ajouts:
   * Retrait des barres de progressions un fois terminé
+  * Affichages indentés et datés lors d'itérations
 * Correction
   * BUG : Taille en octets fausse si itérations
 
