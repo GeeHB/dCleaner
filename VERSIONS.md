@@ -21,7 +21,7 @@
 
 #### Version 0.8.5
 
-* 1er juin 2023
+* 12 juin 2023
 * Ajouts:
   * Retrait des barres de progressions un fois terminé
   * Affichages indentés et datés lors d'itérations
