@@ -394,7 +394,7 @@ class paddingFolder(basicFolder):
 
         print(f"Suppression de {deletedFiles} fichier(s) et de {deletedFolders} dossier(s)")
         if freed > 0 :
-            print(f"{self.size2String(freed)} libérés")
+            print(f"{self.size2String(int(freed/self.params_.iterate_))} libérés")
 
         return deletedFiles, deletedFolders, ""
 
