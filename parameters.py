@@ -15,7 +15,7 @@ import os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.8.6"
-APP_RELEASE_DATE = "20-06-2023"
+APP_RELEASE_DATE = "20/06/2023"
 APP_AUTHOR = "JHB (henry-barnaudiere.j@allier.fr)"
 
 #
@@ -298,7 +298,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_))} par {APP_AUTHOR} - version {APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     #
     # Méthodes à usage interne
