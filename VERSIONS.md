@@ -19,9 +19,9 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.8.5
+#### Version 0.8.6
 
-* 12 juin 2023
+* 20 juin 2023
 * Ajouts:
   * Retrait des barres de progressions un fois terminé
   * Affichages indentés et datés lors d'itérations
