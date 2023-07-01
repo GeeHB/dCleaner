@@ -19,6 +19,10 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
+#### Version 0.8.7
+  * Correction
+    * Gestion Ctrl+C
+
 #### Version 0.8.6
 
 * 20 juin 2023

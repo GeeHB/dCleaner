@@ -225,6 +225,9 @@ class paddingFolder(basicFolder):
                             self.wait(self.params_.waitFiles_)
                     except KeyboardInterrupt as kbe:
                         print("Interruption de la suppression")
+                        exit(1)
+                        
+                        # Inutile ...
                         return False
 
                     # Retrait de la barre de progression
