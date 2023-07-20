@@ -12,7 +12,7 @@
 #
 #   Dépendances :  Utilise alive_progress (pip install alive-progress)
 #
-import os, random, shutil, time, platform
+import os, random, shutil, time, platform, sys
 from basicFolder import basicFolder, basicFile
 from sharedTools.colorizer import textColor
 from parameters import WINDOWS_TRASH
@@ -281,7 +281,7 @@ class paddingFolder(basicFolder):
                         pass
                     
                     if not bFile.success():
-                        print(self.params_.color_.colored(f"Erreur lors de la suppression de {fName}", textColor.ROUGE))
+                        print(self.params_.color_.colored(f"Erreur lors de la suppression de {fName}", textColor.ROUGE), file=sys.stderr)
                     else:
                         count += 1
                     
@@ -317,8 +317,9 @@ class paddingFolder(basicFolder):
 
         if not self.params_.verbose_:
             from fakeProgressBar import fakeProgressBar as progressBar
-        
-        # Estimation de la taille totale
+
+        print("Estimation de la taille totale de dossier à supprimer ou vider")
+    
         barMax = expectedFiles = 0
         vFolders = []
         bFolder = basicFolder(self.params_)
@@ -375,7 +376,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
                             
                             if not bFile.success():
-                                print(self.params_.color_.colored(f"Erreur lors de la suppression de {fullName}", textColor.ROUGE))
+                                print(self.params_.color_.colored(f"Erreur lors de la suppression de {fullName}", textColor.ROUGE), file=sys.stderr)
                             else:
                                 deletedFiles += 1
                         else:
@@ -383,7 +384,7 @@ class paddingFolder(basicFolder):
                             if self.rmdir(fullName):
                                 deletedFolders += 1
                             else:
-                                print(self.params_.color_.colored(f"Erreur lors de la suppression de {fullName}", textColor.ROUGE))
+                                print(self.params_.color_.colored(f"Erreur lors de la suppression de {fullName}", textColor.ROUGE), file=sys.stderr)
                 else:
                     # Dossier windows ?
                     if folder == WINDOWS_TRASH:
@@ -414,14 +415,14 @@ class paddingFolder(basicFolder):
             try :
                 import winshell
             except ModuleNotFoundError:
-                print(self.params_.color_.colored("Erreur - Le module winshell est absent", textColor.ROUGE))
+                print(self.params_.color_.colored("Erreur - Le module winshell est absent", textColor.ROUGE), file=sys.stderr)
                 return False
             
             # On peut essayer de la vider
             try:
                 winshell.recycle_bin().empty(False, False, False)
             except:
-                print(self.params_.color_.colored("Erreur - impossible de vider la corbeille Windows", textColor.ROUGE))
+                print(self.params_.color_.colored("Erreur - impossible de vider la corbeille Windows", textColor.ROUGE), file=sys.stderr)
                 return False
             
             return True

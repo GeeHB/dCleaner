@@ -13,7 +13,7 @@
 #   Dépendances :  Nécessite psutil
 #
 from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX
-import os
+import os,sys
 from datetime import datetime
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
@@ -161,7 +161,7 @@ class dCleaner:
                 print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
                 
                 if len(res[1]) > 0:
-                    print(self.options_.color_.colored(f"Erreur lors du vidage du dossier de remplissage : {res[1]}", textColor.ROUGE))
+                    print(self.options_.color_.colored(f"Erreur lors du vidage du dossier de remplissage : {res[1]}", textColor.ROUGE), file=sys.stderr)
                     return False
             else:
                 # Retrait du "minimum"
@@ -250,7 +250,7 @@ if '__main__' == __name__:
                         if not basicFolder.existsFolder(folderName):
                             # Le dossier n'existe pas => retrait de la liste
                             params.clean_.pop(index)
-                            print(params.color_.colored(f"Nettoyage des dossiers : '{folderName}' n'existe pas", textColor.JAUNE))
+                            print(params.color_.colored(f"Nettoyage des dossiers : '{folderName}' n'existe pas", textColor.ROUGE), file=sys.stderr)
 
                             # Le dossier a été supprimé de la liste
                             # index pointe donc sur le dossier suivant (ou sur None si la liste est terminée)
@@ -262,7 +262,7 @@ if '__main__' == __name__:
 
                 # Encore des dossiers dans la liste ?
                 if len(params.clean_) == 0:
-                    print(params.color_.colored("Pas de dossier à nettoyer", textColor.ROUGE))
+                    print(params.color_.colored("Pas de dossier à nettoyer", textColor.ROUGE), file=sys.stderr)
                         
             # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
@@ -272,7 +272,7 @@ if '__main__' == __name__:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
                 if len(res[2]) > 0  :
-                    print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE))
+                    print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE), file=sys.stderr)
                 else:
                     print(f"{res[0]} fichier(s) supprimé(s)")
             else:
@@ -302,11 +302,11 @@ if '__main__' == __name__:
                             cleaner.cleanPartition()
 
         except IOError as ioe:
-            print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE))
+            print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE), file=sys.stderr)
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except Exception as e:
-            print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE))
+            print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE), file=sys.stderr)
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

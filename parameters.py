@@ -15,7 +15,7 @@ import os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.8.7"
-APP_RELEASE_DATE = "20/06/2023"
+APP_RELEASE_DATE = "20/07/2023"
 APP_AUTHOR = "JHB (henry-barnaudiere.j@allier.fr)"
 
 #
@@ -47,6 +47,7 @@ FILESIZE_MAX = 1024
 # Dossiers à nettoyer
 #
 FOLDERS_TRASH = "%trash%"          # La poubelle de l'utilisateur
+FOLDERS_TRASH_BIS = "__trash__"
 WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de Windows
 
 # Constantes générales
@@ -307,12 +308,13 @@ class options(object):
     # Liste des dossiers à nettoyer
     def _handleCleanFolders(self, folders):
         # Liste des poubelles
+        print("Obtention de la liste des \"dossiers poubelle\"")
         myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs
         destFolders = []
         for folder in folders:
-            if FOLDERS_TRASH == folder:
+            if FOLDERS_TRASH == folder or FOLDERS_TRASH_BIS == folder:
                 # On ajoute tous les dossiers de la poubelle
                 for tFolder in myTrashFolders:
                     destFolders.append(tFolder)

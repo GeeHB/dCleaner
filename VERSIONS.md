@@ -20,8 +20,11 @@
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
 #### Version 0.8.7
+  * 20 juillet 2023
   * Correction
+    * Les messages d'erreurs sont envoyés dans stderr
     * Gestion Ctrl+C
+    * %trash% équivalent à --trash-- (qui, lui, fonctionne avec cron)
 
 #### Version 0.8.6
 
