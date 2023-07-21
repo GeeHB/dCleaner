@@ -55,22 +55,22 @@ class dCleaner:
         # Quelques informations ...
         #
         res = self.paddingFolder_.partitionUsage()
+
+        mode = ""
+        if self.options_.clear_:
+            mode = "libération"
+        else: 
+            if False == self.options_.noPadding_:
+                mode = "ajustement" if self.options_.adjust_ else "remplissage / nettoyage"
+        
+        if len(self.options_.clean_) > 0:
+            if len(mode) > 0 : 
+                mode = mode + " & "
+            mode = mode + "vidage de dossier"
     
         if self.options_.verbose_:
             out = "Paramètres : " 
-            
-            txt = ""
-            if self.options_.clear_:
-                txt = "libération"
-            else: 
-                if False == self.options_.noPadding_:
-                    txt = "ajustement" if self.options_.adjust_ else "remplissage / nettoyage"
-            
-            if len(self.options_.clean_) > 0:
-                if len(txt) > 0 : 
-                    txt = txt + " & "
-                txt = txt + "vidage de dossier"
-            out += f"\n\t- Mode : {self.options_.color_.colored(txt, formatAttr=[textAttribute.GRAS])}"
+            out += f"\n\t- Mode : {self.options_.color_.colored(mode, formatAttr=[textAttribute.GRAS])}"
             
             out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
             out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
@@ -98,7 +98,7 @@ class dCleaner:
         else :
             out = f"Partition : {self.paddingFolder_.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
             out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
-            out += "\nMode : " + ("nettoyage" if self.options_.clear_ else ("ajustement" if self.options_.adjust_ else "remplissage / nettoyage"))
+            out += "\nMode : " + mode
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])                    
             
@@ -305,6 +305,8 @@ if '__main__' == __name__:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE), file=sys.stderr)
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
+        except ValueError as ve:
+            print(params.color_.colored(f"Erreur d'initialisation : {str(ve)}", textColor.ROUGE), file=sys.stderr)
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE), file=sys.stderr)
     # La fin, la vraie !
