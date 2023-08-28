@@ -19,15 +19,14 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.8.7
-  * 20 juillet 2023
+#### Version 0.8.8
+  * 21 juillet 2023
   * Correction
     * Les messages d'erreurs sont envoyés dans stderr
     * Gestion Ctrl+C
     * %trash% équivalent à --trash-- (qui, lui, fonctionne avec cron)
 
 #### Version 0.8.6
-
 * 20 juin 2023
 * Ajouts:
   * Retrait des barres de progressions un fois terminé
@@ -36,7 +35,6 @@
   * BUG : Taille en octets fausse si itérations
 
 #### Version 0.8.4
-
 * 1er juin 2023
 * Ajouts:
   * Utilisation de '~' comme racine du dossier de padding pour tous les OS
@@ -54,7 +52,6 @@
   * BUG : colorizer::setColorized - Erreur lors du changement de mode de colorisation
 
 #### Version 0.8.3
-
 * 23 mai 2023
 * Ajouts:
   * Documentation du code
@@ -65,7 +62,6 @@
   * BUG : "slice indices must be integers or None or have an __index__ method"
 
 #### Version 0.8.1
-
 * 15 mai 2023
 * Ajouts 
   * Vérification de l'existence des dossiers avant de les nettoyer
@@ -78,7 +74,6 @@
   * BUG : progressBar::spinner inexistant
 
 #### Version 0.8.0
-
 * 10 mai 2023
 * Ajouts 
   * Nouvel algo reposant sur des générateurs 
@@ -95,7 +90,6 @@
   * Amélioration des affichages
 
 #### Version 0.7.2
-
 * 24 avril 2023
 * Ajouts 
   * Affichages de la progression de la suppression des fichiers et des dossiers
@@ -103,7 +97,6 @@
   * Logs et affichages
 
 #### Version 0.7.1
-
 * 18 avril 2023
 * Ajouts 
   * Gestion des paramètres d'appel avec argparse 
@@ -122,14 +115,12 @@
   * \-f-strings
 
 #### Version 0.6.3
-
 * 30 mars 2023
 * Ajouts 
   * Suppression des dossiers "poubelle" sur les volume montés
 * Début du refactoring
 
 #### Version 0.6.2
-
 * 22 mars 2023
 * Corrections 
   * BUG: absence de traitement en mode "log"
@@ -141,7 +132,6 @@
   * fakeProgressBar.py - alive_progress peut ne pas être présent
 
 #### Version 0.5.5
-
 * 9 mars 2023
 * "VERSION" devient "VERSIONS.md"
 * Corrections 
@@ -152,7 +142,6 @@
   * paramètres *\-waitFiles* & *\-waitTasks* pour l'attente entre 2 fichiers et/ou traitements
 
 #### Version 0.5.4
-
 * 8 mars 2023
 * Mise à jour de README.md
 * Modification de l'entête des fichiers
@@ -168,7 +157,6 @@
   * certains dossiers (dont ceux de %trash% et '~') ne peuvent être supprimés
 
 #### Version 0.5.3
-
 * 3 mars 2023
 * l'option "-clean" accepte plusieurs dossiers séparés par ";"
   * la chaîne %trash%  est remplacée par le chemin vers la corbeille de l'utilisateur appellant
@@ -177,20 +165,17 @@
   * vidage du dossier de padding
 
 #### Version 0.5.2
-
 * 27 janvier 2023
 * ajout de l'option -clean {folder} pour cibler le nettoyage à un dossier (qui sera vidé puis supprimé) 
   * ajout de l'objet basicFolder dont héritera paddingFolder
 * ajout de l'option -np : No Padding - Pas de "salissage" de la partition (par défaut False ...)
 
 #### Version 0.4.1
-
 * 29 dec. 2022
 * 'sharedTools' est incorporé au projet comme sous-dossier
 * Corrections mineures
 
 #### Version 0.3.9
-
 * 26 janv. 2022
 * Corrections mineures 
   * Bug d'affichage avec l'option -clear
@@ -202,7 +187,6 @@
 * Choix aléatoire du fichier lors de la suppression (meilleur pour le salissage de la partition)
 
 #### Version 0.3.5
-
 * 15 oct. 2021
 * Corrections 
   * Si un seul mauvais param; en ligne de commmande 
@@ -212,14 +196,12 @@
 * Ajout du paramètre -? et/ou -help pour afficher la ligne de commande
 
 #### Version 0.3.4
-
 * 8 octobre 2021
 * Modification des affichages 
   * Taille de la partition et taux de remplissage réel
   * Corrections mineures
 
 #### Version 0.3.2
-
 * 27 sept. 2021
 * Utilisation des modules sharedTools (à la place des fichiers dans le dossier)
 * Test(s) & corrections pour Windows
@@ -230,14 +212,12 @@
   * bug lorsque le dossier de padding n'existe pas
 
 #### Version 0.2.5
-
 * 21 septembre 2021
 * Corrections mineures 
   * bug d'affichage en mode logs
   * valeurs par défaut
 
 #### Version 0.2.4
-
 * 20 septembre 2021
 * Corrections mineures 
   * Moins d'accès disque (optimisations)
@@ -256,10 +236,8 @@
   * Aucun paramètre n'est obligatoire
 
 #### Version 0.2.1
-
 * 31 aout 2021
 * Version complète (paramètres d'execution constants)
 
 #### Version 0.1.1
-
 * Mai 2020 - Version fonctionnelle (mais basique ...)
