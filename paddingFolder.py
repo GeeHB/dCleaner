@@ -17,6 +17,46 @@ from basicFolder import basicFolder, basicFile
 from sharedTools.colorizer import textColor
 from parameters import WINDOWS_TRASH
 
+# Objet à supprimer / vider
+#
+class FSObject(object):
+    file_ = None
+    fullNanme_ = None
+
+    # Constructeur
+    def __init__(self, fullName):
+        self.name = fullName
+
+    # Accès
+    #
+    # Nom du fichier
+    @property
+    def name(self):
+        return self.fullName_ if self.fullName_ is not None else ""
+    
+    @name.setter
+    def name(self, value):
+        self.fullName_ = value
+
+    # Nom court
+    def shortName(self):
+        if len(self.fullName_) == 0:
+            return ""
+        _, sName = os.path.split(self.fullName_)
+        return sName
+    
+    # Ect-ce un fichier ?
+    def isFile(self):
+        if self.fullName_ is None:
+            return False
+        
+        if self.file_ is None :
+            self.file = os.path.isfile()
+
+        return self.file_
+    
+
+
 # Classe paddingFolder - un dossier de remplissage
 #
 class paddingFolder(basicFolder):
