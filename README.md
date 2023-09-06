@@ -22,8 +22,8 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 | Dépôt | https://github.com/GeeHB/dCleaner |
 |-------|-------------------------------------|
-| **Date** | 20 juillet 2023 |
-| **Version stable** | **0\.8.8 - branche** `dev` |
+| **Date** | sept. 2023 |
+| **Version stable** | **0\.9.0 - branche** `dev` |
 | **Dépendances** | Python 3.xx |
 |  | **Tous** - *facultatif:* : **alive_progress** de rsalmei (`pip install alive-progress`) - doc : <https://github.com/rsalmei/alive-progress> |
 |  | **Tous** - **psutil** : {`apt-get` / `dnf`} `install python-psutil` ou `pip install psutil` (Windows) |
@@ -49,7 +49,7 @@ Les différents paramètres sont définis comme suit :
 | *\-fi* {%} | *\--fill* {%} | 80 | Taux de remplissage attendu pour la partition. |
 | *\-p* {%} | *\--padding* {%} | 50 | Taux (en % de la taille libre) à nettoyer. Par exemple, s'il reste 70Go de libre dans la partition, un taux de 50% entrainera la génération de fichiers à hauteur de 35Go puis la suppression de 35Go de fichiers de remplissage. Tous les fichiers en question seront crées ou pris dans le dossier de remplissage. |
 | *\-a* | *\--adjust* |  | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *\-fill* |
-| *\-c* {dossiers} | *\--clean* {dossiers} |  | Suppression du contenu des {dossiers}. Par exemple la suppression de 3 dossiers : -clean ~/mon_dossier /etc/temp %trash%. **Les mots clé *%trash%* et __trash__ désignent le ou les dossiers corbeille de l'utilisateur.** |
+| *\-c* {fichiers/ dossiers} | *\--clean* {fichiers/dossiers} |  | Suppression du contenu des {dossiers} ou des {fichiers}. Par exemple la suppression de 3 dossiers et d'un fichier: -clean ~/mon_dossier ~/mon_fichier.txt /etc/temp %trash%. **Les mots clé *%trash%* et __trash__ désignent le ou les dossiers corbeille de l'utilisateur.** |
 |  |  |  | **Attention :** lorsqu'un dossier à la valeur *%trash%* il est remplacé par le chemin vers les différentes corbeilles de l'utilisateur appelant. |
 | *\-d* {value} | *\--depth* {value} | *none* | Profondeur du nettoyage des dossiers. |
 |  |  |  | = *none* (par défaut) : pas de suppression des sous-dossiers. |
@@ -84,6 +84,12 @@ Equivalent à :
 ./dCleaner.py -fi 80 -i 5
 ```
 
+ou à :
+
+```
+./dCleaner.py -fi80 -i5
+```
+
 ##### Suppression du contenu du dossier `~/temp` et des dossiers poubelle avec tous leurs sous-dossiers mais conservation des dossiers racines :
 
 ```
@@ -102,16 +108,28 @@ ou à :
 ./dCleaner.py -np -c ~/temp __trash__ -d 1
 ```
 
+##### Suppression du contenu du dossier poubelle et de 2 fichiers :
+
+```
+./dCleaner.py --nopadding --clear %trash% ~/documents/texts/file.docx ~/documents/sheets/tests3.ods --depth 1
+```
+
+Equivalent à :
+
+```
+./dCleaner.py --nopadding -c %trash% ~/documents/texts/file.docx ~/documents/sheets/tests3.ods -d1
+```
+
 ### Automatisation
 
-Le script est destiné à être appelé mais surtout à être lancé régulièrement par le gestionnaire de tâches planifiées.
+Le script est destiné à être appelé enligne de commandes par une console mais surtout à être lancé régulièrement par le gestionnaire de tâches planifiées.
 
 Si l'on souhaite récupérer des logs, on peut utiliser le commutateur `--log` / '-l' afin d'indiquer à l'utilitaire de ne pas mettre en forme les affichages (colorisation, gras, etc...) et d'être un peu moins verbeux.
 
 Dans l'exemple suivant trois tâches `cron` sont lancées régulièrement : une pour s'assurer que la partition ne sature pas et une seconde pour nettoyer la partition, une troisième permet de nettoyer quotidiennement la poubelle ainsi que le dossier des téléchargements.
 
 > :warning:  **Attention** 
-> L'item *%trash%* ne fonctionne pas avec *cron*. Il faut utiliser *\_\_trash\_\_* à la place
+> L'item *%trash%* ne fonctionne pas avec l'utilitaire *cron*. Il faut utiliser *\_\_trash\_\_* à la place.
 
 
 ```

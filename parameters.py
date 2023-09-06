@@ -86,6 +86,11 @@ ARG_CLEAR_S = "-x"
 ARG_CLEAR   = "--clear"
 COMMENT_CLEAR = "Nettoyage du dossier de remplissage"
 
+# Nettoyage du dossier de padding
+ARG_RECURSE_S = "-r"
+ARG_RECURSE   = "--recurse"
+COMMENT_RECURSE = "Nettoyage recursif des dossiers et de leurs sous-dossiers"
+
 # Paramètres : {arg} {value}
 #
 
@@ -94,10 +99,10 @@ ARG_FOLDER_S = "-f"
 ARG_FOLDER   = "--folder"
 COMMENT_FOLDER = "Dossier de remplissage"
 
-# Nettoyage de tous les fichiers et dossiers contenu dans le dossier source
+# Nettoyage de tous les fichiers et dossiers contenu dans les dossiers sources et ou des fichiers
 ARG_CLEANFOLDER_S = "-c"
 ARG_CLEANFOLDER   = "--clean"
-COMMENT_CLEANFOLDER = "Nettoyage du ou des dossiers"
+COMMENT_CLEANFOLDER = "Nettoyage des dossiers et fichiers"
 
 # Profondeur du nettoyage (et de l'effacement des dossiers)
 ARG_DEPTH_S = "-d"
@@ -153,7 +158,7 @@ COMMENT_ELAPSETASKS = "Durée en sec. entre 2 itérations"
 DEF_ELAPSETASKS = 5.0
 MIN_ELAPSETASKS = 5.0
 MAX_ELAPSETASKS = 180.0
-   
+       
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
@@ -178,6 +183,7 @@ class options(object):
         self.fillRate_ = DEF_FILLRATE
         self.renewRate_ = DEF_PADDINGRATE
         self.clear_ = False
+        self.recurse_ = False
 
         self.waitFiles_ = MIN_ELAPSEFILES
         self.waitTasks_ = MIN_ELAPSETASKS
@@ -197,6 +203,7 @@ class options(object):
         parser.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
         parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
         parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
+        parser.add_argument(ARG_RECURSE_S, ARG_RECURSE, action='store_true', help = COMMENT_RECURSE, required = False)
         
         # Arguments mutuellement exclusifs
         lancement = parser.add_mutually_exclusive_group()
@@ -232,6 +239,9 @@ class options(object):
         # Nettoyage
         self.clear_ = args.clear
 
+        # Récursivité ?
+        self.recurse_ = args.recurse
+
         # Mode ajustement
         self.adjust_ = args.adjust
 
@@ -247,8 +257,11 @@ class options(object):
         self.fillRate_ = self.inRange(args.fill[0], MIN_FILLRATE, MAX_FILLRATE)
         self.renewRate_ = self.inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
 
-        # Profondeur
-        self.cleanDepth_ = args.depth[0] if args.depth is not None else -1
+        # Profondeur (si récursivité)
+        if self.recurse_:
+            self.cleanDepth_ = args.depth[0] if args.depth is not None else -1
+        else:
+            self.cleanDepth_ = -1
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:

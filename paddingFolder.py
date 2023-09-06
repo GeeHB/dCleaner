@@ -13,49 +13,9 @@
 #   Dépendances :  Utilise alive_progress (pip install alive-progress)
 #
 import os, random, shutil, time, platform, sys
-from basicFolder import basicFolder, basicFile
+from basicFolder import FSObject, basicFolder, basicFile
 from sharedTools.colorizer import textColor
 from parameters import WINDOWS_TRASH
-
-# Objet à supprimer / vider
-#
-class FSObject(object):
-    file_ = None
-    fullNanme_ = None
-
-    # Constructeur
-    def __init__(self, fullName):
-        self.name = fullName
-
-    # Accès
-    #
-    # Nom du fichier
-    @property
-    def name(self):
-        return self.fullName_ if self.fullName_ is not None else ""
-    
-    @name.setter
-    def name(self, value):
-        self.fullName_ = value
-
-    # Nom court
-    def shortName(self):
-        if len(self.fullName_) == 0:
-            return ""
-        _, sName = os.path.split(self.fullName_)
-        return sName
-    
-    # Ect-ce un fichier ?
-    def isFile(self):
-        if self.fullName_ is None:
-            return False
-        
-        if self.file_ is None :
-            self.file = os.path.isfile()
-
-        return self.file_
-    
-
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -338,11 +298,10 @@ class paddingFolder(basicFolder):
     # Vidage d'un ou de plusieurs dossiers
     #   
     #   folders : liste des dossier à vider
-    #   cleanDepth : Profondeur pour la suppression
     #
     #   Retourne le tuple {#fichiers, #dossiers, message}
     #
-    def cleanFolders(self, folders, cleanDepth):
+    def cleanFolders(self, folders):
         
         if folders is None or len(folders) == 0:
             return 0, 0, "Le paramètre 'folders' n'est pas renseigné" 
@@ -370,7 +329,7 @@ class paddingFolder(basicFolder):
                     bFolder.name = folder
                     if bFolder.valid:
                         vFolders.append(folder) # Le dossier est valide je le garde
-                        ret = bFolder.sizes()
+                        ret = bFolder.sizes(recurse = self.params_.recurse_)
                         barMax += ret[0]
                         expectedFiles += ret[1]
                     else:
@@ -384,7 +343,7 @@ class paddingFolder(basicFolder):
         if self.params_.verbose_:
             print('\033[F', end='')
 
-        print(f"Analyse des dossiers terminée : {expectedFiles} fichier(s) à supprimer.")
+        print(f"Analyse des dossiers terminée : {self.size2String(barMax)} dans {expectedFiles} fichier(s).")
 
         # Rien à faire ?
         if 0 == len(vFolders):
@@ -397,7 +356,7 @@ class paddingFolder(basicFolder):
             for folder in vFolders:        
                 bFolder.name = folder
                 if bFolder.valid:
-                    for isFile, fullName in bFolder.browse(recurse = True, remove = cleanDepth) :
+                    for isFile, fullName in bFolder.browse(recurse = self.params_.recurse_, remove = self.params_.cleanDepth_) :
                         if isFile:
                             # Suppression du fichier
                             bFile = basicFile(iterate = self.params_.iterate_)

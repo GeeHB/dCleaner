@@ -117,7 +117,7 @@ class dCleaner:
             ret = self.paddingFolder_.clean()
             return ret[0], 0, ret[1]
         else:
-            return self.paddingFolder_.cleanFolders(fList, self.options_.cleanDepth_)
+            return self.paddingFolder_.cleanFolders(fList)
     
     # Remplissage initial de la partition
     #   Retourne un booléen indiquant si l'action a été effectuée
@@ -218,6 +218,26 @@ def isRootLikeUser():
     
     # Oui ...
     return True
+
+# Instantiation d'un objet en fonction de son nom
+#
+#   name : Nom complet de l'objet
+#   
+#   iterations : Nombre d'itérations
+#
+#   retourne un objet (basicFile ou basicFolder) en fonction du nom ou None en cas d'erreur
+#
+def objectFromName(name, iterations):
+    # Un fichier ?
+    if basicFile.existsFile(name):
+        return basicFile(FQDN = name, iterate = iterations)
+    else:
+        # Un dossier ?
+        if basicFolder.existsFolder(name):
+            return basicFolder()
+    
+    # une erreur ...
+    return None
 
 # Corps du programme
 #

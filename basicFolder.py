@@ -17,35 +17,79 @@ import os, random, datetime, math, hashlib
 from parameters import WINDOWS_TRASH, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 
 #
+# Objet du système de fichier (dossier ou fichier) à supprimer / vider
+#
+class FSObject(object):
+    
+    # Est-ce un fichier ?
+    def isFile(self):
+        return False
+    
+    # Taille en octets (ou None en cas d'erreur)
+    def size(self):
+        pass
+
+    # Représentation d'une taille (en octets)
+    #   Conversion int -> str
+    #
+    #   size : Taille en octets à convertir
+    #
+    #   Retourne une chaine de caractères
+    def size2String(self, size):
+        
+        if size < 0:
+            size = 0
+
+        # Unités
+        sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
+        
+        # Version 3  - La plus "matheuse" et la plus ouverte aussi
+        #  necessite le module math
+
+        # on effectue un log base 1024 (= log 2 / 10)
+        #   attention logn(0) n'existe pas !!!
+        index = 0 if size == 0 else int(math.log(size,2) / 10) 
+        if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
+        return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
+
+#
 # Classe basicFile - un fichier (à créer, salir ou supprimer)
 #
-class basicFile:
+class basicFile(FSObject):
     
     # Constructeur
-    def __init__(self, path = None, fName = None, iterate = 1):
+    def __init__(self, path = None, fName = None, iterate = 1, FQDN = None):
         
         # Initialisation des données membres
         self.iterate_ = iterate
         self.pattern_ = ""
         self.error_ = ""
 
-        # Nom du fichier
-        if path is not None and basicFolder.existsFolder(path):
-            # Le dossier est valide
-            if fName is not None and len(fName)>0 :
-                # Le nom est "correct"
-                self.name = os.path.join(path, fName)
-            else:
-                # Génération d'un nom nouveau
-                name = basicFile.genName(path, False)
-                if name is None:
-                    self.error = "Impossible de générer un nom de fichier pour le dossier  {path}"
-                else:
-                    self.name = name
+        # Un nom complet (ie. le fichier existe !!!)
+        if FQDN is not None :
+            self.name = FQDN
         else:
-            # pas de nom (pour l'instant)
-            self.name = ""
+            # Nom du fichier
+            if path is not None and basicFolder.existsFolder(path):
+                # Le dossier est valide
+                if fName is not None and len(fName)>0 :
+                    # Le nom est "correct"
+                    self.name = os.path.join(path, fName)
+                else:
+                    # Génération d'un nom nouveau
+                    name = basicFile.genName(path, False)
+                    if name is None:
+                        self.error = "Impossible de générer un nom de fichier pour le dossier  {path}"
+                    else:
+                        self.name = name
+            else:
+                # pas de nom (pour l'instant)
+                self.name = ""
 
+    # Est-ce un fichier ?
+    def isFile(self):
+        return True
+    
     # Initialisation du générateur aléatoire
     @staticmethod
     def init():
@@ -82,7 +126,7 @@ class basicFile:
     def error(self):
         message =self.error_
         if len(message):
-            # Effacement du message aprèsz consultation
+            # Effacement du message après consultation
             self.error_ = ""
         return message
     
@@ -322,7 +366,7 @@ class basicFile:
 #
 # Classe basicFolder - un dossier de remplissage ou à vider ...
 #
-class basicFolder:
+class basicFolder(FSObject):
 
     # Nom du fichier
     @property
@@ -408,7 +452,7 @@ class basicFolder:
     # Parcours récursif d'un dossier en vue de le vider
     #
     #       folder : Nom complet du dossier de départ ("" => dossier courant)
-    #       recurse : Parcours recursive des sous-dossiers ?
+    #       recurse : Parcours recursif des sous-dossiers ?
     #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #   
     #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier}
@@ -435,7 +479,7 @@ class basicFolder:
     #   folder : nom du dossier à analyser ou none pour le dossier courant
     #
     #   Retourne le tuple (taille en octets, nombre de fichiers)
-    def sizes(self, folder = ""):   
+    def sizes(self, folder = "", recurse = False):
         if False == self.valid_ :
             # Pas ouvert
             return 0,0
@@ -455,9 +499,10 @@ class basicFolder:
                     totalFiles += 1
                 elif entry.is_dir():
                     # Un sous dossier => appel récursif
-                    total = self.sizes(entry.path)
-                    totalSize += total[0]
-                    totalFiles += total[1]
+                    if recurse:
+                        total = self.sizes(entry.path)
+                        totalSize += total[0]
+                        totalFiles += total[1]
 
         except NotADirectoryError:
             # ?
@@ -522,29 +567,6 @@ class basicFolder:
             return False
         
         return True
-        
-    # Représentation d'une taille (en octets)
-    #   Conversion int -> str
-    #
-    #   size : Taille en octets à convertir
-    #
-    #   Retourne une chaine de caractères
-    def size2String(self, size):
-        
-        if size < 0:
-            size = 0
-
-        # Unités
-        sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
-        
-        # Version 3  - La plus "matheuse" et la plus ouverte aussi
-        #  necessite le module math
-
-        # on effectue un log base 1024 (= log 2 / 10)
-        #   attention logn(0) n'existe pas !!!
-        index = 0 if size == 0 else int(math.log(size,2) / 10) 
-        if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
-        return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
 
     # Le dossier existe-il ?
     @staticmethod
