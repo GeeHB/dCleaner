@@ -46,6 +46,7 @@ Les différents paramètres sont définis comme suit :
 | *\-h* | *\--help* |  | Affichage de l'aide |
 | *\-f* {dossier} | *\-folder* {dossier} | ~/.padding | Dossier utilisé pour le remplissage de la partition. Tous les fichiers générés seront crées dans ce dossier. |
 | *\-x* | *\--clear* |  | Effacement du dossier de remplissage. Tous les fichiers seront automatiquement supprimés. Ce paramètre est utile lorsque l'on a besoin de libérer de la place sur la partition. |
+| *\-r* | *\--recurse* |  | Récursivité dans la suppression du contenu des dossiers. Ce paramètre est ignoré en mode remplissage.|
 | *\-fi* {%} | *\--fill* {%} | 80 | Taux de remplissage attendu pour la partition. |
 | *\-p* {%} | *\--padding* {%} | 50 | Taux (en % de la taille libre) à nettoyer. Par exemple, s'il reste 70Go de libre dans la partition, un taux de 50% entrainera la génération de fichiers à hauteur de 35Go puis la suppression de 35Go de fichiers de remplissage. Tous les fichiers en question seront crées ou pris dans le dossier de remplissage. |
 | *\-a* | *\--adjust* |  | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *\-fill* |
@@ -93,19 +94,19 @@ ou à :
 ##### Suppression du contenu du dossier `~/temp` et des dossiers poubelle avec tous leurs sous-dossiers mais conservation des dossiers racines :
 
 ```
-./dCleaner.py --nopadding --clear ~/temp %trash% --depth 1
+./dCleaner.py --nopadding --clear ~/temp %trash% --recurse --depth 1
 ```
 
 Equivalent à :
 
 ```
-./dCleaner.py -np -c ~/temp %trash% -d 1
+./dCleaner.py -np -c ~/temp %trash% -r -d 1
 ```
 
 ou à :
 
 ```
-./dCleaner.py -np -c ~/temp __trash__ -d 1
+./dCleaner.py -np -c ~/temp __trash__ -r -d1
 ```
 
 ##### Suppression du contenu du dossier poubelle et de 2 fichiers :
@@ -151,7 +152,7 @@ Dans l'exemple suivant trois tâches `cron` sont lancées régulièrement : une 
 15 */2 * * * /etc/scripts/dCleaner/dCleaner.py -fi 75 -i 3 -l >> /var/log/dCleaner.log
 
 # Effacement quotidien du dossier téléchargement et de la poubelle (on ne touche pas aux dossiers)
-* 0 * * * /etc/scripts/dCleaner.py -np -c ~/Téléchargements __trash__ -d 1 -l >> /var/log/dCleaner.log
+* 0 * * * /etc/scripts/dCleaner.py -np -c ~/Téléchargements __trash__ -r -d 1 -l >> /var/log/dCleaner.log
 
 #
 # <<<

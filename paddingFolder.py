@@ -135,10 +135,11 @@ class paddingFolder(basicFolder):
 
     # Suppression d'un ou plusieurs fichiers sur un critère de nombre ou de taille à libérer
     #
-    #   count : Suppression de {count} fichiers
+    #   count   : Suppression de {count} fichiers
     #       ou
-    #   size  : Supression de {size octets}
-    #   iterate : Sans une boucle d'itérations ?
+    #   size    : Supression de {size octets}
+    #
+    #   iterate : Dans une boucle d'itérations ?
     #
     #   retourne True lorsque l'opération s'est déroulée correctement
     def deleteFiles(self, count = 0, size = 0, iterate = False): 
