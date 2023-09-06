@@ -500,7 +500,7 @@ class basicFolder(FSObject):
                 elif entry.is_dir():
                     # Un sous dossier => appel récursif
                     if recurse:
-                        total = self.sizes(entry.path)
+                        total = self.sizes(entry.path, True)
                         totalSize += total[0]
                         totalFiles += total[1]
 

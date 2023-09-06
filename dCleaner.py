@@ -94,7 +94,9 @@ class dCleaner:
                 out += f"\n\t - {len(self.options_.clean_)} dossiers(s) à vider :"
                 for dossier in self.options_.clean_:
                     out += f"\n\t\t- {self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])}"
-                out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
+                out += f"\n\t- Récursivité : {'oui' if self.options_.recurse_ else 'non'}\n"
+                if self.options_.recurse:
+                    out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
         else :
             out = f"Partition : {self.paddingFolder_.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
             out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])

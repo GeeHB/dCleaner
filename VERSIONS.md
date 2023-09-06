@@ -22,10 +22,12 @@
 #### Version 0.9.0
   * sept. 2023
   * Corrections:
-    * Nombre de fichiers à supprimer faux (x2 en général)
+    * Nombre de fichiers à supprimer faux
+    * Récursivité systématique
   * Ajouts:
     * Possiblité de nettoyer (aussi) des fichiers (sans passer par les dossiers parents) 
-    * commutateurs -r ou --recurse pour autoriser la récursivité
+    * Commutateurs -r ou --recurse pour autoriser la récursivité (par défaut = False)
+    * Affichage de la taille estimée lors de la suppression
 
 #### Version 0.8.8
   * 21 juillet 2023
