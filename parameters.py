@@ -309,7 +309,15 @@ class options(object):
                 # ... puis sur tous les volumes "mountés"
                 mountedTrashes = mountPointTrashes(os.getuid())
                 for newTrash in mountedTrashes:
-                    folders.append(newTrash)
+                    # Les 2 sous dossiers 'files' et 'infos" sont-ils présents ?
+                    ntF = os.path.join(newTrash, "files")
+                    if os.path.exists(ntF):
+                        folders.append(ntF)
+                        ntF = os.path.join(newTrash, "infos")
+                        if os.path.exists(ntF):
+                            folders.append(ntF)
+                    else:
+                        folders.append(newTrash)
                     
         return folders
     
