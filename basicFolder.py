@@ -400,21 +400,24 @@ class basicFolder(FSObject):
     def valid(self, value):
         self.valid_ = value
 
+    # Paramètres & options
+    @property
+    def options(self):
+        return self.params_
+    
+    @valid.setter
+    def options(self, value):
+        self.params_ = value
+
     # Constructeur
+    #
     def __init__(self, opts, pMaxSize = 0):
         # Initialisation des données membres
         self.name = ""
         self.valid = False
-        self.params_ = opts
+        self.options = opts
         self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
         self.sizes_ = None
-        self.restricted_ = []                    # Liste des dossiers que l'on ne peut supprimer
-        
-        # Dossiers protégés
-        self.restricted_.append(opts.homeFolder()) 
-        trashes = opts.trashFolders()
-        for trash in trashes:
-            self.restricted_.append(trash)
 
     # Initalisation
     #
@@ -538,7 +541,7 @@ class basicFolder(FSObject):
             return False
         
         # Puis-je le supprimer ?
-        if folder in self.restricted_:
+        if self.params_.isRectrictedAccess(folder):
             # Non, le dossier est dans la liste ....
             return False
         

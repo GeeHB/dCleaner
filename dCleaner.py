@@ -95,7 +95,7 @@ class dCleaner:
                 for dossier in self.options_.clean_:
                     out += f"\n\t\t- {self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])}"
                 out += f"\n\t- Récursivité : {'oui' if self.options_.recurse_ else 'non'}\n"
-                if self.options_.recurse:
+                if self.options_.recurse_:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
         else :
             out = f"Partition : {self.paddingFolder_.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
@@ -107,6 +107,9 @@ class dCleaner:
             if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
                 out += "\nVider : " + self.options_.color_.colored(f"{len(self.options_.clean_)} dossiers(s) - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
             
+                if self.options_.recurse_:
+                        out += "\n\Récursivité : oui"
+
             if False == self.options_.adjust_ :
                 out += f"\nItération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"            
         return out
@@ -293,14 +296,22 @@ if '__main__' == __name__:
             if params.clear_:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
-                if len(res[2]) > 0  :
+                if len(res[2]) > 0  and res[3]:
                     print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE), file=sys.stderr)
                 else:
                     print(f"{res[0]} fichier(s) supprimé(s)")
             else:
                 # Nettoyer un ou plusieurs dossiers ?
                 if params.clean_ is not None and len(params.clean_) > 0:
-                    cleaner.cleanFolders(params.clean_)
+                    res = cleaner.cleanFolders(params.clean_)
+
+                    if len(res[2]) > 0 :
+                        if res[3]:
+                            # Une erreur
+                            print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE), file=sys.stderr)
+                        else:
+                            # Juste un message ...
+                            print(res[2])
                     
                 # Remplissage de la partition
                 if False == params.noPadding_:
@@ -329,8 +340,10 @@ if '__main__' == __name__:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except ValueError as ve:
             print(params.color_.colored(f"Erreur d'initialisation : {str(ve)}", textColor.ROUGE), file=sys.stderr)
+        """
         except Exception as e:
             print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE), file=sys.stderr)
+        """
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))

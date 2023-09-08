@@ -300,12 +300,12 @@ class paddingFolder(basicFolder):
     #   
     #   folders : liste des dossier à vider
     #
-    #   Retourne le tuple {#fichiers, #dossiers, message}
+    #   Retourne le tuple {#fichiers, #dossiers, message, erreur ?}
     #
     def cleanFolders(self, folders):
         
         if folders is None or len(folders) == 0:
-            return 0, 0, "Le paramètre 'folders' n'est pas renseigné" 
+            return 0, 0, "Le paramètre 'folders' n'est pas renseigné" , True
         
         # Ajout (ou pas) des barres de progression
         if self.params_.verbose_:
@@ -318,7 +318,8 @@ class paddingFolder(basicFolder):
         if not self.params_.verbose_:
             from fakeProgressBar import fakeProgressBar as progressBar
 
-        print("Estimation de la taille totale de dossier à supprimer ou vider")
+        if self.params_.verbose_:
+            print("Estimation de la taille totale de dossier à supprimer ou vider")
     
         barMax = expectedFiles = 0
         vFolders = []
@@ -344,12 +345,12 @@ class paddingFolder(basicFolder):
         if self.params_.verbose_:
             print('\033[F', end='')
 
-        print(f"Analyse des dossiers terminée : {self.size2String(barMax)} dans {expectedFiles} fichier(s).")
-
         # Rien à faire ?
-        if 0 == len(vFolders):
-            return 0, 0, "Rien à supprimer"
+        if 0 == len(vFolders) or 0 == expectedFiles:
+            return 0, 0, "Rien à supprimer", False
         
+        print(f"A supprimer: {self.size2String(barMax)} dans {expectedFiles} fichier(s).")
+
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.params_.iterate_)
@@ -400,7 +401,7 @@ class paddingFolder(basicFolder):
         if freed > 0 :
             print(f"{self.size2String(int(freed/self.params_.iterate_))} libérés")
 
-        return deletedFiles, deletedFolders, ""
+        return deletedFiles, deletedFolders, "", False
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
     def __convertSize2Progressbar(self, number = 0):

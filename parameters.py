@@ -194,6 +194,14 @@ class options(object):
         # Dossier par défaut
         self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)   
 
+        # Liste des dossiers que l'on ne peut supprimer
+        #
+        self.restricted_ = []
+        self.restricted_.append(self.homeFolder()) 
+        trashes = self.trashFolders()
+        for trash in trashes:
+            self.restricted_.append(trash)
+
     # Analyse de la ligne de commandes
     #   returne un booléen
     def parse(self):
@@ -313,6 +321,19 @@ class options(object):
             self.color_ = color.colorizer(True)
 
         return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+
+    # Le dossier a t'il un accès restreint ?
+    #
+    def isRectrictedAccess(self, folder):
+        
+        if folder is not None:
+            try:
+                return folder in self.restricted_
+            except:
+                pass
+            
+        # Une erreur ? => blocage
+        return True
 
     #
     # Méthodes à usage interne

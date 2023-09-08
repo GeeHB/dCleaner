@@ -28,6 +28,7 @@
     * Possiblité de nettoyer (aussi) des fichiers (sans passer par les dossiers parents) 
     * Commutateurs -r ou --recurse pour autoriser la récursivité (par défaut = False)
     * Affichage de la taille estimée lors de la suppression
+    * La liste des dossiers "protégées" est partagée (et non plus copiée)
 
 #### Version 0.8.8
   * 21 juillet 2023
