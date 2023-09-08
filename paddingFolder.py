@@ -155,7 +155,7 @@ class paddingFolder(basicFolder):
                     if not 0 == size :
                         print(f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
                     else:
-                        print(f"{offset}Demande de suppression de {count} fichiers")
+                        print(f"{offset}Demande de suppression de {FSObject.count2String('fichier', count)}")
 
                 
                 # Liste des fichiers du dossier
@@ -242,7 +242,7 @@ class paddingFolder(basicFolder):
         
         # Fin des traitements
         offset = "\t " if iterate else ""
-        print(f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {tFiles}","fichiers" if tFiles > 1 else "fichier")
+        print(f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {FSObject.count2String('fichier', tFiles)}")
         return True
 
     # Vidage du dossier courant
@@ -282,7 +282,7 @@ class paddingFolder(basicFolder):
                         pass
                     
                     if not bFile.success():
-                        print(self.options.color_.colored(f"Erreur lors de la suppression de {fName}", textColor.ROUGE), file=sys.stderr)
+                        print(self.options.color_.colored(f"Erreur lors de la suppression de '{fName}'", textColor.ROUGE), file=sys.stderr)
                     else:
                         count += 1
                     
@@ -416,7 +416,7 @@ class paddingFolder(basicFolder):
             try :
                 import winshell
             except ModuleNotFoundError:
-                print(self.options.color_.colored("Erreur - Le module winshell est absent", textColor.ROUGE), file=sys.stderr)
+                print(self.options.color_.colored("Erreur - Le module 'winshell' est absent", textColor.ROUGE), file=sys.stderr)
                 return False
             
             # On peut essayer de la vider

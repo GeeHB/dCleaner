@@ -2,13 +2,13 @@
 
 # coding=UTF-8
 #
-#   File     :   dCleaner.py
+#   File        :   dCleaner.py
 #
 #   Auteur      :  JHB
 #
 #   Description :  Outil de nettoyage de la partition utilisateur
 #
-#   Remarques    : Point d'entrée du programme
+#   Remarques   : Point d'entrée du programme
 #
 #   Dépendances :  Nécessite psutil
 #
@@ -94,7 +94,7 @@ class dCleaner:
                 out += f"\n\t - {len(self.options_.clean_)} dossiers(s) à vider :"
                 for dossier in self.options_.clean_:
                     out += f"\n\t\t- {self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])}"
-                out += f"\n\t- Récursivité : {'oui' if self.options_.recurse_ else 'non'}\n"
+                out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse_ else 'non', formatAttr=[textAttribute.GRAS])}\n"
                 if self.options_.recurse_:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
         else :
@@ -232,14 +232,20 @@ def isRootLikeUser():
 #
 #   retourne un objet (basicFile ou basicFolder) en fonction du nom ou None en cas d'erreur
 #
-def objectFromName(name, iterations):
+def objectFromName(name, iterations, params):
     # Un fichier ?
     if basicFile.existsFile(name):
         return basicFile(FQDN = name, iterate = iterations)
     else:
         # Un dossier ?
         if basicFolder.existsFolder(name):
-            return basicFolder()
+            obj = basicFolder(opts = params)
+            res = obj.init(name)
+            if False == res[0]:
+                if len(res[1]):
+                    print(params.color_.colored(res[1], textColor.ROUGE), file=sys.stderr)
+                return None
+            return obj
     
     # une erreur ...
     return None

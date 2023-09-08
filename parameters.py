@@ -15,7 +15,7 @@ import os, platform
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.9.0"
-APP_RELEASE_DATE = "21/07/2023"
+APP_RELEASE_DATE = "08/09/2023"
 APP_AUTHOR = "JHB (henry-barnaudiere.j@allier.fr)"
 
 #
@@ -118,7 +118,7 @@ ARG_ITERATE_S = "-i"
 ARG_ITERATE   = "--iteration"
 COMMENT_ITERATE = "Nombre d'itérations du process de nettoyage"
 
-DEF_ITERATE = 1           # Nombre de fois ou sera lancé le processus de remplissage / nettoyage
+DEF_ITERATE = 1      # Nombre de fois ou sera lancé le processus de remplissage / nettoyage
 MIN_ITERATE = 1
 MAX_ITERATE = 10
 
@@ -271,7 +271,8 @@ class options(object):
         else:
             self.cleanDepth_ = -1
 
-        # Nettoyage d'un (ou plusieurs) dossier(s)
+        # Nettoyage d'un (ou plusieurs) dossier(s) / fichiers 
+        #   les éléments sont uniques, mais on ne se soucie pas de leur existence
         if args.clean is not None:
             self._handleCleanFolders(args.clean)
 

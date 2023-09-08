@@ -97,7 +97,7 @@ class basicFile(FSObject):
                     # Génération d'un nom nouveau
                     name = basicFile.genName(path, False)
                     if name is None:
-                        self.error = "Impossible de générer un nom de fichier pour le dossier  {path}"
+                        self.error = "Impossible de générer un nom de fichier pour le dossier '{path}'"
                     else:
                         self.name = name
             else:
@@ -199,7 +199,7 @@ class basicFile(FSObject):
 
             # Nouveau nom
             if rename and len(self.rename()) == 0:
-                self.error = f"Impossible de renommer {self.name_}"
+                self.error = f"Impossible de renommer '{self.name_}'"
             
     # Renomage
     #
@@ -237,7 +237,7 @@ class basicFile(FSObject):
                 # Nouveau nom
                 nName = self.rename() 
                 if nName is None or len(nName) == 0:
-                    self.error = f"Impossible de renommer {self.name_}"     
+                    self.error = f"Impossible de renommer '{self.name_}'"     
                     
                 # Nouveau contenu (on itère l'effacement)
                 for _ in range(self.iterate_):
@@ -252,7 +252,7 @@ class basicFile(FSObject):
                 if len(self.name_)>0:
                     os.remove(self.name_)
             except OSError:
-                self.error = f"Erreur lors de la tentative de suppression de {self.name_}"
+                self.error = f"Erreur lors de la tentative de suppression de '{self.name_}'"
 
     # Taille en octets (ou None en cas d'erreur)
     def size(self):
@@ -398,16 +398,16 @@ class basicFolder(FSObject):
             # Le dossier existe t'il ?
             if value is None or value == "" or False == os.path.isdir(value):
                 self.name_ = ""
-                self.valid_ = False
+                self.valid = False
                 return
         else:
             self.name_ = WINDOWS_TRASH
-            self.valid_ = False
+            self.valid = False
             return
             
         # Ok
         self.name_ = value
-        self.valid_ = True
+        self.valid = True
 
     # Les données internes sont-elles valides ?
     @property
@@ -501,7 +501,7 @@ class basicFolder(FSObject):
     #
     #   Retourne le tuple (taille en octets, nombre de fichiers)
     def sizes(self, folder = "", recurse = False):
-        if False == self.valid_ :
+        if False == self.valid :
             # Pas ouvert
             return 0,0
 
