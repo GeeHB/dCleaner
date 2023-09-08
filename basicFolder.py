@@ -35,7 +35,8 @@ class FSObject(object):
     #   size : Taille en octets à convertir
     #
     #   Retourne une chaine de caractères
-    def size2String(self, size):
+    @staticmethod
+    def size2String(size):
         
         if size < 0:
             size = 0
@@ -51,6 +52,23 @@ class FSObject(object):
         index = 0 if size == 0 else int(math.log(size,2) / 10) 
         if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
         return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
+    
+    # Gestion des pluriels ...
+    #
+    #   reoturne le pluriel ou le singulier d'une chaine
+    #
+    @staticmethod
+    def count2String(typeStr, count):
+        
+        try:
+            myStr = f"{count} {typeStr}"
+            if count > 1:
+                myStr+="s"
+        except:
+            # Par défaut on retourne rien ...
+            myStr = ""
+
+        return myStr
 
 #
 # Classe basicFile - un fichier (à créer, salir ou supprimer)
@@ -341,7 +359,7 @@ class basicFile(FSObject):
         try:
             file = open(self.name_, 'w')
         except OSError:
-            self.error = f"Impossible d'ouvrir {self.name_}"
+            self.error = f"Impossible d'ouvrir '{self.name_}'"
             return
 
         try:
@@ -359,7 +377,7 @@ class basicFile(FSObject):
                 # On retourne la taille du paquet écrit
                 yield buffSize
         except OSError:
-            self.error = f"Erreur lors de l'ecriture dans {self.name_}"
+            self.error = f"Erreur lors de l'ecriture dans '{self.name_}'"
         finally:
             file.close()
 
@@ -405,7 +423,7 @@ class basicFolder(FSObject):
     def options(self):
         return self.params_
     
-    @valid.setter
+    @options.setter
     def options(self, value):
         self.params_ = value
 
@@ -492,7 +510,7 @@ class basicFolder(FSObject):
         try:
             # Par défaut, moi !
             if 0 == len(folder):
-                folder = self.name_ if len(self.name_) else self.params_.folder_
+                folder = self.name_ if len(self.name_) else self.options.folder_
             
             # On regarde tous les éléments du dossier
             for entry in os.scandir(folder):
@@ -541,7 +559,7 @@ class basicFolder(FSObject):
             return False
         
         # Puis-je le supprimer ?
-        if self.params_.isRectrictedAccess(folder):
+        if self.options.isRectrictedAccess(folder):
             # Non, le dossier est dans la liste ....
             return False
         

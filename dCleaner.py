@@ -17,7 +17,7 @@ import os,sys
 from datetime import datetime
 from basicFolder import basicFolder
 from paddingFolder import paddingFolder
-from basicFolder import basicFile
+from basicFolder import FSObject, basicFile
 from sharedTools.colorizer import textAttribute, textColor
 
 # Classe dCleaner
@@ -81,13 +81,13 @@ class dCleaner:
                 out += f"\n\t- Itération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
             
             out += "\n\nPartition : "
-            out += f"\n\t- Taille : {self.paddingFolder_.size2String(res[0])}"
-            out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + self.paddingFolder_.size2String(res[1])
+            out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
+            out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
             
             if False == self.options_.noPadding_:
                 out += "\n\nRemplissage : " 
                 out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
-                out += f"\n\t- Contenu : {self.paddingFolder_.size2String(self.paddingFolder_.size())}\n"
+                out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
 
             if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : " 
@@ -98,7 +98,7 @@ class dCleaner:
                 if self.options_.recurse_:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
         else :
-            out = f"Partition : {self.paddingFolder_.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
+            out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
             out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
             out += "\nMode : " + mode
             out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
@@ -151,7 +151,7 @@ class dCleaner:
     
         if currentFillSize > maxFillSize:
             if self.options_.verbose_:
-                print(self.options_.color_.colored(f"La partition est déja trop remplie ({self.paddingFolder_.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", textColor.JAUNE))
+                print(self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -171,7 +171,7 @@ class dCleaner:
             else:
                 # Retrait du "minimum"
                 if not self.options_.verbose_:
-                    print(params.color_.colored(f"Suppression de {self.paddingFolder_.size2String(gap)}", datePrefix = True))
+                    print(params.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True))
                 self.paddingFolder_.deleteFiles(size=gap)
             
             return True
@@ -299,7 +299,7 @@ if '__main__' == __name__:
                 if len(res[2]) > 0  and res[3]:
                     print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE), file=sys.stderr)
                 else:
-                    print(f"{res[0]} fichier(s) supprimé(s)")
+                    print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
             else:
                 # Nettoyer un ou plusieurs dossiers ?
                 if params.clean_ is not None and len(params.clean_) > 0:
