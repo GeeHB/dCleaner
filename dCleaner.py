@@ -93,8 +93,8 @@ class dCleaner:
             if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : " 
                 out += f"\n\t - {len(self.options_.clean_)} dossiers(s) à vider :"
-                for dossier in self.options_.clean_:
-                    out += f"\n\t\t- {self.options_.color_.colored(dossier, formatAttr=[textAttribute.GRAS])}"
+                for FSO in self.options_.clean_:
+                    out += f"\n\t\t- {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
                 out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse_ else 'non', formatAttr=[textAttribute.GRAS])}\n"
                 if self.options_.recurse_:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
@@ -115,7 +115,10 @@ class dCleaner:
                 out += f"\nItération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"            
         return out
 
-    # Nettoyage (vidage) d'un dossier (dossier de remplissage / 'padding' si non précisé)
+    # Nettoyage (vidage) de dossiers ou fichiers
+    #
+    #   fList : liste des dossiers ou fichiers à supprimer (dossier de remplissage / 'padding' si non précisé)
+    #
     #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "")
     #
     def cleanFolders(self, fList = None):
@@ -227,46 +230,22 @@ def isRootLikeUser():
 
 # Liste des dossiers à nettoyer
 #
-#   folders : listes des dossiers (ou des fichiers à supprimer)
+#   params : Valeurs / paramètres issus de la ligne de commande
 #
-#   retourne la liste mise à jour avec les "objets" correspondants
-#   aux fichiers et dossiers existants.
+#   retourne un booléen : des éléments à supprimer ?
 #
-def _listOfFolders(folders):
+def _listOfFolders(params):
     
-    # Des dossiers ou fichiers à supprimer ?
-    if 0 == len(folders):
-        # A priori ne devrait pas arriver ...
-        return []
-    
-    # Liste des poubelles
-    print("Obtention de la liste des \"dossiers poubelles\"")
-    currentTrashes = options.trashFolders()
-
-    # Remplacement des valeurs
-    tempFolders = []
-    for folder in folders:
-        if WINDOWS_TRASH != folder:
-            if FOLDERS_TRASH == folder or FOLDERS_TRASH_BIS == folder:
-                # On ajoute tous les dossiers de la poubelle
-                for tFolder in currentTrashes:
-                    tempFolders.append(tFolder)
-            else:
-                tempFolders.append(os.path.expanduser(folder))
-        else:
-            # Le dossier "Windows" existe forcément
-            tempFolders.append(folder)
-
-    # Les valeurs doivent être uniques ...
-    uniqueVals = set(tempFolders)
+    # On s'assure que les dossiers/fichiers existent et on crée les objets en conséquence
     fileOrFolders = []
-    currentFSO = None
-    for val in uniqueVals:
-        currentFSO = objectFromName(val)
+    for folder in params.clean_:
+        currentFSO = objectFromName(folder, params)
         if currentFSO is not None:
-            fileOrFolders.append(val)
+            fileOrFolders.append(currentFSO)
 
-    return fileOrFolders
+    # Mise à jour de la liste (qui devient une liste d'objets de type FSObject)
+    params.clean_ = fileOrFolders
+    return len(params.clean_) > 0
 
 # Instantiation d'un objet en fonction de son nom
 #
@@ -276,12 +255,12 @@ def _listOfFolders(folders):
 #
 #   retourne un objet (basicFile ou basicFolder) en fonction du nom ou None en cas d'erreur
 #
-def objectFromName(name, iterations, params):
+def objectFromName(name, params):
     # Un fichier ?
     if basicFile.existsFile(name):
-        return basicFile(FQDN = name, iterate = iterations)
+        return basicFile(FQDN = name, iterate = params.iterate_)
     else:
-        obj = None
+        obj = None  # pas encore crée
 
         # Un dossier ?
         if WINDOWS_TRASH == name :
@@ -297,11 +276,12 @@ def objectFromName(name, iterations, params):
                     print(params.color_.colored(res[1], textColor.ROUGE), file=sys.stderr)
                 return None
             
+        if obj is None:
+            print(params.color_.colored(f"Nettoyage : '{name}' n'existe pas", textColor.ROUGE), file=sys.stderr)
+
         return obj
     
-    # une erreur ...
-    return None
-
+#
 # Corps du programme
 #
 if '__main__' == __name__:
@@ -323,29 +303,14 @@ if '__main__' == __name__:
             done = True
             print(params.version())
 
-            # Des dossiers à nettoyer ?
+            # Des dossiers ou fichiers à nettoyer ?
             if params.clean_ is not None and len(params.clean_) > 0:
-                # On s'assure qu'ils existent ...
-                index = 0
-                while index < len(params.clean_):
-                    folderName = params.clean_[index]
-                    if WINDOWS_TRASH != folderName:
-                        if not basicFolder.existsFolder(folderName):
-                            # Le dossier n'existe pas => retrait de la liste
-                            params.clean_.pop(index)
-                            print(params.color_.colored(f"Nettoyage des dossiers : '{folderName}' n'existe pas", textColor.ROUGE), file=sys.stderr)
-
-                            # Le dossier a été supprimé de la liste
-                            # index pointe donc sur le dossier suivant (ou sur None si la liste est terminée)
-                        else:
-                            # Le dossier existe, allons voir le suivant
-                            index+=1
-                    else:
-                        index+=1
-
+                
+                # Analyse de la liste ...
+                #                
                 # Encore des dossiers dans la liste ?
-                if len(params.clean_) == 0:
-                    print(params.color_.colored("Pas de dossier à nettoyer", textColor.ROUGE), file=sys.stderr)
+                if False == _listOfFolders(params):
+                    print(params.color_.colored("Pas de dossier ou de fichier à nettoyer", textColor.ROUGE), file=sys.stderr)
                         
             # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
@@ -359,8 +324,8 @@ if '__main__' == __name__:
                 else:
                     print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
             else:
-                # Nettoyer un ou plusieurs dossiers ?
-                if params.clean_ is not None and len(params.clean_) > 0:
+                # Nettoyer un ou plusieurs dossiers (ou fichiers) ?
+                if  0 != len(params.clean_):
                     res = cleaner.cleanFolders(params.clean_)
 
                     if len(res[2]) > 0 :

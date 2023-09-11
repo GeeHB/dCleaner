@@ -20,7 +20,8 @@ class winTrashFolder(basicFolder):
     def size(self):
         # Pas de connaissance de la taille
         return 0
-    
+
+    # Nombre de fichier(s) contenu(s)
     def files(self):
         return 0
     

@@ -4,9 +4,7 @@
 #
 #   Auteur      :   JHB
 #
-#   Description :   Définition des objets FSObject, basicFile et basicFolder
-#
-#                   FSObject : Classe mère abstraite
+#   Description :   Définition des objets basicFile et basicFolder
 #
 #                   basicFile : Gestion d'un fichier
 #
@@ -15,62 +13,9 @@
 #
 #   Remarque    : 
 #
-import os, random, datetime, math, hashlib
+from FSObject import FSObject
+import os, random, datetime, hashlib
 from parameters import WINDOWS_TRASH, FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
-
-#
-# Objet du système de fichier (dossier ou fichier) à supprimer / vider
-#
-class FSObject(object):
-    
-    # Est-ce un fichier ?
-    def isFile(self):
-        return False
-    
-    # Taille en octets (ou None en cas d'erreur)
-    def size(self):
-        pass
-
-    # Représentation d'une taille (en octets)
-    #   Conversion int -> str
-    #
-    #   size : Taille en octets à convertir
-    #
-    #   Retourne une chaine de caractères
-    @staticmethod
-    def size2String(size):
-        
-        if size < 0:
-            size = 0
-
-        # Unités
-        sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
-        
-        # Version 3  - La plus "matheuse" et la plus ouverte aussi
-        #  necessite le module math
-
-        # on effectue un log base 1024 (= log 2 / 10)
-        #   attention logn(0) n'existe pas !!!
-        index = 0 if size == 0 else int(math.log(size,2) / 10) 
-        if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
-        return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
-    
-    # Gestion des pluriels ...
-    #
-    #   reoturne le pluriel ou le singulier d'une chaine
-    #
-    @staticmethod
-    def count2String(typeStr, count):
-        
-        try:
-            myStr = f"{count} {typeStr}"
-            if count > 1:
-                myStr+="s"
-        except:
-            # Par défaut on retourne rien ...
-            myStr = ""
-
-        return myStr
 
 #
 # Classe basicFile - un fichier (à créer, salir ou supprimer)
@@ -259,6 +204,11 @@ class basicFile(FSObject):
     # Taille en octets (ou None en cas d'erreur)
     def size(self):
         return None if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
+    
+    # Nombre de fichier(s) contenus
+    def files(self):
+        # Juste moi ...
+        return 1
 
     # Le fichier existe t'il ?
     #
@@ -276,6 +226,8 @@ class basicFile(FSObject):
             file.close()
             return True
         except FileNotFoundError :
+            return False
+        except IOError:
             return False
     
     def exists(self):
@@ -496,41 +448,46 @@ class basicFolder(FSObject):
     
     # Taille du dossier (et de tout ce qu'il contient)
     #
-    #   folder : nom du dossier à analyser ou none pour le dossier courant
+    #   element : Nom du dossier à analyser ou None pour le dossier courant
     #
-    #   Retourne le tuple (taille en octets, nombre de fichiers)
-    def sizes(self, folder = "", recurse = False):
+    #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
+    def sizes(self, element = "", recurse = False):
         if False == self.valid :
             # Pas ouvert
             return 0,0
 
         totalSize = 0
         totalFiles = 0
+        totalFolders = 0
         try:
             # Par défaut, moi !
-            if 0 == len(folder):
-                folder = self.name_ if len(self.name_) else self.options.folder_
+            if 0 == len(element):
+                element = self.name_ if len(self.name_) else self.options.folder_
             
             # On regarde tous les éléments du dossier
-            for entry in os.scandir(folder):
+            for entry in os.scandir(element):
                 if entry.is_file():
                     # Un fichier
                     totalSize += entry.stat().st_size
                     totalFiles += 1
                 elif entry.is_dir():
-                    # Un sous dossier => appel récursif
+                    # Un sous dossier
+                    totalFolders += 1
+
+                    # Appel récursif ?
                     if recurse:
                         total = self.sizes(entry.path, True)
                         totalSize += total[0]
                         totalFiles += total[1]
+                        totalFolders += total[2]
 
         except NotADirectoryError:
             # ?
-            return os.path.getsize(folder), 1
+            return os.path.getsize(element), 1
         except PermissionError:
             # Je n'ai pas les droits ...
             return 0, 0
-        return totalSize, totalFiles
+        return totalSize, totalFiles, totalFolders
 
     # Taille en octets
     #   retourne un entier
@@ -540,7 +497,7 @@ class basicFolder(FSObject):
             self.sizes_ = self.sizes()
         return self.sizes_[0]
 
-    # Nombre de fichiers
+    # Nombre de fichier(s) contenu(s)
     #   Retourne un entier
     def files(self):
         # Déja caclculé ?

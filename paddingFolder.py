@@ -13,7 +13,8 @@
 #   Dépendances :  Utilise alive_progress (pip install alive-progress)
 #
 import os, random, shutil, time, platform, sys
-from basicFolder import FSObject, basicFolder, basicFile
+from FSObject import FSObject
+from basicFolder import basicFolder, basicFile
 from sharedTools.colorizer import textColor
 from parameters import WINDOWS_TRASH
 
@@ -296,16 +297,16 @@ class paddingFolder(basicFolder):
         # Dossier vidé
         return count, ""       
     
-    # Vidage d'un ou de plusieurs dossiers
+    # Vidage d'un ou de plusieurs dossiers (ou fichiers)
     #   
-    #   folders : liste des dossier à vider
+    #   fList : liste des dossiers ou fichiers à supprimer
     #
     #   Retourne le tuple {#fichiers, #dossiers, message, erreur ?}
     #
-    def cleanFolders(self, folders):
+    def cleanFolders(self, fList):
         
-        if folders is None or len(folders) == 0:
-            return 0, 0, "Le paramètre 'folders' n'est pas renseigné" , True
+        if fList is None or 0 == len(fList):
+            return 0, 0, "Le paramètre 'fList' n'est pas renseigné" , True
         
         # Ajout (ou pas) des barres de progression
         if self.options.verbose_:
@@ -321,23 +322,14 @@ class paddingFolder(basicFolder):
         if self.options.verbose_:
             print("Estimation de la taille totale de dossier à supprimer ou vider")
     
-        barMax = expectedFiles = 0
-        vFolders = []
-        bFolder = basicFolder(self.options)
-        bFolder.init()
+        barMax = expectedFiles = expectedFolders = 0
         with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
-            for folder in folders:
+            for FSO in fList:
                 try:
-                    bFolder.name = folder
-                    if bFolder.valid:
-                        vFolders.append(folder) # Le dossier est valide je le garde
-                        ret = bFolder.sizes(recurse = self.options.recurse_)
-                        barMax += ret[0]
-                        expectedFiles += ret[1]
-                    else:
-                        # La poubelle de Windows ?
-                        if folder == WINDOWS_TRASH:
-                            vFolders.append(folder)
+                    ret = FSO.sizes(recurse = self.options.recurse_)
+                    barMax += ret[0]
+                    expectedFiles += ret[1]
+                    expectedFolders += ret[2]
                 except OSError:
                     pass
         
@@ -346,10 +338,10 @@ class paddingFolder(basicFolder):
             print('\033[F', end='')
 
         # Rien à faire ?
-        if 0 == len(vFolders) or 0 == expectedFiles:
+        if 0 == expectedFolders and 0 == expectedFiles:
             return 0, 0, "Rien à supprimer", False
         
-        print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)}.")
+        print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}.")
 
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0

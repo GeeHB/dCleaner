@@ -29,6 +29,7 @@
     * Commutateurs -r ou --recurse pour autoriser la récursivité (par défaut = False)
     * Affichage de la taille estimée lors de la suppression
     * La liste des dossiers "protégées" est partagée (et non plus copiée)
+    * Classe winTrashFolder pour la gestion spécifique de la "poubelle Windows"
 
 #### Version 0.8.8
   * 21 juillet 2023
