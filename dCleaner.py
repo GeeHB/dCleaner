@@ -2,20 +2,21 @@
 
 # coding=UTF-8
 #
-#   File        :   dCleaner.py
+#   Fichie      : dCleaner.py
 #
-#   Auteur      :  JHB
+#   Auteur      : JHB
 #
-#   Description :  Outil de nettoyage de la partition utilisateur
+#   Description : Outil de nettoyage de la partition utilisateur
 #
 #   Remarques   : Point d'entrée du programme
 #
-#   Dépendances :  Nécessite psutil
+#   Dépendances : Nécessite psutil
 #
-from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX
+from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX, FOLDERS_TRASH, FOLDERS_TRASH_BIS
 import os,sys
 from datetime import datetime
 from basicFolder import basicFolder
+from winTrashFolder import winTrashFolder
 from paddingFolder import paddingFolder
 from basicFolder import FSObject, basicFile
 from sharedTools.colorizer import textAttribute, textColor
@@ -224,6 +225,49 @@ def isRootLikeUser():
     # Oui ...
     return True
 
+# Liste des dossiers à nettoyer
+#
+#   folders : listes des dossiers (ou des fichiers à supprimer)
+#
+#   retourne la liste mise à jour avec les "objets" correspondants
+#   aux fichiers et dossiers existants.
+#
+def _listOfFolders(folders):
+    
+    # Des dossiers ou fichiers à supprimer ?
+    if 0 == len(folders):
+        # A priori ne devrait pas arriver ...
+        return []
+    
+    # Liste des poubelles
+    print("Obtention de la liste des \"dossiers poubelles\"")
+    currentTrashes = options.trashFolders()
+
+    # Remplacement des valeurs
+    tempFolders = []
+    for folder in folders:
+        if WINDOWS_TRASH != folder:
+            if FOLDERS_TRASH == folder or FOLDERS_TRASH_BIS == folder:
+                # On ajoute tous les dossiers de la poubelle
+                for tFolder in currentTrashes:
+                    tempFolders.append(tFolder)
+            else:
+                tempFolders.append(os.path.expanduser(folder))
+        else:
+            # Le dossier "Windows" existe forcément
+            tempFolders.append(folder)
+
+    # Les valeurs doivent être uniques ...
+    uniqueVals = set(tempFolders)
+    fileOrFolders = []
+    currentFSO = None
+    for val in uniqueVals:
+        currentFSO = objectFromName(val)
+        if currentFSO is not None:
+            fileOrFolders.append(val)
+
+    return fileOrFolders
+
 # Instantiation d'un objet en fonction de son nom
 #
 #   name : Nom complet de l'objet
@@ -237,15 +281,23 @@ def objectFromName(name, iterations, params):
     if basicFile.existsFile(name):
         return basicFile(FQDN = name, iterate = iterations)
     else:
+        obj = None
+
         # Un dossier ?
-        if basicFolder.existsFolder(name):
-            obj = basicFolder(opts = params)
+        if WINDOWS_TRASH == name :
+            obj = winTrashFolder(opts = params)
+        else :
+            if basicFolder.existsFolder(name):
+                obj = basicFolder(opts = params)
+              
+        if obj is not None:
             res = obj.init(name)
             if False == res[0]:
                 if len(res[1]):
                     print(params.color_.colored(res[1], textColor.ROUGE), file=sys.stderr)
                 return None
-            return obj
+            
+        return obj
     
     # une erreur ...
     return None

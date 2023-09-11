@@ -4,7 +4,9 @@
 #
 #   Auteur      :   JHB
 #
-#   Description :   Définition des objets basicFile et basicFolder
+#   Description :   Définition des objets FSObject, basicFile et basicFolder
+#
+#                   FSObject : Classe mère abstraite
 #
 #                   basicFile : Gestion d'un fichier
 #
@@ -443,9 +445,6 @@ class basicFolder(FSObject):
     #
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name = None):
-
-        # Initialisation du générateur aléatoire
-        random.seed()
 
         if name is not None and False == basicFolder.existsFolder(name):
             return False, f"Le dossier '{name}' n'existe pas"

@@ -271,11 +271,6 @@ class options(object):
         else:
             self.cleanDepth_ = -1
 
-        # Nettoyage d'un (ou plusieurs) dossier(s) / fichiers 
-        #   les éléments sont uniques, mais on ne se soucie pas de leur existence
-        if args.clean is not None:
-            self._handleCleanFolders(args.clean)
-
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
         self.waitFTasks_ = self.inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
@@ -347,27 +342,6 @@ class options(object):
     #
     # Méthodes à usage interne
     #
-
-    # Liste des dossiers à nettoyer
-    def _handleCleanFolders(self, folders):
-        # Liste des poubelles
-        print("Obtention de la liste des \"dossiers poubelle\"")
-        myTrashFolders = options.trashFolders()
-
-        # Remplacement des valeurs
-        destFolders = []
-        for folder in folders:
-            if FOLDERS_TRASH == folder or FOLDERS_TRASH_BIS == folder:
-                # On ajoute tous les dossiers de la poubelle
-                for tFolder in myTrashFolders:
-                    destFolders.append(tFolder)
-            else:
-                destFolders.append(os.path.expanduser(folder))
-
-        # Les valeurs doivent être uniques ...
-        uniqueVals = set(destFolders)
-        for val in uniqueVals:
-            self.clean_.append(val)
 
     # Retourne une valeur dans l'intervalle
     def inRange(self, value, min, max):
