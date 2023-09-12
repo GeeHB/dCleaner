@@ -18,7 +18,6 @@ from basicFile import basicFile
 from basicFolder import basicFolder
 from winTrashFolder import winTrashFolder
 from sharedTools.colorizer import textColor
-from parameters import WINDOWS_TRASH
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -42,7 +41,7 @@ class paddingFolder(basicFolder):
             return False, "Erreur de paramètres"
 
         # Le dossier existe t'il ?
-        if not basicFolder.existsFolder(self.options.folder_):
+        if not FSObject.existsFolder(self.options.folder_):
             if self.options.verbose_:
                 print(f"Le dossier '{self.options.folder_}' n'existe pas")
 

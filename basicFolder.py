@@ -81,7 +81,7 @@ class basicFolder(FSObject):
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name = None):
 
-        if name is not None and False == basicFolder.existsFolder(name):
+        if name is not None and False == FSObject.existsFolder(name):
             return False, f"Le dossier '{name}' n'existe pas"
         
         # Ok - pas  de message
@@ -229,13 +229,8 @@ class basicFolder(FSObject):
         return True
 
     # Le dossier existe-il ?
-    @staticmethod
-    def existsFolder(folderName):
-        # On vérifie ...
-        return os.path.isdir(folderName)
-    
     def exists(self, folderName = None):
         # On vérifie ...
-        return self.existsFolder(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
+        return FSObject.existsFolder(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
     
 # EOF

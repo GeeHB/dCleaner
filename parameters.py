@@ -7,10 +7,9 @@
 #   Description :   Gestion de la ligne de commande et des constantes
 #
 
-import argparse
+import argparse, os, platform
 from sharedTools import colorizer as color
 from mountPoints import mountPointTrashes
-import os, platform
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"

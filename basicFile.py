@@ -8,8 +8,8 @@
 #
 #   Remarque    : 
 #
-from FSObject import FSObject
 import os, random, datetime, hashlib
+from FSObject import FSObject
 from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 
 #
@@ -30,7 +30,7 @@ class basicFile(FSObject):
             self.name = FQDN
         else:
             # Nom du fichier
-            if path is not None and basicFolder.existsFolder(path):
+            if path is not None and FSObject.existsFolder(path):
                 # Le dossier est valide
                 if fName is not None and len(fName)>0 :
                     # Le nom est "correct"
@@ -207,26 +207,8 @@ class basicFile(FSObject):
 
     # Le fichier existe t'il ?
     #
-    #   fName : Nom complet du fichier à tester
-    #
-    @staticmethod
-    def existsFile(fName):
-        # Le nom est-il renseigné ?
-        if fName is None or 0 == len(fName):
-            return False
-
-        # On va essayer d'ouvrir le fichier en lecture
-        try:
-            file = open(fName, 'r')
-            file.close()
-            return True
-        except FileNotFoundError :
-            return False
-        except IOError:
-            return False
-    
     def exists(self):
-        return False if len(self.name) == 0 else basicFile.existsFile(self.name)
+        return False if len(self.name) == 0 else FSObject.existsFile(self.name)
             
     # Génération d'un nom de fichier pour un fichier existant ou un nouveau fichier
     #
@@ -247,7 +229,7 @@ class basicFile(FSObject):
         
             # Si le fichier ou le dossier existe on génère un nouveau nom
             #generate = os.path.isdir(fName) if folder else self.exists(fName)
-            generate = basicFolder.existsFolder(fName) if folder else basicFile.existsFile(fName)
+            generate = FSObject.existsFolder(fName) if folder else FSObject.existsFile(fName)
 
         # Retour du nom complet
         return fName

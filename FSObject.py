@@ -9,7 +9,7 @@
 #   Remarque    : 
 #
 
-import math
+import math, os
 
 #
 # Objet du système de fichier (dossier ou fichier) à supprimer / vider
@@ -36,6 +36,32 @@ class FSObject(object):
     #   Retourne un entier
     def files(self):
         return 0
+    
+    # Le fichier existe t'il ?
+    #
+    #   fName : Nom complet du fichier à tester
+    #
+    @staticmethod
+    def existsFile(fName):
+        # Le nom est-il renseigné ?
+        if fName is None or 0 == len(fName):
+            return False
+
+        # On va essayer d'ouvrir le fichier en lecture
+        try:
+            file = open(fName, 'r')
+            file.close()
+            return True
+        except FileNotFoundError :
+            return False
+        except IOError:
+            return False
+
+    # Le dossier existe-il ?
+    @staticmethod
+    def existsFolder(folderName):
+        # On vérifie ...
+        return os.path.isdir(folderName)
 
     # Représentation d'une taille (en octets)
     #   Conversion int -> str

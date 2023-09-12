@@ -258,7 +258,7 @@ def _listOfFolders(params):
 #
 def objectFromName(name, params):
     # Un fichier ?
-    if basicFile.existsFile(name):
+    if FSObject.existsFile(name):
         return basicFile(FQDN = name, iterate = params.iterate_)
     else:
         obj = None  # pas encore crée
@@ -267,7 +267,7 @@ def objectFromName(name, params):
         if WINDOWS_TRASH == name :
             obj = winTrashFolder(opts = params)
         else :
-            if basicFolder.existsFolder(name):
+            if FSObject.existsFolder(name):
                 obj = basicFolder(opts = params)
               
         if obj is not None:
