@@ -22,8 +22,7 @@ class FSObject(object):
     
     # Taille de l'objet (et de tout ce qu'il contient)
     #
-    #   element : Nom de l'élément à analyser ou None pour le dossier courant
-    #
+    #   element : Nom de l'élément à analyser ou None pour le dossier courant    #
     #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
     def sizes(self, element = "", recurse = False):
         return self.size(), self.files(), 0
