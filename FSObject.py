@@ -28,7 +28,7 @@ class FSObject(object):
     def sizes(self, element = "", recurse = False):
         return self.size(), self.files(), 0
 
-    # Taille en octets (ou None en cas d'erreur)
+    # Taille en octets
     def size(self):
         pass
 

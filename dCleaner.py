@@ -12,13 +12,14 @@
 #
 #   Dépendances : Nécessite psutil
 #
-from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX, FOLDERS_TRASH, FOLDERS_TRASH_BIS
+from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX
 import os,sys
 from datetime import datetime
+from FSObject import FSObject
+from basicFile import basicFile
 from basicFolder import basicFolder
 from winTrashFolder import winTrashFolder
 from paddingFolder import paddingFolder
-from basicFolder import FSObject, basicFile
 from sharedTools.colorizer import textAttribute, textColor
 
 # Classe dCleaner

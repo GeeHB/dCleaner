@@ -14,7 +14,9 @@
 #
 import os, random, shutil, time, platform, sys
 from FSObject import FSObject
-from basicFolder import basicFolder, basicFile
+from basicFile import basicFile
+from basicFolder import basicFolder
+from winTrashFolder import winTrashFolder
 from sharedTools.colorizer import textColor
 from parameters import WINDOWS_TRASH
 
@@ -347,10 +349,10 @@ class paddingFolder(basicFolder):
         freed = barInc = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.options.iterate_)
         with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
-            for folder in vFolders:        
-                bFolder.name = folder
-                if bFolder.valid:
-                    for isFile, fullName in bFolder.browse(recurse = self.options.recurse_, remove = self.options.cleanDepth_) :
+            for FSO in fList:
+                # Un dossier
+                if type(FSO) is basicFolder:
+                    for isFile, fullName in FSO.browse(recurse = self.options.recurse_, remove = self.options.cleanDepth_) :
                         if isFile:
                             # Suppression du fichier
                             bFile = basicFile(iterate = self.options.iterate_)
@@ -380,11 +382,31 @@ class paddingFolder(basicFolder):
                                 print(self.options.color_.colored(f"Erreur lors de la suppression de '{fullName}'", textColor.ROUGE), file=sys.stderr)
                 else:
                     # Dossier windows ?
-                    if folder == WINDOWS_TRASH:
+                    if type(FSO) is winTrashFolder:
                         # On essaye de le vider ...
                         self.__emptyWindowsTrash()
+                        deletedFolders += 1
+                    else:
+                        # Un simple fichier ?
+                        if type(FSO) is basicFile:
+                            for fragment in FSO.delete():
+                                freed+=fragment
+                                barInc = self.__convertSize2Progressbar(fragment) 
+                                if barInc > 0:
+                                    if (barPos + barInc) > barMax:
+                                        barInc = barMax - barPos
 
-                            
+                                    barPos += barInc
+                                    
+                                    # !!!
+                                    if barInc:
+                                        bar(barInc)
+                            # Terminé
+                            if not FSO.success():
+                                print(self.options.color_.colored(f"Erreur lors de la suppression de '{FSO.name}'", textColor.ROUGE), file=sys.stderr)
+                            else:
+                                deletedFiles += 1
+
             # Retrait de la barre
             if self.options.verbose_:
                 print('\033[F', end='')
