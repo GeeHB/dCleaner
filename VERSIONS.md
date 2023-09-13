@@ -20,7 +20,7 @@
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
 #### Version 0.9.0
-  * sept. 2023
+  * 13 sept. 2023
   * Corrections:
     * Nombre de fichiers à supprimer faux
     * Récursivité systématique

@@ -112,7 +112,7 @@ class dCleaner:
                 out += "\nVider : " + self.options_.color_.colored(f"{len(self.options_.clean_)} dossiers(s) - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
             
                 if self.options_.recurse_:
-                        out += "\n\Récursivité : oui"
+                        out += "\nRécursivité : oui"
 
             if False == self.options_.adjust_ :
                 out += f"\nItération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"            
