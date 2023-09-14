@@ -19,11 +19,12 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.9.0
-  * 13 sept. 2023
+#### Version 0.9.1
+  * 14 sept. 2023
   * Corrections:
     * Nombre de fichiers à supprimer faux
     * Récursivité systématique
+    * Affichages (méthode __repr__)
   * Ajouts:
     * Possiblité de nettoyer (aussi) des fichiers (sans passer par les dossiers parents) 
     * Commutateurs -r ou --recurse pour autoriser la récursivité (par défaut = False)

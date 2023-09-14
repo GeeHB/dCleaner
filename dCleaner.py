@@ -93,9 +93,9 @@ class dCleaner:
 
             if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : " 
-                out += f"\n\t - {len(self.options_.clean_)} dossiers(s) à vider :"
+                out += f"\n\t - {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
                 for FSO in self.options_.clean_:
-                    out += f"\n\t\t- {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
+                    out += f"\n\t\t- {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])} - {'fichier' if FSO.isFile() else 'dossier'}"
                 out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse_ else 'non', formatAttr=[textAttribute.GRAS])}"
                 if self.options_.recurse_:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
@@ -109,7 +109,7 @@ class dCleaner:
             out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])                    
             
             if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
-                out += "\nVider : " + self.options_.color_.colored(f"{len(self.options_.clean_)} dossiers(s) - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
+                out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
             
                 if self.options_.recurse_:
                         out += "\nRécursivité : oui"
