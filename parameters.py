@@ -90,6 +90,13 @@ ARG_RECURSE_S = "-r"
 ARG_RECURSE   = "--recurse"
 COMMENT_RECURSE = "Nettoyage recursif des dossiers et de leurs sous-dossiers"
 
+# Mode "test" - ie. affichages mais pas de suppressions
+#   pour "tester" les paramètres
+#
+ARG_TEST_S = "-t"
+ARG_TEST   = "--test"
+COMMENT_TEST = "Test des paramètres. Aucun traitement ne sera effectué."
+
 # Paramètres : {arg} {value}
 #
 
@@ -157,7 +164,20 @@ COMMENT_ELAPSETASKS = "Durée en sec. entre 2 itérations"
 DEF_ELAPSETASKS = 5.0
 MIN_ELAPSETASKS = 5.0
 MAX_ELAPSETASKS = 180.0
+
+#
+# Modes d'executions ...
+#   le paramètre mode_ est une combianise des différentes valeurs possibles
+#
+MODE_INIT    = 0        # Rien à faire
+MODE_TEST    = 1        # On teste ...
+MODE_PADDING = 2        # Remplissage du dossier de 'padding'
+MODE_VERBOSE = 4        # Mode verbeux
+MODE_RECURSE = 8        # Traitement recursif des dossiers
        
+# Valeur par défaut
+MODE_DEFAULT = MODE_PADDING | MODE_VERBOSE
+
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
@@ -170,20 +190,18 @@ class options(object):
         self.done_ = False
 
         # Valeurs par défaut
+        self.mode_ = MODE_DEFAULT
+
         self.color_ = None      # Outil de colorisation
-        self.verbose_ = True    # Par défaut l'application trace tout ...
         
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
-        
-        self.noPadding_ = False
         
         self.iterate_ = DEF_ITERATE
         
         self.fillRate_ = DEF_FILLRATE
         self.renewRate_ = DEF_PADDINGRATE
         self.clear_ = False
-        self.recurse_ = False
-
+    
         self.waitFiles_ = MIN_ELAPSEFILES
         self.waitTasks_ = MIN_ELAPSETASKS
         
@@ -201,12 +219,49 @@ class options(object):
         for trash in trashes:
             self.restricted_.append(trash)
 
+    # Mode verbeux ?
+    @property
+    def verbose(self):
+        return self.__isSet(MODE_VERBOSE)
+    
+    @verbose.setter
+    def verbose(self, value):
+        self.__set(MODE_VERBOSE, value)
+
+    # Récursivité ?
+    @property
+    def recurse(self):
+        return self.__isSet(MODE_RECURSE)
+    
+    @recurse.setter
+    def recurse(self, value):
+        self.__set(MODE_RECURSE, value)
+
+    # Remplissage ?
+    @property
+    def padding(self):
+        return self.__isSet(MODE_PADDING)
+    
+    @padding.setter
+    def padding(self, value):
+        self.__set(MODE_PADDING, value)
+    
+    # Test ?
+    @property
+    def test(self):
+        return self.__isSet(MODE_TEST)
+    
+    @test.setter
+    def test(self, value):
+        self.__set(MODE_TEST, value)
+
     # Analyse de la ligne de commandes
     #   returne un booléen
     def parse(self):
         
         parser = argparse.ArgumentParser(epilog = self.version())
         
+        parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
         parser.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
         parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
         parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
@@ -232,22 +287,25 @@ class options(object):
         args = parser.parse_args()
         
         # Mode "verbeux"
-        self.verbose_ = (False == args.log)
+        self.test = args.test
+
+        # Mode "verbeux"
+        self.verbose = (False == args.log)
 
         # Colorisation des affichages ?
         if None == self.color_:
-            self.color_ = color.colorizer(False if not self.verbose_ else not args.nocolor)
+            self.color_ = color.colorizer(False if not self.verbose() else not args.nocolor)
         else:
-            self.color_.setColorized(False if not self.verbose_ else not args.nocolor)
+            self.color_.setColorized(False if not self.verbose() else not args.nocolor)
 
         # Pas de padding ?
-        self.noPadding_ = args.nopadding
+        self.padding = (False == args.nopadding)
 
         # Nettoyage
         self.clear_ = args.clear
 
         # Récursivité ?
-        self.recurse_ = args.recurse
+        self.recurse = args.recurse
 
         # Mode ajustement
         self.adjust_ = args.adjust
@@ -265,7 +323,7 @@ class options(object):
         self.renewRate_ = self.inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
 
         # Profondeur (si récursivité)
-        if self.recurse_:
+        if self.recurse:
             self.cleanDepth_ = args.depth[0] if args.depth is not None else -1
         else:
             self.cleanDepth_ = -1
@@ -327,7 +385,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose()))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     # Le dossier a t'il un accès restreint ?
     #
@@ -370,4 +428,31 @@ class options(object):
         uniqueVals = set(destFolders)
         for val in uniqueVals:
             self.clean_.append(val)
-# EOF
+            
+    # Un bit de mode est-il positionné ?
+    #
+    #   bit : Mode(s) ou bit(s) à rechercher
+    #
+    #   retourne un booléen
+    # 
+    def __isSet(self, bit):
+        return (bit == (self.mode_ & bit))
+    
+    # Positionner ou retirer un bit
+    #
+    #   bit : bit à positionner ou retirer
+    #
+    #   set : positionner ? (par défaut True)
+    #
+    def __set(self, bit, set = True):
+        # Déja en place ?
+        inPlace = self.__isSet(bit)
+        if set:
+            if not inPlace:
+                # on le met
+                self.mode_ = self.mode_ | bit
+        else:
+            if inPlace:
+               # on le retire
+               self.mode_ = self.mode_ & ~ bit 
+# EOF           

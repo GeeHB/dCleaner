@@ -31,6 +31,9 @@
     * Affichage de la taille estimée lors de la suppression
     * La liste des dossiers "protégées" est partagée (et non plus copiée)
     * Classe winTrashFolder pour la gestion spécifique de la "poubelle Windows"
+    * parameters::paramters
+      * mode_ : Gestion des états
+      * getter and setter 
 
 #### Version 0.8.8
   * 21 juillet 2023

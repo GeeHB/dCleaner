@@ -62,7 +62,7 @@ class dCleaner:
         if self.options_.clear_:
             mode = "libération"
         else: 
-            if False == self.options_.noPadding_:
+            if self.options_.padding:
                 mode = "ajustement" if self.options_.adjust_ else "remplissage / nettoyage"
         
         if len(self.options_.clean_) > 0:
@@ -70,7 +70,7 @@ class dCleaner:
                 mode = mode + " & "
             mode = mode + "vidage de dossier"
     
-        if self.options_.verbose_:
+        if self.options_.verbose():
             out = "Paramètres : " 
             out += f"\n\t- Mode : {self.options_.color_.colored(mode, formatAttr=[textAttribute.GRAS])}"
             
@@ -86,7 +86,7 @@ class dCleaner:
             out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
             out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
             
-            if False == self.options_.noPadding_:
+            if self.options_.padding:
                 out += "\n\nRemplissage : " 
                 out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
                 out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
@@ -96,8 +96,8 @@ class dCleaner:
                 out += f"\n\t - {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
                 for FSO in self.options_.clean_:
                     out += f"\n\t\t- {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])} - {'fichier' if FSO.isFile() else 'dossier'}"
-                out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse_ else 'non', formatAttr=[textAttribute.GRAS])}"
-                if self.options_.recurse_:
+                out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[textAttribute.GRAS])}"
+                if self.options_.recurse:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
                 else:
                     out += "\n"
@@ -111,7 +111,7 @@ class dCleaner:
             if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
                 out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
             
-                if self.options_.recurse_:
+                if self.options_.recurse:
                         out += "\nRécursivité : oui"
 
             if False == self.options_.adjust_ :
@@ -157,7 +157,7 @@ class dCleaner:
         maxFillSize = totalSize * self.options_.fillRate_ / 100
     
         if currentFillSize > maxFillSize:
-            if self.options_.verbose_:
+            if self.options_.verbose:
                 print(self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
@@ -177,7 +177,7 @@ class dCleaner:
                     return False
             else:
                 # Retrait du "minimum"
-                if not self.options_.verbose_:
+                if not self.options_.verbose:
                     print(params.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True))
                 self.paddingFolder_.deleteFiles(size=gap)
             
@@ -199,14 +199,14 @@ class dCleaner:
         # on recadre avec l'espace effectivement dispo
         renewSize = int(options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100))
         
-        if self.options_.verbose_:
+        if self.options_.verbose:
             self.indented_print("Remplissage", True)
         self.paddingFolder_.newFiles(renewSize, iterate = True)
         
-        if self.options_.verbose_:
+        if self.options_.verbose:
             self.indented_print("Suppression", True)
         self.paddingFolder_.deleteFiles(size = renewSize, iterate = True) 
-        if  self.options_.verbose_:
+        if  self.options_.verbose:
             self.indented_print("Terminé", True)   
 
     # Affichage d'une ligne indentée
@@ -340,7 +340,7 @@ if '__main__' == __name__:
                             print(res[2])
                     
                 # Remplissage de la partition
-                if False == params.noPadding_:
+                if params.padding:
                     print("Vérification du dossier de 'padding'")
                     if False == cleaner.fillPartition():
                         # Il faut plutôt libérer de la place
@@ -351,11 +351,11 @@ if '__main__' == __name__:
                         
                         for index in range(params.iterate_):
                             if index > 0:
-                                if params.verbose_:
+                                if params.verbose:
                                     cleaner.indented_print("On attend un peu...")
                                 cleaner.paddingFolder_.wait(params.waitTasks_)
 
-                            if params.verbose_:
+                            if params.verbose:
                                 print(f"Itération {index+1}/{params.iterate_}")
                             
                             cleaner.cleanPartition()
@@ -372,6 +372,6 @@ if '__main__' == __name__:
         """
     # La fin, la vraie !
     if done:
-        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_)))
+        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose)))
 
 # EOF
