@@ -294,9 +294,9 @@ class options(object):
 
         # Colorisation des affichages ?
         if None == self.color_:
-            self.color_ = color.colorizer(False if not self.verbose() else not args.nocolor)
+            self.color_ = color.colorizer(False if not self.verbose else not args.nocolor)
         else:
-            self.color_.setColorized(False if not self.verbose() else not args.nocolor)
+            self.color_.setColorized(False if not self.verbose else not args.nocolor)
 
         # Pas de padding ?
         self.padding = (False == args.nopadding)
@@ -385,7 +385,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose()))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     # Le dossier a t'il un accès restreint ?
     #

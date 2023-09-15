@@ -70,7 +70,7 @@ class dCleaner:
                 mode = mode + " & "
             mode = mode + "vidage de dossier"
     
-        if self.options_.verbose():
+        if self.options_.verbose:
             out = "Paramètres : " 
             out += f"\n\t- Mode : {self.options_.color_.colored(mode, formatAttr=[textAttribute.GRAS])}"
             
@@ -80,7 +80,7 @@ class dCleaner:
             out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
             
             if False == self.options_.adjust_ :
-                out += f"\n\t- Itération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
+                out += f"\n\t- Itérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
             
             out += "\n\nPartition : "
             out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
@@ -95,7 +95,7 @@ class dCleaner:
                 out += "\n\nVider : " 
                 out += f"\n\t - {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
                 for FSO in self.options_.clean_:
-                    out += f"\n\t\t- {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])} - {'fichier' if FSO.isFile() else 'dossier'}"
+                    out += f"\n\t\t- [{'fichier' if FSO.isFile() else 'dossier'}] {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
                 out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[textAttribute.GRAS])}"
                 if self.options_.recurse:
                     out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
@@ -115,7 +115,7 @@ class dCleaner:
                         out += "\nRécursivité : oui"
 
             if False == self.options_.adjust_ :
-                out += f"\nItération(s) de nettoyage : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"            
+                out += f"\nItérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"            
         return out
 
     # Nettoyage (vidage) de dossiers ou fichiers
