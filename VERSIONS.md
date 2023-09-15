@@ -24,6 +24,7 @@
     * Nombre de fichiers à supprimer faux
     * Récursivité systématique
     * Affichages (méthode __repr__ & mode 'clear')
+    * Affichages plus complets en cas d'exception 
   * Ajouts:
     * Possiblité de nettoyer (aussi) des fichiers (sans passer par les dossiers parents) 
     * Commutateurs

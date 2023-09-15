@@ -367,16 +367,12 @@ if '__main__' == __name__:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE), file=sys.stderr)
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
-
         except ValueError as ve:
-            #type, value, traceback = sys.exc_info()
             print(params.color_.colored(f"Erreur d'initialisation : {str(ve)}", textColor.ROUGE), file=sys.stderr)
-            #print(params.color_.colored(traceback), file=sys.stderr)
-        """
         except Exception as be:
-            type, value, traceback = sys.exc_info()
-            print(params.color_.colored(f"Erreur inconnue - {str(be)}", textColor.ROUGE), file=sys.stderr)
-        """
+            # Récupération des informations sur l'exception
+            _, _, traceback = sys.exc_info()
+            print(params.color_.colored(f"Erreur inconnue - {str(be)} - Fichier : {os.path.split(traceback.tb_frame.f_code.co_filename)[1]} ligne : {traceback.tb_lineno}", textColor.ROUGE), file=sys.stderr)
     # La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose)))

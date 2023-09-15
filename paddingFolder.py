@@ -97,7 +97,7 @@ class paddingFolder(basicFolder):
                 try:
                     from alive_progress import alive_bar as progressBar
                 except ImportError as e:
-                    print("Le module 'alive_bar' n'a pu être importé")
+                    print("Le module 'alive_progress.alive_bar' n'a pu être importé")
                     self.options.verbose = False
             
             if not self.options.verbose:
@@ -173,7 +173,7 @@ class paddingFolder(basicFolder):
                     try:
                         from alive_progress import alive_bar as progressBar
                     except ImportError as e:
-                        print("Le module 'alive_bar' n'a pu être importé")
+                        print("Le module 'alive_progress.alive_bar' n'a pu être importé")
                         self.options.verbose = False
             
                 if not self.options.verbose:
@@ -270,7 +270,7 @@ class paddingFolder(basicFolder):
             try:
                 from alive_progress import alive_bar as progressBar
             except ImportError as e:
-                print("Le module 'alive_bar' n'a pu être importé")
+                print("Le module 'alive_progress.alive_bar' n'a pu être importé")
                 self.options.verbose = False
             
         if not self.options.verbose:
@@ -317,7 +317,7 @@ class paddingFolder(basicFolder):
             try:
                 from alive_progress import alive_bar as progressBar
             except ImportError as e:
-                print("Le module 'alive_bar' n'a pu être importé")
+                print("Le module 'alive_progress.alive_bar' n'a pu être importé")
                 self.options.verbose = False
 
         if not self.options.verbose:
