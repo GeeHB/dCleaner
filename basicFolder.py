@@ -55,22 +55,15 @@ class basicFolder(FSObject):
     def valid(self, value):
         self.valid_ = value
 
-    # Paramètres & options
-    @property
-    def options(self):
-        return self.params_
-    
-    @options.setter
-    def options(self, value):
-        self.params_ = value
-
     # Constructeur
     #
-    def __init__(self, opts, pMaxSize = 0):
+    def __init__(self, parameters, pMaxSize = 0):
+        
+        super().__init__(parameters)
+        
         # Initialisation des données membres
         self.name = ""
         self.valid = False
-        self.options = opts
         self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
         self.sizes_ = None
 
@@ -94,6 +87,9 @@ class basicFolder(FSObject):
     #
     #   retourne le booléen : crée ?
     def create(self, name):
+        if self.options.test:
+            return True
+        
         if name is None or len(name) == 0 :
             return False
         
@@ -194,6 +190,9 @@ class basicFolder(FSObject):
     #
     #   retourne un booléen : fait ?
     def rmdir(self, folder):
+        if self.options.test:
+            return True
+    
         if folder is None or len(folder) == 0:
             return False
         

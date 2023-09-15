@@ -18,10 +18,11 @@ from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_
 class basicFile(FSObject):
     
     # Constructeur
-    def __init__(self, path = None, fName = None, iterate = 1, FQDN = None):
+    def __init__(self, parameters, path = None, fName = None, FQDN = None):
         
+        super().__init__(parameters)
+
         # Initialisation des données membres
-        self.iterate_ = iterate
         self.pattern_ = ""
         self.error_ = ""
 
@@ -110,19 +111,20 @@ class basicFile(FSObject):
     #   maxFileSize : Taille max. n octets d'un fichier
     #
     def create(self, fileSize = 0, maxFileSize = 0):
-        if len(self.name):
-            # Si le fichier existe, je le supprime ...
-            if self.exists():
-                self.delete()
-        else:
-            # Pas de nom
-            self.error = f"Impossible de créer le fichier. Il n'a pas de nom"
-                
-        if self.success():
-            # Creation à la "bonne taille"
-            for _ in range(self.iterate_):
-                for fragment in self._create(fileSize, maxFileSize, True):
-                    yield fragment
+        if not self.options.test: 
+            if len(self.name):
+                # Si le fichier existe, je le supprime ...
+                if self.exists():
+                    self.delete()
+            else:
+                # Pas de nom
+                self.error = f"Impossible de créer le fichier. Il n'a pas de nom"
+                    
+            if self.success():
+                # Creation à la "bonne taille"
+                for _ in range(self.options.iterate_):
+                    for fragment in self._create(fileSize, maxFileSize, True):
+                        yield fragment
 
     # Remplissage d'un fichier existant
     #
@@ -131,8 +133,8 @@ class basicFile(FSObject):
     #   rename : Doit-on renomer le fichier (avec un nom aléatoire) ?
     #
     def fill(self, rename = False):
-        if self.exists():
-            for _ in range(self.iterate_):
+        if not self.options.test and self.exists():
+            for _ in range(self.options.iterate_):
                 for fragment in self._create():
                     yield fragment
 
@@ -148,7 +150,7 @@ class basicFile(FSObject):
     #   Retourne le nouveau nom (ou None en cas d'erreur)
     def rename(self):
         #if (not force and self.exists()) or force:
-        if self.exists():
+        if not self.options.test and self.exists():
             folder, _ = os.path.split(self.name)
             
             # Nouveau nom "complet"
@@ -162,7 +164,7 @@ class basicFile(FSObject):
 
             return name
 
-        # sinon on retourne le nom de base
+        # On retourne le nom de base
         return self.name_
 
     # Suppression
@@ -173,7 +175,7 @@ class basicFile(FSObject):
     #
     def delete(self, replace = True):
         # Le fichier doit exister
-        if self.exists():   
+        if not self.options.test and self.exists():   
             # Remplacement du contenu ?
             if replace:
                 # Nouveau nom
@@ -182,7 +184,7 @@ class basicFile(FSObject):
                     self.error = f"Impossible de renommer '{self.name_}'"     
                     
                 # Nouveau contenu (on itère l'effacement)
-                for _ in range(self.iterate_):
+                for _ in range(self.options.iterate_):
                     for fragment in self._create():
                         yield fragment
 

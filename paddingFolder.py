@@ -27,14 +27,14 @@ class paddingFolder(basicFolder):
 
     # Constructeur
     def __init__(self, options, pMaxSize = 0):
-        # Initialisation des données membres
+        # Initialisation de l'objet
         super().__init__(options, pMaxSize)
 
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self):
 
-        ret = super().init(self.options.folder_)
+        super().init(self.options.folder_)
 
         # Ouverture / création du dossier de travail
         if 0 == len(self.options.folder_):
@@ -79,6 +79,9 @@ class paddingFolder(basicFolder):
     #
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
     def newFiles(self, expectedFillSize, iterate = False):
+        if self.options.test:
+            return True
+        
         if True == self.valid_ and expectedFillSize > 0:
             if self.options.verbose :
                 offset = "\t- " if iterate else ""
@@ -107,7 +110,7 @@ class paddingFolder(basicFolder):
                 # Boucle de remplissage
                 while totalSize < expectedFillSize and cont:
                     # Création d'un fichier sans nom
-                    bFile = basicFile(path = self.name, fName = None, iterate = self.options.iterate_)
+                    bFile = basicFile(parameters = self.options, path = self.name, fName = None)
                     for fragment in bFile.create(maxFileSize = still) :   
                         totalSize+=fragment
                         barInc = self.__convertSize2Progressbar(fragment) 
@@ -193,7 +196,7 @@ class paddingFolder(basicFolder):
                     try:
                         # Les fichiers du dossier
                         for file in files:
-                            bFile = basicFile(path = self.options.folder_, fName = file, iterate = self.options.iterate_ )
+                            bFile = basicFile(parameters = self.options, path = self.options.folder_, fName = file)
                             
                             # Suppression d'un fichier
                             for frag in bFile.delete(True):
@@ -256,7 +259,7 @@ class paddingFolder(basicFolder):
             return 0, "Objet non initialisé"
      
         # Nombre de fichiers dans le dossier
-        _, barMax = self.sizes()
+        _, barMax,_ = self.sizes()
         
         if 0 == barMax:
             # Rien à faire ....
@@ -278,7 +281,7 @@ class paddingFolder(basicFolder):
             for isFile, fName in super().browse(self.options.folder_):    
                 if isFile:
                     # Suppression du fichier
-                    bFile = basicFile(iterate = self.options.iterate_)
+                    bFile = basicFile(parameters = self.options)
                     bFile.name = fName
                     for _ in bFile.delete(False):
                         pass
@@ -354,7 +357,7 @@ class paddingFolder(basicFolder):
                     for isFile, fullName in FSO.browse(recurse = self.options.recurse, remove = self.options.cleanDepth_) :
                         if isFile:
                             # Suppression du fichier
-                            bFile = basicFile(iterate = self.options.iterate_)
+                            bFile = basicFile(parameters = self.options)
                             bFile.name = fullName
                             for fragment in bFile.delete():
                                 freed+=fragment
@@ -424,6 +427,9 @@ class paddingFolder(basicFolder):
     #
     # retourne le booléen fait ?
     def __emptyWindowsTrash(self):
+        if self.options.test:
+            return True
+        
         myPlatform = platform.system()
         if  myPlatform == "Windows":
             try :

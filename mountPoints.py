@@ -4,7 +4,7 @@
 #
 #   Fichier     :   mountPoints.py
 #
-#   Auteur      :   JHB & Andrea Francia Trivolzio
+#   Auteur(s)   :   Andrea Francia Trivolzio & JHB
 #
 #   Description :   Liste de points de mountage disposant d'une poubelle
 #
@@ -31,7 +31,7 @@ except ModuleNotFoundError:
 #
 def mountPointTrashes(id, display = False):
     fstypes = [
-        'cifs', # JHB : for old time kernels allowing CIFS ...
+        'cifs', # JHB : for old time kernels allowing CIFS & Samba < 2 compatibility ...
         'nfs',
         'nfs4',
         'p9', # file system used in WSL 2 (Windows Subsystem for Linux)

@@ -16,6 +16,19 @@ import math, os
 #
 class FSObject(object):
     
+    # Paramètres & options
+    @property
+    def options(self):
+        return self.params_
+    
+    @options.setter
+    def options(self, value):
+        self.params_ = value
+
+    def __init__(self, parameters):
+        # Initialisations
+        self.options = parameters
+
     # Est-ce un fichier ?
     def isFile(self):
         return False

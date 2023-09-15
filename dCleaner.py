@@ -58,7 +58,7 @@ class dCleaner:
         #
         res = self.paddingFolder_.partitionUsage()
 
-        mode = ""
+        mode =  ""
         if self.options_.clear_:
             mode = "libération"
         else: 
@@ -70,6 +70,9 @@ class dCleaner:
                 mode = mode + " & "
             mode = mode + "vidage de dossier"
     
+        if self.options_.test :
+            mode = "Test | " + mode
+
         if self.options_.verbose:
             out = "Paramètres : " 
             out += f"\n\t- Mode : {self.options_.color_.colored(mode, formatAttr=[textAttribute.GRAS])}"
@@ -261,7 +264,7 @@ def _listOfFolders(params):
 def objectFromName(name, params):
     # Un fichier ?
     if FSObject.existsFile(name):
-        return basicFile(FQDN = name, iterate = params.iterate_)
+        return basicFile(parameters = params, FQDN = name, iterate = params.iterate_)
     else:
         obj = None  # pas encore crée
 
@@ -364,11 +367,15 @@ if '__main__' == __name__:
             print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE), file=sys.stderr)
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
+
         except ValueError as ve:
+            #type, value, traceback = sys.exc_info()
             print(params.color_.colored(f"Erreur d'initialisation : {str(ve)}", textColor.ROUGE), file=sys.stderr)
+            #print(params.color_.colored(traceback), file=sys.stderr)
         """
-        except Exception as e:
-            print(params.color_.colored(f"Erreur inconnue - {str(e)}", textColor.ROUGE), file=sys.stderr)
+        except Exception as be:
+            type, value, traceback = sys.exc_info()
+            print(params.color_.colored(f"Erreur inconnue - {str(be)}", textColor.ROUGE), file=sys.stderr)
         """
     # La fin, la vraie !
     if done:
