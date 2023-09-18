@@ -18,7 +18,7 @@ from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_
 class basicFile(FSObject):
     
     # Constructeur
-    def __init__(self, parameters, path = None, fName = None, FQDN = None):
+    def __init__(self, parameters, path = None, fName = None, FQN = None):
         
         super().__init__(parameters)
 
@@ -27,8 +27,8 @@ class basicFile(FSObject):
         self.error_ = ""
 
         # Un nom complet (ie. le fichier existe !!!)
-        if FQDN is not None :
-            self.name = FQDN
+        if FQN is not None :
+            self.name = FQN
         else:
             # Nom du fichier
             if path is not None and FSObject.existsFolder(path):

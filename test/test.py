@@ -10,7 +10,8 @@
 #
 import sys
 sys.path.insert(0, '/home/jhb/Nextcloud/dev/python/dCleaner')
-from basicFolder import basicFolder, basicFile
+from basicFile import basicFile
+from parameters import options
 
 # creation
 def create(bFile, rename, size):
@@ -71,7 +72,8 @@ def fillorDelete(bFile):
 if '__main__' == __name__:
 
     # basicFile
-    bFile = basicFile("/home/jhb/Téléchargements/temp", "other.mkv")
+    params = options
+    bFile = basicFile(params, path = "/home/jhb/Téléchargements/temp", fname = "other.mkv")
 
     # fillorDelete(bFile)
     create(bFile, False, 456789)

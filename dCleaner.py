@@ -264,7 +264,7 @@ def _listOfFolders(params):
 def objectFromName(name, params):
     # Un fichier ?
     if FSObject.existsFile(name):
-        return basicFile(parameters = params, FQDN = name, iterate = params.iterate_)
+        return basicFile(parameters = params, FQN = name, iterate = params.iterate_)
     else:
         obj = None  # pas encore crée
 
