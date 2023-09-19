@@ -35,7 +35,7 @@
     * Classe winTrashFolder pour la gestion spécifique de la "poubelle Windows"
     * parameters::parameters
       * mode_ : Gestion des états
-      * getter and setter 
+      * getters and setters 
 
 #### Version 0.8.8
   * 21 juillet 2023

@@ -13,7 +13,7 @@
 #   Dépendances : Nécessite psutil
 #
 from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX
-import os,sys
+import os,sys, traceback
 from datetime import datetime
 from FSObject import FSObject
 from basicFile import basicFile
@@ -273,7 +273,7 @@ def objectFromName(name, params):
             obj = winTrashFolder(opts = params)
         else :
             if FSObject.existsFolder(name):
-                obj = basicFolder(opts = params)
+                obj = basicFolder(parameters = params)
               
         if obj is not None:
             res = obj.init(name)
@@ -371,9 +371,18 @@ if '__main__' == __name__:
             print(params.color_.colored(f"Erreur d'initialisation : {str(ve)}", textColor.ROUGE), file=sys.stderr)
         except Exception as be:
             # Récupération des informations sur l'exception
-            _, _, traceback = sys.exc_info()
-            print(params.color_.colored(f"Erreur inconnue - {str(be)} - Fichier : {os.path.split(traceback.tb_frame.f_code.co_filename)[1]} ligne : {traceback.tb_lineno}", textColor.ROUGE), file=sys.stderr)
-    # La fin, la vraie !
+            _, _, exc_traceback = sys.exc_info()
+            # Juste la dernière ligne
+            for frame in traceback.extract_tb(exc_traceback):
+                pass
+            
+            print(params.color_.colored(f"Autre erreur - {str(be)}", textColor.ROUGE), file=sys.stderr)
+            print(params.color_.colored(f"  - Fichier: {os.path.split(frame.filename)[1]}", textColor.ROUGE), file=sys.stderr)
+            print(params.color_.colored(f"  - Ligne: {frame.lineno}", textColor.ROUGE), file=sys.stderr)
+            print(params.color_.colored(f"  - Code: {frame.line}", textColor.ROUGE), file=sys.stderr)
+
+
+    #  La fin, la vraie !
     if done:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose)))
 
