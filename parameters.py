@@ -14,8 +14,8 @@ from mountPoints import mountPointTrashes
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.9.1"
-APP_RELEASE_DATE = "15/09/2023"
-APP_AUTHOR = "JHB (henry-barnaudiere.j@allier.fr)"
+APP_RELEASE_DATE = "20/09/2023"
+APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
 # Motif aléatoire
@@ -192,10 +192,8 @@ class options(object):
         # Valeurs par défaut
         self.mode_ = MODE_DEFAULT
 
-        self.color_ = None      # Outil de colorisation
-        
-        self.adjust_ = False    # Par défaut tous les traitements sont effectués
-        
+        self.color_ = None      # Outil de colorisation   
+        self.adjust_ = False    # Par défaut tous les traitements sont effectués        
         self.iterate_ = DEF_ITERATE
         
         self.fillRate_ = DEF_FILLRATE
@@ -222,8 +220,7 @@ class options(object):
     # Mode verbeux ?
     @property
     def verbose(self):
-        return self.__isSet(MODE_VERBOSE)
-    
+        return self.__isSet(MODE_VERBOSE)   
     @verbose.setter
     def verbose(self, value):
         self.__set(MODE_VERBOSE, value)
@@ -232,7 +229,6 @@ class options(object):
     @property
     def recurse(self):
         return self.__isSet(MODE_RECURSE)
-    
     @recurse.setter
     def recurse(self, value):
         self.__set(MODE_RECURSE, value)
@@ -241,7 +237,6 @@ class options(object):
     @property
     def padding(self):
         return self.__isSet(MODE_PADDING)
-    
     @padding.setter
     def padding(self, value):
         self.__set(MODE_PADDING, value)
@@ -250,7 +245,6 @@ class options(object):
     @property
     def test(self):
         return self.__isSet(MODE_TEST)
-    
     @test.setter
     def test(self, value):
         self.__set(MODE_TEST, value)

@@ -23,8 +23,17 @@ class winTrashFolder(basicFolder):
 
     # Nombre de fichier(s) contenu(s)
     def files(self):
-        return 0
+        # Pour être certain de lancer le nettoyage
+        return 1
     
+    # Taille du dossier (et de tout ce qu'il contient)
+    #
+    #   element : Nom du dossier à analyser ou None pour le dossier courant
+    #
+    #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
+    def sizes(self, element = "", recurse = False):
+        return 0, self.files(), self.size()
+
     # Constructeur
     #
     def __init__(self, opts, pMaxSize = 0):
