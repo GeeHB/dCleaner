@@ -18,6 +18,11 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
+#### Version 0.9.2
+  * 22 sept. 2023
+  * Corrections:
+    * BUG : recursité et profondeur (profondeur max = 0 si pas de récursivité)
+
 #### Version 0.9.1
   * 20 sept. 2023
   * Corrections:

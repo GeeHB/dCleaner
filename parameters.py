@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.9.1"
-APP_RELEASE_DATE = "20/09/2023"
+APP_CURRENT_VERSION = "0.9.2"
+APP_RELEASE_DATE = "22/09/2023"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -316,11 +316,11 @@ class options(object):
         self.fillRate_ = self.inRange(args.fill[0], MIN_FILLRATE, MAX_FILLRATE)
         self.renewRate_ = self.inRange(args.padding[0], MIN_PADDINGRATE, MAX_PADDINGRATE)
 
-        # Profondeur (si récursivité)
-        if self.recurse:
-            self.cleanDepth_ = args.depth[0] if args.depth is not None else -1
-        else:
-            self.cleanDepth_ = -1
+        # Profondeur
+        self.cleanDepth_ = args.depth[0] if args.depth is not None else -1
+        if not self.recurse and self.cleanDepth_ > 0:
+            # Si pas de récursivité, la profondeur max est 0 !
+            self.cleanDepth_ = 0
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
