@@ -287,7 +287,7 @@ class paddingFolder(basicFolder):
                         pass
                     
                     if not bFile.success():
-                        print(self.options.color_.colored(f"Erreur lors de la suppression de '{fName}'", textColor.ROUGE), file=sys.stderr)
+                        sys.stderr.print(f"Erreur lors de la suppression de '{fName}'")
                     else:
                         count += 1
                     
@@ -373,7 +373,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
                             
                             if not bFile.success():
-                                print(self.options.color_.colored(f"Erreur lors de la suppression de '{fullName}'", textColor.ROUGE), file=sys.stderr)
+                                sys.stderr.print(f"Erreur lors de la suppression de '{fullName}'")
                             else:
                                 deletedFiles += 1
                         else:
@@ -381,7 +381,7 @@ class paddingFolder(basicFolder):
                             if self.rmdir(fullName):
                                 deletedFolders += 1
                             else:
-                                print(self.options.color_.colored(f"Erreur lors de la suppression de '{fullName}'", textColor.ROUGE), file=sys.stderr)
+                                sys.stderr.print(f"Erreur lors de la suppression de '{fullName}'")
                 else:
                     # Dossier windows ?
                     if type(FSO) is winTrashFolder:
@@ -405,7 +405,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
                             # Terminé
                             if not FSO.success():
-                                print(self.options.color_.colored(f"Erreur lors de la suppression de '{FSO.name}'", textColor.ROUGE), file=sys.stderr)
+                                sys.stderr.print(f"Erreur lors de la suppression de '{FSO.name}'")
                             else:
                                 deletedFiles += 1
 
@@ -435,14 +435,14 @@ class paddingFolder(basicFolder):
             try :
                 import winshell
             except ModuleNotFoundError:
-                print(self.options.color_.colored("Erreur - Le module 'winshell' est absent", textColor.ROUGE), file=sys.stderr)
+                sys.stderr.print("Erreur - Le module 'winshell' est absent")
                 return False
             
             # On peut essayer de la vider
             try:
                 winshell.recycle_bin().empty(False, False, False)
             except:
-                print(self.options.color_.colored("Erreur - impossible de vider la corbeille Windows", textColor.ROUGE), file=sys.stderr)
+                sys.stderr.print("Erreur - impossible de vider la corbeille Windows")
                 return False
             
             return True

@@ -74,12 +74,11 @@ class textAttribute:
 #
 class colorizer:
     
+    colored_ = False       # Doit-on coloriser ?
+
     # Construction
     def __init__(self, colored = True, message = True):
-        
-        colored_ = False       # Doit-on coloriser ?
-        
-        self.setColorized(colored, message)
+        self.setColorized(packageTermColor__ if None == colored else colored, message)
                         
     # Mise en place de la colorisation
     def setColorized(self, colored = True, message = None):

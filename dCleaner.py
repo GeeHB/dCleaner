@@ -176,7 +176,7 @@ class dCleaner:
                 print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
                 
                 if len(res[1]) > 0:
-                    print(self.options_.color_.colored(f"Erreur lors du vidage du dossier de remplissage : {res[1]}", textColor.ROUGE), file=sys.stderr)
+                    sys.stderr.print(f"Erreur lors du vidage du dossier de remplissage : {res[1]}")
                     return False
             else:
                 # Retrait du "minimum"
@@ -279,11 +279,11 @@ def objectFromName(name, params):
             res = obj.init(name)
             if False == res[0]:
                 if len(res[1]):
-                    print(params.color_.colored(res[1], textColor.ROUGE), file=sys.stderr)
+                    sys.stderr.print(res[1])
                 return None
             
         if obj is None:
-            print(params.color_.colored(f"Nettoyage : '{name}' n'existe pas", textColor.ROUGE), file=sys.stderr)
+            sys.stderr.print(f"Nettoyage : '{name}' n'existe pas")
 
         return obj
     
@@ -316,7 +316,7 @@ if '__main__' == __name__:
                 #                
                 # Encore des dossiers dans la liste ?
                 if False == _listOfFolders(params):
-                    print(params.color_.colored("Pas de dossier ou de fichier à nettoyer", textColor.ROUGE), file=sys.stderr)
+                    sys.stderr.print("Pas de dossier ou de fichier à nettoyer")
                         
             # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
@@ -326,7 +326,7 @@ if '__main__' == __name__:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
                 if len(res[2]) > 0  and res[3]:
-                    print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE), file=sys.stderr)
+                    sys.stderr.print(f"Erreur lors de la suppression : {res[2]}")
                 else:
                     print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
             else:
@@ -337,7 +337,7 @@ if '__main__' == __name__:
                     if len(res[2]) > 0 :
                         if res[3]:
                             # Une erreur
-                            print(params.color_.colored(f"Erreur lors de la suppression : {res[2]}", textColor.ROUGE), file=sys.stderr)
+                            sys.stderr.print(f"Erreur lors de la suppression : {res[2]}")
                         else:
                             # Juste un message ...
                             print(res[2])
@@ -364,11 +364,11 @@ if '__main__' == __name__:
                             cleaner.cleanPartition()
 
         except IOError as ioe:
-            print(params.color_.colored(f"Erreur de paramètre(s) : {str(ioe)}", textColor.ROUGE), file=sys.stderr)
+            sys.stderr.print(f"Erreur de paramètre(s) : {str(ioe)}")
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except ValueError as ve:
-            print(params.color_.colored(f"Erreur d'initialisation : {str(ve)}", textColor.ROUGE), file=sys.stderr)
+            sys.stderr.print(f"Erreur d'initialisation : {str(ve)}")
         except Exception as be:
             # Récupération des informations sur l'exception
             _, _, exc_traceback = sys.exc_info()
@@ -376,10 +376,10 @@ if '__main__' == __name__:
             for frame in traceback.extract_tb(exc_traceback):
                 pass
             
-            print(params.color_.colored(f"Autre erreur - {str(be)}", textColor.ROUGE), file=sys.stderr)
-            print(params.color_.colored(f"  - Fichier: {os.path.split(frame.filename)[1]}", textColor.ROUGE), file=sys.stderr)
-            print(params.color_.colored(f"  - Ligne: {frame.lineno}", textColor.ROUGE), file=sys.stderr)
-            print(params.color_.colored(f"  - Code: {frame.line}", textColor.ROUGE), file=sys.stderr)
+            sys.stderr.print(f"Autre erreur - {str(be)}")
+            sys.stderr.print(f"  - Fichier: {os.path.split(frame.filename)[1]}")
+            sys.stderr.print(f"  - Ligne: {frame.lineno}")
+            sys.stderr.print(f"  - Code: {frame.line}")
 
 
     #  La fin, la vraie !
