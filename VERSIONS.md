@@ -18,6 +18,13 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
+#### Version 0.9.4
+
+* xx mars 2024
+* Corrections 
+  * retrait code inutile ...
+  * affichage simplifié, en fcontion des actions à faire
+
 #### Version 0.9.3
 
 * 07 fev. 2024

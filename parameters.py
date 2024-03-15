@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.9.3"
-APP_RELEASE_DATE = "07/02/2024"
+APP_CURRENT_VERSION = "0.9.4"
+APP_RELEASE_DATE = "12/03/2024"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -166,17 +166,35 @@ MIN_ELAPSETASKS = 5.0
 MAX_ELAPSETASKS = 180.0
 
 #
-# Modes d'executions ...
+# Options d'executions ...
 #   le paramètre mode_ est une combianise des différentes valeurs possibles
 #
-MODE_INIT    = 0        # Rien à faire
-MODE_TEST    = 1        # On teste ...
-MODE_PADDING = 2        # Remplissage du dossier de 'padding'
-MODE_VERBOSE = 4        # Mode verbeux
-MODE_RECURSE = 8        # Traitement recursif des dossiers
+OPTION_INIT    = 0    # Rien à faire
+OPTION_TEST    = 1    # On teste ...
+OPTION_PADDING = 2    # Remplissage du dossier de 'padding'
+OPTION_VERBOSE = 4    # Mode verbeux
+OPTION_RECURSE = 8    # Traitement recursif des dossiers
        
 # Valeur par défaut
-MODE_DEFAULT = MODE_PADDING | MODE_VERBOSE
+OPTION_DEFAULT = OPTION_PADDING | OPTION_VERBOSE
+
+
+#
+# Modes de fonctionement
+#
+MODE_NONE     = 0
+
+MODE_ADJUST     = 1     # Ajustement de la partition
+MODE_ADJUST_STR = "ajustement"
+
+MODE_FILL       = 2     # Remplissage de la partition
+MODE_FILL_STR   = "remplissage / nettoyage"
+
+MODE_CLEAN      = 4     # Nettoyage de la partition
+MODE_CLEAN_STR  = "vidage de dossier"
+
+MODE_CLEAR      = 8     # Vidage
+MODE_CLEAR_STR  = "libération"
 
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
@@ -190,8 +208,8 @@ class options(object):
         self.done_ = False
 
         # Valeurs par défaut
-        self.mode_ = MODE_DEFAULT
-
+        #
+        self.option_ = OPTION_DEFAULT
         self.color_ = None      # Outil de colorisation   
         self.adjust_ = False    # Par défaut tous les traitements sont effectués        
         self.iterate_ = DEF_ITERATE
@@ -220,34 +238,34 @@ class options(object):
     # Mode verbeux ?
     @property
     def verbose(self):
-        return self.__isSet(MODE_VERBOSE)   
+        return self.__isSet(OPTION_VERBOSE)   
     @verbose.setter
     def verbose(self, value):
-        self.__set(MODE_VERBOSE, value)
+        self.__set(OPTION_VERBOSE, value)
 
     # Récursivité ?
     @property
     def recurse(self):
-        return self.__isSet(MODE_RECURSE)
+        return self.__isSet(OPTION_RECURSE)
     @recurse.setter
     def recurse(self, value):
-        self.__set(MODE_RECURSE, value)
+        self.__set(OPTION_RECURSE, value)
 
     # Remplissage ?
     @property
     def padding(self):
-        return self.__isSet(MODE_PADDING)
+        return self.__isSet(OPTION_PADDING)
     @padding.setter
     def padding(self, value):
-        self.__set(MODE_PADDING, value)
+        self.__set(OPTION_PADDING, value)
     
     # Test ?
     @property
     def test(self):
-        return self.__isSet(MODE_TEST)
+        return self.__isSet(OPTION_TEST)
     @test.setter
     def test(self, value):
-        self.__set(MODE_TEST, value)
+        self.__set(OPTION_TEST, value)
 
     # Analyse de la ligne de commandes
     #   returne un booléen
@@ -421,16 +439,16 @@ class options(object):
         # Les valeurs doivent être uniques ...
         uniqueVals = set(destFolders)
         for val in uniqueVals:
-            self.clean_.append(val)
-            
-    # Un bit de mode est-il positionné ?
+            self.clean_.append(val) 
+
+    # Un bit d'OPTION_VERBOSE est-il positionné ?
     #
     #   bit : Mode(s) ou bit(s) à rechercher
     #
     #   retourne un booléen
     # 
     def __isSet(self, bit):
-        return (bit == (self.mode_ & bit))
+        return (bit == (self.option_ & bit))
     
     # Positionner ou retirer un bit
     #
@@ -444,9 +462,9 @@ class options(object):
         if set:
             if not inPlace:
                 # on le met
-                self.mode_ = self.mode_ | bit
+                self.option_ = self.option_ | bit
         else:
             if inPlace:
                # on le retire
-               self.mode_ = self.mode_ & ~ bit 
+               self.option_ = self.option_ & ~ bit 
 # EOF           

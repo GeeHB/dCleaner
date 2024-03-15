@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2023 Jérôme Henry-Barnaudière
+Copyright (c) 2024 Jérôme Henry-Barnaudière
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 

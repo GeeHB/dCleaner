@@ -12,7 +12,7 @@
 #
 #   Dépendances : Nécessite psutil
 #
-from parameters import options, APP_NAME, WINDOWS_TRASH, TIME_PREFIX
+import parameters
 import os,sys, traceback
 from datetime import datetime
 from FSObject import FSObject
@@ -54,45 +54,59 @@ class dCleaner:
     # Affichage des paramètres internes de l'objet
     def __repr__(self):
         
+        mode = parameters.MODE_NONE
+        modeStr = ""
+        
         # Quelques informations ...
         #
         res = self.paddingFolder_.partitionUsage()
 
-        mode =  ""
         if self.options_.clear_:
-            mode = "libération"
+            mode = parameters.MODE_CLEAR
+            modeStr = parameters.MODE_CLEAR_STR
         else: 
             if self.options_.padding:
-                mode = "ajustement" if self.options_.adjust_ else "remplissage / nettoyage"
+                if self.options_.adjust_:
+                    mode = parameters.MODE_ADJUST
+                    modeStr = parameters.MODE_ADJUST_STR
+                else:
+                    mode = parameters.MODE_FILL
+                    modeStr = parameters.MODE_FILL_STR
         
         if len(self.options_.clean_) > 0:
-            if len(mode) > 0 : 
-                mode = mode + " & "
-            mode = mode + "vidage de dossier"
+            mode |= parameters.MODE_CLEAN
+            if len(modeStr) > 0 : 
+                modeStr = modeStr + " & "
+            modeStr = modeStr + parameters.MODE_CLEAN_STR
     
         if self.options_.test :
-            mode = "Test | " + mode
+            modeStr = "Test | " + modeStr
+
+        optimize = (mode & parameters.MODE_FILL or mode & parameters.MODE_ADJUST)
 
         if self.options_.verbose:
             out = "Paramètres : " 
-            out += f"\n\t- Mode : {self.options_.color_.colored(mode, formatAttr=[textAttribute.GRAS])}"
+            out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[textAttribute.GRAS])}"
             
-            out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
-            out += f"\n\t- Attente entre 2 fichiers : {self.options_.waitFiles_}s"
-            out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
+            if optimize :
+                out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
+                out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
+            
+                out += f"\n\t- Attente entre 2 fichiers : {self.options_.waitFiles_}s"
+                out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
             
             if False == self.options_.adjust_ :
                 out += f"\n\t- Itérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
-            
-            out += "\n\nPartition : "
-            out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
-            out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
-            
-            if self.options_.padding:
-                out += "\n\nRemplissage : " 
-                out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
-                out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
+
+            if optimize :
+                out += "\n\nPartition : "
+                out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
+                out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
+                
+                if self.options_.padding:
+                    out += "\n\nRemplissage : " 
+                    out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
+                    out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
 
             if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : " 
@@ -106,10 +120,15 @@ class dCleaner:
                     out += "\n"
         else :
             out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
-            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
+            
+            if optimize : 
+                ut += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
+            
             out += "\nMode : " + mode
-            out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
-            out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])                    
+            
+            if optimize :
+                out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
+                out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
             
             if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
                 out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
@@ -269,7 +288,7 @@ def objectFromName(name, params):
         obj = None  # pas encore crée
 
         # Un dossier ?
-        if WINDOWS_TRASH == name :
+        if parameters.WINDOWS_TRASH == name :
             obj = winTrashFolder(opts = params)
         else :
             if FSObject.existsFolder(name):
@@ -303,7 +322,7 @@ if '__main__' == __name__:
     basicFile.init()
 
     # Ma ligne de commandes
-    params = options()
+    params = parameters.options()
     if True == params.parse():
         try:    
             done = True
