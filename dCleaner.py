@@ -124,7 +124,7 @@ class dCleaner:
             if optimize : 
                 ut += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
             
-            out += "\nMode : " + mode
+            out += "\nMode : " + modeStr
             
             if optimize :
                 out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
