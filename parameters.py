@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.9.5"
-APP_RELEASE_DATE = "25/03/2024"
+APP_CURRENT_VERSION = "0.9.6"
+APP_RELEASE_DATE = "26/03/2024"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -36,7 +36,7 @@ PATTERN_MAX_LEN = 74233
 DEF_FOLDER_NAME = ".padding"
 
 # Dossier racine de l'utilisateur courant (fonctionne sous Windows !!!)
-DEF_ROOT_FOLDER = "~"           
+DEF_ROOT_FOLDER = "~"
 
 # Taille d'un fichier (en k ou M octets)
 FILESIZE_MIN = 1
@@ -135,7 +135,7 @@ COMMENT_FILLRATE = "Taux de remplissage de la partition"
 
 DEF_FILLRATE = 80    # Pourcentage de remplissage max. de la partition
 MIN_FILLRATE = 1
-MAX_FILLRATE = 95 
+MAX_FILLRATE = 95
 
 # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 ARG_PADDINGRATE_S = "-p"
@@ -174,7 +174,7 @@ OPTION_TEST    = 1    # On teste ...
 OPTION_PADDING = 2    # Remplissage du dossier de 'padding'
 OPTION_VERBOSE = 4    # Mode verbeux
 OPTION_RECURSE = 8    # Traitement recursif des dossiers
-       
+
 # Valeur par défaut
 OPTION_DEFAULT = OPTION_PADDING | OPTION_VERBOSE
 
@@ -210,27 +210,27 @@ class options(object):
         # Valeurs par défaut
         #
         self.option_ = OPTION_DEFAULT
-        self.color_ = None      # Outil de colorisation   
-        self.adjust_ = False    # Par défaut tous les traitements sont effectués        
+        self.color_ = None      # Outil de colorisation
+        self.adjust_ = False    # Par défaut tous les traitements sont effectués
         self.iterate_ = DEF_ITERATE
-        
+
         self.fillRate_ = DEF_FILLRATE
         self.renewRate_ = DEF_PADDINGRATE
         self.clear_ = False
-    
+
         self.waitFiles_ = MIN_ELAPSEFILES
         self.waitTasks_ = MIN_ELAPSETASKS
-        
+
         self.clean_ = []               # Nettoyage d'un ou plusieurs dossiers
         self.cleanDepth_ = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
-        self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)   
+        self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)
 
         # Liste des dossiers que l'on ne peut supprimer
         #
         self.restricted_ = []
-        self.restricted_.append(self.homeFolder()) 
+        self.restricted_.append(self.homeFolder())
         trashes = self.trashFolders()
         for trash in trashes:
             self.restricted_.append(trash)
@@ -238,7 +238,7 @@ class options(object):
     # Mode verbeux ?
     @property
     def verbose(self):
-        return self.__isSet(OPTION_VERBOSE)   
+        return self.__isSet(OPTION_VERBOSE)
     @verbose.setter
     def verbose(self, value):
         self.__set(OPTION_VERBOSE, value)
@@ -258,7 +258,7 @@ class options(object):
     @padding.setter
     def padding(self, value):
         self.__set(OPTION_PADDING, value)
-    
+
     # Test ?
     @property
     def test(self):
@@ -270,15 +270,15 @@ class options(object):
     # Analyse de la ligne de commandes
     #   returne un booléen
     def parse(self):
-        
+
         parser = argparse.ArgumentParser(epilog = self.version())
-        
+
         parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
         parser.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
         parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
         parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
         parser.add_argument(ARG_RECURSE_S, ARG_RECURSE, action='store_true', help = COMMENT_RECURSE, required = False)
-        
+
         # Arguments mutuellement exclusifs
         lancement = parser.add_mutually_exclusive_group()
         lancement.add_argument(ARG_CLEAR_S, ARG_CLEAR, action='store_true', help = COMMENT_CLEAR, required = False)
@@ -297,7 +297,7 @@ class options(object):
         # Parse de la ligne
         #
         args = parser.parse_args()
-        
+
         # Mode "verbeux"
         self.test = args.test
 
@@ -349,12 +349,12 @@ class options(object):
         self.waitFTasks_ = self.inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
 
         return True
-        
+
     # Dossier "root"
     @staticmethod
     def homeFolder():
         return os.path.expanduser(DEF_ROOT_FOLDER)
-    
+
     # Dossiers de la 'poubelle' de l'agent
     @staticmethod
     def trashFolders():
@@ -368,7 +368,7 @@ class options(object):
             if myPlatform == "Darwin":
                 # MacOS
                 folders.append(os.path.expanduser("~/.Trash"))
-            else:                
+            else:
                 # Pour les Linux / UNIX les dossiers sont à priori les mêmes ...
                 # Les dossiers de la poubelle dans le dossier 'home' de l'utilisateur
                 folders.append(os.path.expanduser("~/.local/share/Trash/files"))
@@ -386,9 +386,9 @@ class options(object):
                             folders.append(ntF)
                     else:
                         folders.append(newTrash)
-                    
+
         return folders
-    
+
     # Affichage de la version de l'application
     #
     #   retourne la chaine caractérisant la version
@@ -402,20 +402,20 @@ class options(object):
     # Le dossier a t'il un accès restreint ?
     #
     def isRectrictedAccess(self, folder):
-        
+
         if folder is not None:
             try:
                 return folder in self.restricted_
             except:
                 pass
-            
+
         # Une erreur ? => blocage
         return True
 
     # Retourne une valeur dans l'intervalle
     def inRange(self, value, min, max):
         return max if value > max else ( min if value < min else value)
-    
+
         #
     # Méthodes à usage interne
     #
@@ -439,17 +439,17 @@ class options(object):
         # Les valeurs doivent être uniques ...
         uniqueVals = set(destFolders)
         for val in uniqueVals:
-            self.clean_.append(val) 
+            self.clean_.append(val)
 
     # Un bit d'OPTION_VERBOSE est-il positionné ?
     #
     #   bit : Mode(s) ou bit(s) à rechercher
     #
     #   retourne un booléen
-    # 
+    #
     def __isSet(self, bit):
         return (bit == (self.option_ & bit))
-    
+
     # Positionner ou retirer un bit
     #
     #   bit : bit à positionner ou retirer
@@ -466,5 +466,5 @@ class options(object):
         else:
             if inPlace:
                # on le retire
-               self.option_ = self.option_ & ~ bit 
-# EOF           
+               self.option_ = self.option_ & ~ bit
+# EOF
