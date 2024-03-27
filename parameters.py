@@ -342,7 +342,7 @@ class options(object):
 
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
-            self._handleCleanFolders(args.clean)
+            self.handleCleanFolders(args.clean)
         
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
