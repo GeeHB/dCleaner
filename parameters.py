@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.9.6"
-APP_RELEASE_DATE = "26/03/2024"
+APP_CURRENT_VERSION = "0.9.7"
+APP_RELEASE_DATE = "27/03/2024"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -343,7 +343,7 @@ class options(object):
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
             self._handleCleanFolders(args.clean)
-
+        
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
         self.waitFTasks_ = self.inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
@@ -416,14 +416,10 @@ class options(object):
     def inRange(self, value, min, max):
         return max if value > max else ( min if value < min else value)
 
-        #
-    # Méthodes à usage interne
-    #
-
     # Liste des dossiers à nettoyer
-    def _handleCleanFolders(self, folders):
+    def handleCleanFolders(self, folders):
         # Liste des poubelles
-        print("Obtention de la liste des \"dossiers poubelle\"")
+        #print("Obtention de la liste des \"dossiers poubelle\"")
         myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs
@@ -440,6 +436,10 @@ class options(object):
         uniqueVals = set(destFolders)
         for val in uniqueVals:
             self.clean_.append(val)
+
+    #
+    # Méthodes à usage interne
+    #
 
     # Un bit d'OPTION_VERBOSE est-il positionné ?
     #
