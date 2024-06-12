@@ -110,7 +110,7 @@ class dCleaner:
 
             if len(self.options_.clean_) > 0 :
                 out += "\n\nVider : "
-                out += f"\n\t - {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
+                out += f"\n\t- {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
                 for FSO in self.options_.clean_:
                     out += f"\n\t\t- [{'fichier' if FSO.isFile() else 'dossier'}] {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
                 out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[textAttribute.GRAS])}"
