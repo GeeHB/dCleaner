@@ -18,12 +18,13 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.9.4
+#### Version 0.9.9
 
-* xx mars 2024
+* 15 juin 2024
 * Corrections 
+  * erreurs sous ChromeOS / Debian
   * retrait code inutile ...
-  * affichage simplifié, en fcontion des actions à faire
+  * affichage simplifié, en fonction des actions à faire
 
 #### Version 0.9.3
 

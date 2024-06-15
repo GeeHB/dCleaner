@@ -22,16 +22,18 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 | Dépôt          | https://github.com/GeeHB/dCleaner                                                                                             |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------|
-| **Date**           | 7 fev. 2024                                                                                                                   |
-| **Version stable** | **0\.9.3 - branche** `master`                                                                                                        |
+| **Date**           | 15 juin 2024                                                                                                                   |
+| **Version stable** | **0\.9.9 - branche** `master`                                                                                                        |
 | **Dépendances**    | Python 3.xx                                                                                                                   |
 |                | **Tous** - *facultatif:* : **alive_progress** de rsalmei (`pip install alive-progress`) - doc : <https://github.com/rsalmei/alive-progress> |
-|                | **Tous** - **psutil** : {`apt-get` / `dnf`} `install python-psutil` ou `pip install psutil` (Windows)                                         |
-|                | **Linux + MacOS** - **termcolor** : `pip install termcolor`                                                                             |
+|                | **Tous** - **psutil** : {`apt-get` / `dnf`} `install python(3)-psutil` ou `pip install psutil` (Windows)                                         |
+|                | **Linux + MacOS** - **termcolor** : `sudo apt install python3-termcolor` ou `pip install termcolor`                                                                             |
 |                | **Windows** - **winshell** et ses dépendances :   `pip install pypiwin32 winshell`                                                      |
-| **Testé sur**      | *Linux (Fedora 37-38) - kernel 6.2.15*                                                                                          |
+| **Testé sur**      | *Linux (Fedora 37-40) - kernel 6.2.15 et sup.*                                                                                          |
 |                | *MacOS Ventura*                                                                                                                 |
 |                | *Windows 10*                                                                                                                    |
+|                | *ChromeOS / Debian 12 10*                                                                                                                    |
+
 
 ## Appel
 
@@ -70,7 +72,7 @@ Les différents paramètres sont définis comme suit :
 ##### Lancement d'un nettoyage simple de la partition (avec les valeurs par défaut):
 
 ```
-./dCleaner.py 
+./dCleaner.py
 ```
 
 ##### Nettoyage intense (5 itérations) avec remplissage de la partition à 80% :

@@ -219,7 +219,7 @@ class dCleaner:
         renewSize = int(res[0] * (100 - self.options_.fillRate_) / 100 * self.options_.renewRate_ / 100)
 
         # on recadre avec l'espace effectivement dispo
-        renewSize = int(options.inRange(None, 0, renewSize, res[2] * self.options_.renewRate_ / 100))
+        renewSize = int(self.options_.inRange(renewSize, 0, res[2] * self.options_.renewRate_ / 100))
 
         if self.options_.verbose:
             self.indented_print("Remplissage", True)
