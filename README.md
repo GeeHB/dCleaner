@@ -159,3 +159,21 @@ Dans l'exemple suivant trois tâches `cron` sont lancées régulièrement : une 
 # <<<
 # <<<
 ```
+
+Les flux de sorties sont tous redirigés vers le fichier de logs `/var/log/dCleaner.log`. On peut donc paramétrer `logrotate` afin que ce fichier ne devienne pas trop volumineux voire inexploitable.
+
+On crée le fichier `/etc/logrotate.d/dCleaner` :
+~~~
+/var/log/dCleaner.log {
+    missingok
+    notifempty
+    rotate 4
+    weekly
+    create 0600 jhb jhb
+}
+~~~
+
+On s'assure que root est bien le propriétaire du fichier :
+~~~
+sudo chown root:root /etc/logrotate.d/dCleaner
+~~~
