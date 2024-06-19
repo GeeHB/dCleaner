@@ -287,7 +287,7 @@ class paddingFolder(basicFolder):
                         pass
                     
                     if not bFile.success():
-                        sys.stderr.print(f"Erreur lors de la suppression de '{fName}'")
+                        sys.stderr.write(f"Erreur lors de la suppression de '{fName}'")
                     else:
                         count += 1
                     
@@ -373,7 +373,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
                             
                             if not bFile.success():
-                                sys.stderr.print(f"Erreur lors de la suppression de '{fullName}'")
+                                sys.stderr.write(f"Erreur lors de la suppression de '{fullName}'")
                             else:
                                 deletedFiles += 1
                         else:
@@ -381,7 +381,7 @@ class paddingFolder(basicFolder):
                             if self.rmdir(fullName):
                                 deletedFolders += 1
                             else:
-                                sys.stderr.print(f"Erreur lors de la suppression de '{fullName}'")
+                                sys.stderr.write(f"Erreur lors de la suppression de '{fullName}'")
                 else:
                     # Dossier windows ?
                     if type(FSO) is winTrashFolder:
@@ -405,7 +405,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
                             # Terminé
                             if not FSO.success():
-                                sys.stderr.print(f"Erreur lors de la suppression de '{FSO.name}'")
+                                sys.stderr.write(f"Erreur lors de la suppression de '{FSO.name}'")
                             else:
                                 deletedFiles += 1
 
@@ -435,14 +435,14 @@ class paddingFolder(basicFolder):
             try :
                 import winshell
             except ModuleNotFoundError:
-                sys.stderr.print("Erreur - Le module 'winshell' est absent")
+                sys.stderr.write("Erreur - Le module 'winshell' est absent")
                 return False
             
             # On peut essayer de la vider
             try:
                 winshell.recycle_bin().empty(False, False, False)
             except:
-                sys.stderr.print("Erreur - impossible de vider la corbeille Windows")
+                sys.stderr.write("Erreur - impossible de vider la corbeille Windows")
                 return False
             
             return True

@@ -195,7 +195,7 @@ class dCleaner:
                 print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
 
                 if len(res[1]) > 0:
-                    sys.stderr.print(f"Erreur lors du vidage du dossier de remplissage : {res[1]}")
+                    sys.stderr.write(f"Erreur lors du vidage du dossier de remplissage : {res[1]}")
                     return False
             else:
                 # Retrait du "minimum"
@@ -236,7 +236,7 @@ class dCleaner:
     def indented_print(self, line, date = False):
         if date:
             today = datetime.now()
-            prefix = today.strftime(TIME_PREFIX)
+            prefix = f"{today.strftime(parameters.TIME_PREFIX)}[{os.getpid()}] "
         else:
             prefix = ""
         print("\t-"+prefix+line)
@@ -298,11 +298,11 @@ def objectFromName(name, params):
             res = obj.init(name)
             if False == res[0]:
                 if len(res[1]):
-                    sys.stderr.print(res[1])
+                    sys.stderr.write(res[1])
                 return None
 
         if obj is None:
-            sys.stderr.print(f"Nettoyage : '{name}' n'existe pas")
+            sys.stderr.write(f"Nettoyage : '{name}' n'existe pas")
 
         return obj
 
@@ -335,7 +335,7 @@ if '__main__' == __name__:
                 #
                 # Encore des dossiers dans la liste ?
                 if False == _listOfFolders(params):
-                    sys.stderr.print("Pas de dossier ou de fichier à nettoyer")
+                    sys.stderr.write("Pas de dossier ou de fichier à nettoyer")
 
             # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
@@ -345,7 +345,7 @@ if '__main__' == __name__:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
                 if len(res[2]) > 0  and res[3]:
-                    sys.stderr.print(f"Erreur lors de la suppression : {res[2]}")
+                    sys.stderr.write(f"Erreur lors de la suppression : {res[2]}")
                 else:
                     print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
             else:
@@ -356,7 +356,7 @@ if '__main__' == __name__:
                     if len(res[2]) > 0 :
                         if res[3]:
                             # Une erreur
-                            sys.stderr.print(f"Erreur lors de la suppression : {res[2]}")
+                            sys.stderr.write(f"Erreur lors de la suppression : {res[2]}")
                         else:
                             # Juste un message ...
                             print(res[2])
@@ -383,11 +383,11 @@ if '__main__' == __name__:
                             cleaner.cleanPartition()
 
         except IOError as ioe:
-            sys.stderr.print(f"Erreur de paramètre(s) : {str(ioe)}")
+            sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}")
         except KeyboardInterrupt as kbe:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except ValueError as ve:
-            sys.stderr.print(f"Erreur d'initialisation : {str(ve)}")
+            sys.stderr.write(f"Erreur d'initialisation : {str(ve)}")
         except Exception as be:
             # Récupération des informations sur l'exception
             _, _, exc_traceback = sys.exc_info()
@@ -395,10 +395,10 @@ if '__main__' == __name__:
             for frame in traceback.extract_tb(exc_traceback):
                 pass
 
-            sys.stderr.print(f"Autre erreur - {str(be)}")
-            sys.stderr.print(f"  - Fichier: {os.path.split(frame.filename)[1]}")
-            sys.stderr.print(f"  - Ligne: {frame.lineno}")
-            sys.stderr.print(f"  - Code: {frame.line}")
+            sys.stderr.write(f"Autre erreur - {str(be)}")
+            sys.stderr.write(f"  - Fichier: {os.path.split(frame.filename)[1]}")
+            sys.stderr.write(f"  - Ligne: {frame.lineno}")
+            sys.stderr.write(f"  - Code: {frame.line}")
 
 
     #  La fin, la vraie !

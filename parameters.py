@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.9.9"
-APP_RELEASE_DATE = "15/06/2024"
+APP_CURRENT_VERSION = "0.10.1"
+APP_RELEASE_DATE = "19/06/2024"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -51,7 +51,7 @@ WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de W
 
 # Constantes générales
 #
-TIME_PREFIX = "[%H:%M:%S] "
+TIME_PREFIX = "%H:%M:%S "
 
 #
 # Commandes / arguments reconnu(e)s (longues et courtes)
