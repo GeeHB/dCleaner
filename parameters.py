@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.10.1"
-APP_RELEASE_DATE = "19/06/2024"
+APP_CURRENT_VERSION = "0.10.2"
+APP_RELEASE_DATE = "20/06/2024"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -397,7 +397,7 @@ class options(object):
         if None == self.color_:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose), addPID=(False == self.verbose))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     # Le dossier a t'il un accès restreint ?
     #

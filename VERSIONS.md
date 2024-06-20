@@ -18,10 +18,10 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.10.1
-* 19 juin 2024
+#### Version 0.10.2
+* 20 juin 2024
 * Ajouts
-  * Affichage du pid dans les logs
+  * Affichage (optionnel) du pid dans les logs
 * Corrections 
   * stderr.write
   * format de l'heure

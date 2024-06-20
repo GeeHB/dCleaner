@@ -18,14 +18,14 @@ try :
 except ModuleNotFoundError:
     packageTermColor__ = False
 
-import os
-
 # Pour l'ajout de la date et de l'heure en mode "logs
+import os
 from datetime import datetime
 
 # Format de la date (pour les logs)
-#
-LOG_DATE_FORMAT = "%d/%m/%Y - %H:%M:%S "
+LOG_DATE_FORMAT = "%d/%m/%Y-%H:%M:%S"
+
+# Avec le PID
 LOG_DATE_FORMAT_PID = f"{LOG_DATE_FORMAT}[{os.getpid()}] "
 
 # Messages d'erreur
@@ -94,13 +94,13 @@ class colorizer:
     
     # Formatage d'une ligne de texte
     #   Retourne la chaine complète
-    def colored(self, text, txtColor = None, bkColor = None, formatAttr = None, datePrefix = False):
+    def colored(self, text, txtColor = None, bkColor = None, formatAttr = None, datePrefix = False, addPID = False):
         
         prefix = ""
         if datePrefix:
             # En mode log. on ajoute la date et l'heure
             today = datetime.now()
-            prefix = today.strftime(LOG_DATE_FORMAT_PID)
+            prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
         
         # On colorise ou pas ...
         return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)

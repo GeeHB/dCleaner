@@ -200,7 +200,7 @@ class dCleaner:
             else:
                 # Retrait du "minimum"
                 if not self.options_.verbose:
-                    print(params.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True))
+                    print(params.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
                 self.paddingFolder_.deleteFiles(size=gap)
 
             return True
@@ -403,6 +403,6 @@ if '__main__' == __name__:
 
     #  La fin, la vraie !
     if done:
-        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose)))
+        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose), addPID = (False == params.verbose)))
 
 # EOF
