@@ -76,13 +76,13 @@ class textAttribute:
 #   colorizer  - Colorisation du texte
 #
 class colorizer:
-    
+
     colored_ = False       # Doit-on coloriser ?
 
     # Construction
     def __init__(self, colored = True, message = True):
-        self.setColorized(packageTermColor__ if None == colored else colored, message)
-                        
+        self.setColorized(packageTermColor__ if colored is None else colored, message)
+
     # Mise en place de la colorisation
     def setColorized(self, colored = True, message = None):
         self.colored_ = colored
@@ -91,17 +91,17 @@ class colorizer:
             self.colored_ = False
             if message is not None:
                 print(MSG_NO_TERM_COLOR)
-    
+
     # Formatage d'une ligne de texte
     #   Retourne la chaine complète
     def colored(self, text, txtColor = None, bkColor = None, formatAttr = None, datePrefix = False, addPID = False):
-        
+
         prefix = ""
         if datePrefix:
             # En mode log. on ajoute la date et l'heure
             today = datetime.now()
             prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
-        
+
         # On colorise ou pas ...
         return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)
 
@@ -111,7 +111,7 @@ class colorizer:
         if True == checked:
             box+=self.colored("OK", textColor.VERT)
         else:
-            box+=self.colored("KO", textColor.ROUGE if color == None else color)
+            box+=self.colored("KO", textColor.ROUGE if color is None else color)
         box+="]"
         if len(text) > 0 :
             box+=" "

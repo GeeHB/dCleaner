@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.10.2"
-APP_RELEASE_DATE = "20/06/2024"
+APP_CURRENT_VERSION = "0.10.3"
+APP_RELEASE_DATE = "18/07/2024"
 APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
 
 #
@@ -305,7 +305,7 @@ class options(object):
         self.verbose = (False == args.log)
 
         # Colorisation des affichages ?
-        if None == self.color_:
+        if self.color_ is None:
             self.color_ = color.colorizer(False if not self.verbose else not args.nocolor)
         else:
             self.color_.setColorized(False if not self.verbose else not args.nocolor)
@@ -343,7 +343,7 @@ class options(object):
         # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
             self.handleCleanFolders(args.clean)
-        
+
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
         self.waitFTasks_ = self.inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
@@ -394,7 +394,7 @@ class options(object):
     #   retourne la chaine caractérisant la version
     #
     def version(self):
-        if None == self.color_:
+        if self.color_ is None:
             self.color_ = color.colorizer(True)
 
         return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose), addPID=(False == self.verbose))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"

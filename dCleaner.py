@@ -12,8 +12,9 @@
 #
 #   Dépendances : Nécessite psutil
 #
+from typing_extensions import Buffer
 import parameters
-import os,sys, traceback
+import os,sys, traceback, random
 from datetime import datetime
 from FSObject import FSObject
 from basicFile import basicFile
@@ -28,12 +29,11 @@ from sharedTools.colorizer import textAttribute, textColor
 class dCleaner:
     # Données membre
     #
-    options_ = None
 
     # Construction
     def __init__(self, options):
         # Initialisation des données membres
-        if None == options or None == options.folder_:
+        if options is None or options.folder_ is None:
             raise ValueError("Pas de paramètre ou paramètres incorrects")
 
         self.options_ = options
@@ -144,12 +144,12 @@ class dCleaner:
     #
     #   fList : liste des dossiers ou fichiers à supprimer (dossier de remplissage / 'padding' si non précisé)
     #
-    #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "")
+    #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "", erreur ?)
     #
     def cleanFolders(self, fList = None):
         if fList is None or 0 == len(fList):
             ret = self.paddingFolder_.clean()
-            return ret[0], 0, ret[1]
+            return ret[0], 0, ret[1], True
         else:
             return self.paddingFolder_.cleanFolders(fList)
 
@@ -200,7 +200,7 @@ class dCleaner:
             else:
                 # Retrait du "minimum"
                 if not self.options_.verbose:
-                    print(params.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
+                    print(self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
                 self.paddingFolder_.deleteFiles(size=gap)
 
             return True
@@ -283,7 +283,7 @@ def _listOfFolders(params):
 def objectFromName(name, params):
     # Un fichier ?
     if FSObject.existsFile(name):
-        return basicFile(parameters = params, FQN = name, iterate = params.iterate_)
+        return basicFile(parameters = params, FQN = name)
     else:
         obj = None  # pas encore crée
 
@@ -313,13 +313,13 @@ if '__main__' == __name__:
 
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
-        print(f"{APP_NAME} doit être lancé par un compte 'non root'")
+        print(f"{parameters.APP_NAME} doit être lancé par un compte 'non root'")
         exit()
 
     done = False
 
     # Initialisations
-    basicFile.init()
+    random.seed()
 
     # Ma ligne de commandes
     params = parameters.options()
@@ -385,24 +385,26 @@ if '__main__' == __name__:
         except IOError as ioe:
             sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}")
         except KeyboardInterrupt as kbe:
-            print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
+            if params.color_ is not None:
+                print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except ValueError as ve:
             sys.stderr.write(f"Erreur d'initialisation : {str(ve)}")
         except Exception as be:
             # Récupération des informations sur l'exception
             _, _, exc_traceback = sys.exc_info()
             # Juste la dernière ligne
+            lastFrame = None
             for frame in traceback.extract_tb(exc_traceback):
-                pass
+                lastFrame = frame
 
-            sys.stderr.write(f"Autre erreur - {str(be)}")
-            sys.stderr.write(f"  - Fichier: {os.path.split(frame.filename)[1]}")
-            sys.stderr.write(f"  - Ligne: {frame.lineno}")
-            sys.stderr.write(f"  - Code: {frame.line}")
-
+            if lastFrame is not None :
+                sys.stderr.write(f"Autre erreur - {str(be)}")
+                sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}")
+                sys.stderr.write(f"  - Ligne: {lastFrame.lineno}")
+                sys.stderr.write(f"  - Code: {lastFrame.line}")
 
     #  La fin, la vraie !
-    if done:
+    if done and params.color_ is not None:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose), addPID = (False == params.verbose)))
 
 # EOF

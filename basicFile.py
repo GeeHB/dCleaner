@@ -6,7 +6,7 @@
 #
 #   Description :   Définition de l'objet basicFile pour la gestion d'un fichier
 #
-#   Remarque    : 
+#   Remarque    :
 #
 import os, random, datetime, hashlib
 from FSObject import FSObject
@@ -16,15 +16,16 @@ from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_
 # Classe basicFile - un fichier (à créer, salir ou supprimer)
 #
 class basicFile(FSObject):
-    
+
     # Constructeur
     def __init__(self, parameters, path = None, fName = None, FQN = None):
-        
+
         super().__init__(parameters)
 
         # Initialisation des données membres
         self.pattern_ = ""
         self.error_ = ""
+        self.name_ = ""
 
         # Un nom complet (ie. le fichier existe !!!)
         if FQN is not None :
@@ -50,20 +51,15 @@ class basicFile(FSObject):
     # Est-ce un fichier ?
     def isFile(self):
         return True
-    
-    # Initialisation du générateur aléatoire
-    @staticmethod
-    def init():
-        random.seed()
 
     # Nom du fichier
     @property
     def name(self):
         return self.name_ if self.name_ is not None else ""
-    
+
     @name.setter
     def name(self, value):
-        self.name_ = value
+        self.name_ = value if isinstance(value, str) else ""
 
     # Nom court
     def shortName(self):
@@ -71,7 +67,7 @@ class basicFile(FSObject):
             return ""
         _, sName = os.path.split(self.name_)
         return sName
-    
+
     # Nom du dossier
     def folder(self):
         if 0 == len(self.name):
@@ -79,7 +75,7 @@ class basicFile(FSObject):
 
         f, _ = os.path.split(self.name)
         return f
-    
+
     #
     # Gestion des erreurs
     #
@@ -90,7 +86,7 @@ class basicFile(FSObject):
             # Effacement du message après consultation
             self.error_ = ""
         return message
-    
+
     @error.setter
     def error(self, value):
         self.error_ = value
@@ -111,7 +107,7 @@ class basicFile(FSObject):
     #   maxFileSize : Taille max. n octets d'un fichier
     #
     def create(self, fileSize = 0, maxFileSize = 0):
-        if not self.options.test: 
+        if not self.options.test:
             if len(self.name):
                 # Si le fichier existe, je le supprime ...
                 if self.exists():
@@ -119,7 +115,7 @@ class basicFile(FSObject):
             else:
                 # Pas de nom
                 self.error = f"Impossible de créer le fichier. Il n'a pas de nom"
-                    
+
             if self.success():
                 # Creation à la "bonne taille"
                 for _ in range(self.options.iterate_):
@@ -144,15 +140,15 @@ class basicFile(FSObject):
             # Nouveau nom
             if rename and len(self.rename()) == 0:
                 self.error = f"Impossible de renommer '{self.name_}'"
-            
+
     # Renomage
     #
-    #   Retourne le nouveau nom (ou None en cas d'erreur)
+    #   Retourne le nouveau nom (ou "" en cas d'erreur)
     def rename(self):
         #if (not force and self.exists()) or force:
         if not self.options.test and self.exists():
             folder, _ = os.path.split(self.name)
-            
+
             # Nouveau nom "complet"
             name = self.genName(folder)
             try:
@@ -160,7 +156,7 @@ class basicFile(FSObject):
                 self.name_ = name
             except OSError:
                 # une erreur
-                return None
+                return ""
 
             return name
 
@@ -175,14 +171,14 @@ class basicFile(FSObject):
     #
     def delete(self, replace = True):
         # Le fichier doit exister
-        if not self.options.test and self.exists():   
+        if not self.options.test and self.exists():
             # Remplacement du contenu ?
             if replace:
                 # Nouveau nom
-                nName = self.rename() 
+                nName = self.rename()
                 if nName is None or len(nName) == 0:
-                    self.error = f"Impossible de renommer '{self.name_}'"     
-                    
+                    self.error = f"Impossible de renommer '{self.name_}'"
+
                 # Nouveau contenu (on itère l'effacement)
                 for _ in range(self.options.iterate_):
                     for fragment in self._create():
@@ -190,7 +186,7 @@ class basicFile(FSObject):
 
                 if False == self.success():
                     return
-            
+
             # Dans tous les cas, effacement
             try:
                 if len(self.name_)>0:
@@ -200,8 +196,8 @@ class basicFile(FSObject):
 
     # Taille en octets (ou None en cas d'erreur)
     def size(self):
-        return None if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
-    
+        return 0 if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
+
     # Nombre de fichier(s) contenus
     def files(self):
         # Juste moi ...
@@ -211,24 +207,25 @@ class basicFile(FSObject):
     #
     def exists(self):
         return False if len(self.name) == 0 else FSObject.existsFile(self.name)
-            
+
     # Génération d'un nom de fichier pour un fichier existant ou un nouveau fichier
     #
     #   parentFolder : dossier parent (qui contiendra le nouvel élément)
     #   folder : S'agit'il d'un dossier ?
     #
-    #   Retourne le nouveau nom complet ou None en cas d'anomalie
+    #   Retourne le nouveau nom complet ou "" en cas d'anomalie
     @staticmethod
     def genName(parentFolder, folder = False):
         # Dossier parent
         if parentFolder is None:
-            return None
-            
+            return ""
+
         # Tant qu'il existe (avec le même nom)
         generate = True
+        fName = ""
         while True == generate:
             fName = os.path.join(parentFolder, basicFile._genName())
-        
+
             # Si le fichier ou le dossier existe on génère un nouveau nom
             #generate = os.path.isdir(fName) if folder else self.exists(fName)
             generate = FSObject.existsFolder(fName) if folder else FSObject.existsFile(fName)
@@ -287,7 +284,7 @@ class basicFile(FSObject):
         # Taille du buffer
         buffSize = pSize if pSize < fileSize else fileSize
 
-        # Ouverture / création du fichier            
+        # Ouverture / création du fichier
         currentSize = 0
         try:
             file = open(self.name_, 'w')
