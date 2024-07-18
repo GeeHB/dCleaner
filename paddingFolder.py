@@ -199,7 +199,7 @@ class paddingFolder(basicFolder):
                     barMax = count
                     barMonitor = "{count} / {total} - {percent:.0%}"
 
-                with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore
+                with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
                     # Suppression des fichiers
                     try:
                         # Les fichiers du dossier
@@ -285,7 +285,7 @@ class paddingFolder(basicFolder):
             from fakeProgressBar import fakeProgressBar as progressBar
 
         # Vidage du dossier (sans récursivité)
-        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore
+        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
             for isFile, fName in super().browse(self.options.folder_):
                 if isFile:
                     # Suppression du fichier
@@ -335,7 +335,7 @@ class paddingFolder(basicFolder):
             print("Estimation de la taille totale de dossier à supprimer ou vider")
 
         barMax = expectedFiles = expectedFolders = 0
-        with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore
+        with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
             for FSO in fList:
                 try:
                     ret = FSO.sizes(recurse = self.options.recurse)
@@ -358,7 +358,7 @@ class paddingFolder(basicFolder):
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.options.iterate_)
-        with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore
+        with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
             for FSO in fList:
                 # Un dossier
                 if type(FSO) is basicFolder:
@@ -441,19 +441,20 @@ class paddingFolder(basicFolder):
         myPlatform = platform.system()
         if  myPlatform == "Windows":
             try :
-                import winshell # pyright: ignore
+                import winshell # pyright: ignore[reportMissingImports]
+
+                # On peut essayer de la vider
+                try:
+                    winshell.recycle_bin().empty(False, False, False)
+                except:
+                    sys.stderr.write("Erreur - impossible de vider la corbeille Windows")
+                    return False
+
+                return True
+
             except ModuleNotFoundError:
                 sys.stderr.write("Erreur - Le module 'winshell' est absent")
                 return False
-
-            # On peut essayer de la vider
-            try:
-                winshell.recycle_bin().empty(False, False, False)
-            except:
-                sys.stderr.write("Erreur - impossible de vider la corbeille Windows")
-                return False
-
-            return True
 
         # Pas sous Windows ...
         return False
