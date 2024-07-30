@@ -195,7 +195,7 @@ class dCleaner:
                 print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
 
                 if len(res[1]) > 0:
-                    sys.stderr.write(f"Erreur lors du vidage du dossier de remplissage : {res[1]}")
+                    sys.stderr.write(f"Erreur lors du vidage du dossier de remplissage : {res[1]}\n")
                     return False
             else:
                 # Retrait du "minimum"
@@ -298,11 +298,11 @@ def objectFromName(name, params):
             res = obj.init(name)
             if False == res[0]:
                 if len(res[1]):
-                    sys.stderr.write(res[1])
+                    sys.stderr.write(f"{res[1]}\n")
                 return None
 
         if obj is None:
-            sys.stderr.write(f"Nettoyage : '{name}' n'existe pas")
+            sys.stderr.write(f"Nettoyage : '{name}' n'existe pas\n")
 
         return obj
 
@@ -335,7 +335,7 @@ if '__main__' == __name__:
                 #
                 # Encore des dossiers dans la liste ?
                 if False == _listOfFolders(params):
-                    sys.stderr.write("Pas de dossier ou de fichier à nettoyer")
+                    sys.stderr.write("Pas de dossier ou de fichier à nettoyer\n")
 
             # Lancement de l'application avec les paramètres
             cleaner = dCleaner(params)
@@ -345,7 +345,7 @@ if '__main__' == __name__:
                 print("Nettoyage du dossier de 'padding'")
                 res = cleaner.cleanFolders()
                 if len(res[2]) > 0  and res[3]:
-                    sys.stderr.write(f"Erreur lors de la suppression : {res[2]}")
+                    sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
                 else:
                     print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
             else:
@@ -356,7 +356,7 @@ if '__main__' == __name__:
                     if len(res[2]) > 0 :
                         if res[3]:
                             # Une erreur
-                            sys.stderr.write(f"Erreur lors de la suppression : {res[2]}")
+                            sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
                         else:
                             # Juste un message ...
                             print(res[2])
@@ -383,12 +383,12 @@ if '__main__' == __name__:
                             cleaner.cleanPartition()
 
         except IOError as ioe:
-            sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}")
+            sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}\n")
         except KeyboardInterrupt as kbe:
             if params.color_ is not None:
                 print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
         except ValueError as ve:
-            sys.stderr.write(f"Erreur d'initialisation : {str(ve)}")
+            sys.stderr.write(f"Erreur d'initialisation : {str(ve)}\n")
         except Exception as be:
             # Récupération des informations sur l'exception
             _, _, exc_traceback = sys.exc_info()
@@ -398,11 +398,11 @@ if '__main__' == __name__:
                 lastFrame = frame
 
             if lastFrame is not None :
-                sys.stderr.write(f"Autre erreur - {str(be)}")
-                sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}")
-                sys.stderr.write(f"  - Ligne: {lastFrame.lineno}")
-                sys.stderr.write(f"  - Code: {lastFrame.line}")
-
+                sys.stderr.write(f"Autre erreur - {str(be)}\n")
+                sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}\n")
+                sys.stderr.write(f"  - Ligne: {lastFrame.lineno}\n")
+                sys.stderr.write(f"  - Code: {lastFrame.line}\n")
+        
     #  La fin, la vraie !
     if done and params.color_ is not None:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose), addPID = (False == params.verbose)))

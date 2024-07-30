@@ -295,7 +295,7 @@ class paddingFolder(basicFolder):
                         pass
 
                     if not bFile.success():
-                        sys.stderr.write(f"Erreur lors de la suppression de '{fName}'")
+                        sys.stderr.write(f"paddingFolder::clean - Erreur lors de la suppression de '{fName}'\n")
                     else:
                         count += 1
 
@@ -381,7 +381,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
 
                             if not bFile.success():
-                                sys.stderr.write(f"Erreur lors de la suppression de '{fullName}'")
+                                sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression itérative de '{fullName}'\n")
                             else:
                                 deletedFiles += 1
                         else:
@@ -389,7 +389,7 @@ class paddingFolder(basicFolder):
                             if self.rmdir(fullName):
                                 deletedFolders += 1
                             else:
-                                sys.stderr.write(f"Erreur lors de la suppression de '{fullName}'")
+                                sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression du dossier '{fullName}'\n")
                 else:
                     # Dossier windows ?
                     if type(FSO) is winTrashFolder:
@@ -413,7 +413,7 @@ class paddingFolder(basicFolder):
                                         bar(barInc)
                             # Terminé
                             if not FSO.success():
-                                sys.stderr.write(f"Erreur lors de la suppression de '{FSO.name}'")
+                                sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression du fichier '{FSO.name}'\n")
                             else:
                                 deletedFiles += 1
 
@@ -447,13 +447,13 @@ class paddingFolder(basicFolder):
                 try:
                     winshell.recycle_bin().empty(False, False, False)
                 except:
-                    sys.stderr.write("Erreur - impossible de vider la corbeille Windows")
+                    sys.stderr.write("Erreur - impossible de vider la corbeille Windows\n")
                     return False
 
                 return True
 
             except ModuleNotFoundError:
-                sys.stderr.write("Erreur - Le module 'winshell' est absent")
+                sys.stderr.write("Erreur - Le module 'winshell' est absent\n")
                 return False
 
         # Pas sous Windows ...

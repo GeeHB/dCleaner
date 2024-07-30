@@ -8,7 +8,7 @@
 #
 #   Remarque    :
 #
-import os, random, datetime, hashlib
+import os, stat, random, datetime, hashlib
 from FSObject import FSObject
 from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
 
@@ -172,6 +172,16 @@ class basicFile(FSObject):
     def delete(self, replace = True):
         # Le fichier doit exister
         if not self.options.test and self.exists():
+            
+            # L'accès en lecture et en ecriture doit être possible
+            if False == os.access(self.name_, os.W_OK):
+                # sys.stderr.write(f"basicFile::cleanFolders - Erreur '{self.name_}' n'a pas l'attribut d'ecriture\n")
+                try:
+                    os.chmod(self.name_, stat.S_IWUSR)
+                except OSError:
+                    self.error = f"Erreur - pas d'accès en ecriture pour '{self.name_}'"
+                    return
+
             # Remplacement du contenu ?
             if replace:
                 # Nouveau nom
