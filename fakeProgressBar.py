@@ -9,22 +9,13 @@
 
 from contextlib import contextmanager
 
-"""
+# Constantes
+#
+MSG_NO_ALIVE_PROGRESS = "Le module 'alive_progress.alive_bar' n'est pas installé. Essayez : pip install alive-progress")
+
 #
 # Ma barre ...
 #
-class fakeProgressBar:
-    
-    # Constructeur // alive_progress 
-    def __init__(self, maxValue, title = "", monitor = "", monitor_end = "", elapsed = "", elapsed_end = "", stats = False):
-        pass
-    
-    # Surcharges pour pouvoir utiliser "with"
-    def __enter__(self):
-        pass
-    def __exit__(self, exc_type,exc_value, exc_traceback):
-        pass
-"""
 
 # Version 2 en utilisant un decorateur sur la fonction (qui ne fait rien)
 @contextmanager

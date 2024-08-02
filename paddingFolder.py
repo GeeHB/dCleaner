@@ -120,7 +120,7 @@ class paddingFolder(basicFolder):
                     # Retrait de la barre de progression
                     print('\033[F', end='')
                 except ImportError as e:
-                    print("Le module 'alive_progress.alive_bar' n'a pu être importé")
+                    print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                     self.options.verbose = False
 
                     # sans barre de progression ...
@@ -181,7 +181,7 @@ class paddingFolder(basicFolder):
                     try:
                         from alive_progress import alive_bar as progressBar
                     except ImportError as e:
-                        print("Le module 'alive_progress.alive_bar' n'a pu être importé")
+                        print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                         self.options.verbose = False
 
                 if not self.options.verbose:
@@ -278,7 +278,7 @@ class paddingFolder(basicFolder):
             try:
                 from alive_progress import alive_bar as progressBar
             except ImportError as e:
-                print("Le module 'alive_progress.alive_bar' n'a pu être importé")
+                print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.verbose = False
 
         if not self.options.verbose:
@@ -325,7 +325,7 @@ class paddingFolder(basicFolder):
             try:
                 from alive_progress import alive_bar as progressBar
             except ImportError as e:
-                print("Le module 'alive_progress.alive_bar' n'a pu être importé")
+                print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.verbose = False
 
         if not self.options.verbose:
