@@ -11,7 +11,7 @@ from contextlib import contextmanager
 
 # Constantes
 #
-MSG_NO_ALIVE_PROGRESS = "Le module 'alive_progress.alive_bar' n'est pas installé. Essayez : pip install alive-progress")
+MSG_NO_ALIVE_PROGRESS = "Le module 'alive_progress.alive_bar' n'est pas installé. Essayez : pip install alive-progress"
 
 #
 # Ma barre ...

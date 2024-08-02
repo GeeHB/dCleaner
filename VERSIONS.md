@@ -18,8 +18,8 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.10.4
-* 30 juillet 2024
+#### Version 0.10.5
+* 2 aout 2024
 * Ajouts
   * Affichage (optionnel) du pid dans les logs
 * Corrections
@@ -28,6 +28,7 @@
   * Erreurs et notifications remontées par pyRight
   * Saut de lignes absents avec sys.stderr.write
   * Vérification que les fichiers ont l'attribut d'écriture mis (à défaut on essaye de le positionner)
+  * Message en cas d'absence des modules alive-progress et psutil
 
 #### Version 0.9.9
 * 15 juin 2024

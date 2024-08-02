@@ -22,11 +22,11 @@ import os
 try:
     import psutil
 except ModuleNotFoundError:
-    print("Erreur - Le module 'psutil' n'a pu être importé")
+    print("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
     exit(1)
 
-# Liste des points montage 
-#   
+# Liste des points montage
+#
 #   Generator - "retourne" les dossiers existants
 #
 def mountPointTrashes(id, display = False):
