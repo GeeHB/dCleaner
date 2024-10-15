@@ -14,8 +14,8 @@ from mountPoints import mountPointTrashes
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
 APP_CURRENT_VERSION = "0.10.5"
-APP_RELEASE_DATE = "02/08/2024"
-APP_AUTHOR = "GeeHB - j.henrybarnaudiere@gmail.com"
+APP_RELEASE_DATE = "15/10/2024"
+APP_AUTHOR = "JHB - henry-barnaudiere.j@allier.fr"
 
 #
 # Motif aléatoire
