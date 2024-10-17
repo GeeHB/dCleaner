@@ -122,22 +122,22 @@ class paddingFolder(basicFolder):
                 except ImportError as e:
                     print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                     self.options.verbose = False
+            else:
+                # sans barre de progression ...
+                while totalSize < expectedFillSize and cont:
+                    # Création d'un fichier sans nom
+                    bFile = basicFile(parameters = self.options, path = self.name, fName = None)
+                    bFile.create(maxFileSize = still)
+                    for fragment in bFile.create(maxFileSize = still) :
+                        totalSize+=fragment
+                        still-=fragment
 
-                    # sans barre de progression ...
-                    while totalSize < expectedFillSize and cont:
-                        # Création d'un fichier sans nom
-                        bFile = basicFile(parameters = self.options, path = self.name, fName = None)
-                        bFile.create(maxFileSize = still)
-                        for fragment in bFile.create(maxFileSize = still) :
-                            totalSize+=fragment
-                            still-=fragment
+                    # Un fichier de plus
+                    files+=1
 
-                        # Un fichier de plus
-                        files+=1
-
-                        # On attend ...
-                        if self.options.waitFiles_ > 0:
-                            self.wait(self.options.waitFiles_)
+                    # On attend ...
+                    if self.options.waitFiles_ > 0:
+                        self.wait(self.options.waitFiles_)
 
             offset = "\t " if iterate else ""
             print(f"{offset}Remplissage de {FSObject.size2String(totalSize / self.options.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
