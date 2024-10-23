@@ -353,7 +353,7 @@ class paddingFolder(basicFolder):
         if 0 == expectedFolders and 0 == expectedFiles:
             return 0, 0, "Rien à supprimer", False
 
-        print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}.")
+        print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}")
 
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0

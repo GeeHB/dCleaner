@@ -22,8 +22,9 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 | Dépôt          | dCleaner                                                                                                                      |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------|
-| **Date**           | 17 oct. 2024                                                                                                                  |
-| **Version stable** | **0.10.6 - branche** `master`                                                                                                       |
+| **Date**           | 23 oct. 2024                                                                                                                  |
+| **Auteur** | JHB - [henry-barnaudiere.j@allier.fr](mailto:henry-barnaudiere.j@allier.fr) |
+| **Version stable** | **0.10.7 - branche** `master`                                                                                                       |
 | **Dépendances**    | Python 3.xx                                                                                                                   |
 |                | **Tous** - *facultatif:* : **alive_progress** de rsalmei (`pip install alive-progress`) - doc : <https://github.com/rsalmei/alive-progress> |
 |                | **Tous** - **psutil** : {`apt-get` / `dnf`} `install python(3)-psutil` ou `pip install psutil` (Windows)                                      |
@@ -50,7 +51,7 @@ Les différents paramètres sont définis comme suit :
 | *-r*                      | *--recurse*                   |                   | Récursivité dans la suppression du contenu des dossiers. Ce paramètre est ignoré en mode remplissage.                                                                                                                                                                                                                                                                |
 | *-fi* {%}                 | *--fill* {%}                  | 80                | Taux de remplissage attendu pour la partition.                                                                                                                                                                                                                                                                                                                       |
 | *-p* {%}                  | *--padding* {%}               | 50                | Taux (en % de la taille libre) à nettoyer. Par exemple, s'il reste 70Go de libre dans la partition, un taux de 50% entrainera la génération de fichiers à hauteur de 35Go puis la suppression de 35Go de fichiers de remplissage. Tous les fichiers en question seront crées ou pris dans le dossier de remplissage.                                                 |
-| *-a*                      | *--adjust*                    |                   | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *-fill* |
+| *-a*                      | *--adjust*                    |                   | Ajustement de la taille du dossier de remplissage. Cette option permet de s'assurer que le dossier de remplissage ne prend pas plus de place que demandé ou inversement qu'il n'est pas trop peu rempli. A défaut des fichiers sont supprimés ou ajoutés en fonction de la comparaison entre le taux de remplissage actuel et le taux demandé par le paramètre *-fill*. |
 | *-c* {fichiers/ dossiers} | *--clean* {fichiers/dossiers} |                   | Suppression du contenu des {dossiers} ou des {fichiers}. Par exemple la suppression de 3 dossiers et d'un fichier: -clean ~/mon_dossier ~/mon_fichier.txt /etc/temp %trash%. **Les mots clé *%trash%* et __trash__ désignent le ou les dossiers corbeille de l'utilisateur.**                                                                                                  |
 |                         |                             |                   | **Attention :** lorsqu'un dossier à la valeur *%trash%* il est remplacé par le chemin vers les différentes corbeilles de l'utilisateur appelant.                                                                                                                                                                                                                           |
 | *-d* {value}              | *--depth* {value}             | *none*              | Profondeur du nettoyage des dossiers.                                                                                                                                                                                                                                                                                                                                |
@@ -60,11 +61,11 @@ Les différents paramètres sont définis comme suit :
 |                         |                             |                   | = {n} : suppression des sous-dossiers à partir de la profondeur {n} par rapport au dossier courant.                                                                                                                                                                                                                                                                  |
 |                         |                             |                   | **Attention :** le paramètre `depth` s'applique à tous les dossiers concernés par l'appel. Si plusieurs dossiers doivent bénéficier d'une profondeur spécifique, il sera nécessaire d'avoir autant d'appel de `dCleaner.py` que de dossiers.                                                                                                                                 |
 | *-i*                      | *--iteration*                 | 1                 | Nombre d'itération(s). Ce paramètre correspond à la fois au nombre d’occurrence du process de remplissage mais aussi au nombre de fopis ou les fichiers seront ré-écris en mode effacement des dossiers (paramètre *-clean*).                                                                                                                                          |
-| *-nc*                     | *--nocolor*                   |                   | mode "no color" : pas de colorisation des affichages. Utile pour la génération de fichiers de logs par exemple                                                                                                                                                                                                                                                       |
-| *-np*                     | *--nopadding*                 |                   | mode "no padding" : pas de remplissage de la partition                                                                                                                                                                                                                                                                                                               |
+| *-nc*                     | *--nocolor*                   |                   | mode "no color" : pas de colorisation des affichages. Utile pour la génération de fichiers de logs par exemple.                                                                                                                                                                                                                                                       |
+| *-np*                     | *--nopadding*                 |                   | mode "no padding" : pas de remplissage de la partition.                                                                                                                                                                                                                                                                                                               |
 | *-l*                      | *--log*                       |                   | Mode moins verbeux à destination des fichiers de logs. Dans ce mode, les affichages et les notifications sont réduits aux strict minimum                                                                                                                                                                                                                             |
 | *-wf* {value}             | *--waitfiles* {value}         | 0                 | Delai d'attente en seconde entre 2 suppressions de fichiers.                                                                                                                                                                                                                                                                                                         |
-| *-wt* {value}             | *--waittasks* {value}         | 5                 | Délai d'attentes en secondes entre deux itérations (paramètre *-i* > 1)                                                                                                                                                                                                                                                                                                |
+| *-wt* {value}             | *--waittasks* {value}         | 5                 | Délai d'attentes en secondes entre deux itérations (Le paramètre *-i* doit être > 1)                                                                                                                                                                                                                                                                                                |
 
 ### Exemples d'appels
 
@@ -126,19 +127,19 @@ Equivalent à :
 
 Il est possible - et conseillé - de créer des *alias* afin de simplifier les écriture et les appels.
 
-Par exemple on peut créer la commande `etrash` pour vider récursivement les poubelles du poste courant : 
+Par exemple on peut créer la commande `etrash` pour vider récursivement les poubelles du poste courant :
 
 ```
-alias etrash='/etc/scripts/dCleaner/dCleaner.py -np - c %trash% -d1 -r' 
+alias etrash='/etc/scripts/dCleaner/dCleaner.py -np - c %trash% -d1 -r'
 ```
 
-L'appel : 
+L'appel :
 
 ```
 etrash
 ```
 
-retourne : 
+retourne :
 
 ```
 dCleaner.py par JHB - henry-barnaudiere.j@allier.fr - v0.10.5 du 15/10/2024
