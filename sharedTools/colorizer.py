@@ -10,6 +10,7 @@
 #
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
+import sys
 
 try :
     # Pour la coloration des sorties terminal
@@ -30,7 +31,7 @@ LOG_DATE_FORMAT_PID = f"{LOG_DATE_FORMAT}[{os.getpid()}] "
 
 # Messages d'erreur
 #
-MSG_NO_TERM_COLOR = "Attention - le package termcolor (python-termcolor) n'est pas installé"
+MSG_NO_TERM_COLOR = "Attention - le package termcolor (python-termcolor) n'est pas installé . Utilisez pip install termcolor"
 #MSG_NO_TERM_COLOR = "Warning - termcolor package (python-termcolor) is not installed"
 
 #
@@ -103,7 +104,10 @@ class colorizer:
             prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
 
         # On colorise ou pas ...
-        return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)
+        moduleName = 'colored'
+        if moduleName in sys.modules :
+            return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)
+        return text
 
     # Début de ligne en mode [OK] / [KO]
     def checkBoxLine(self, checked = True, text = "", color = None, prefix = ""):

@@ -12,7 +12,6 @@
 #
 #   Dépendances : Nécessite psutil
 #
-from typing_extensions import Buffer
 import parameters
 import os,sys, traceback, random
 from datetime import datetime
@@ -59,7 +58,7 @@ class dCleaner:
 
         # Quelques informations ...
         #
-        res = self.paddingFolder_.partitionUsage()
+        self.paddingFolder_.partitionUsage()
 
         if self.options_.clear_:
             mode = parameters.MODE_CLEAR
@@ -84,60 +83,66 @@ class dCleaner:
 
         optimize = (mode & parameters.MODE_FILL or mode & parameters.MODE_ADJUST)
 
-        if self.options_.verbose:
-            out = "Paramètres : "
-            out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[textAttribute.GRAS])}"
+        return self._repr_verbose(modeStr, optimize) if self.options_.verbose else self._repr_no_verbose(modeStr, optimize)
 
-            if optimize :
-                out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
-                out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
+    def _repr_verbose(self, modeStr, optimize) -> str:
+        out = "Paramètres : "
+        out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[textAttribute.GRAS])}"
 
-                out += f"\n\t- Attente entre 2 fichiers : {self.options_.waitFiles_}s"
-                out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
+        if optimize :
+            out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
 
-            if False == self.options_.adjust_ :
-                out += f"\n\t- Itérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
+            out += f"\n\t- Attente entre 2 fichiers : {self.options_.waitFiles_}s"
+            out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
 
-            if optimize :
-                out += "\n\nPartition : "
-                out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
-                out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
+        if False == self.options_.adjust_ :
+            out += f"\n\t- Itérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
 
-                if self.options_.padding:
-                    out += "\n\nRemplissage : "
-                    out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
-                    out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
+        if optimize :
+            out += "\n\nPartition : "
+            out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
+            out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
 
-            if len(self.options_.clean_) > 0 :
-                out += "\n\nVider : "
-                out += f"\n\t- {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
-                for FSO in self.options_.clean_:
-                    out += f"\n\t\t- [{'fichier' if FSO.isFile() else 'dossier'}] {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
-                out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[textAttribute.GRAS])}"
-                if self.options_.recurse:
-                    out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
-                else:
-                    out += "\n"
-        else :
-            out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
+            if self.options_.padding:
+                out += "\n\nRemplissage : "
+                out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
+                out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
 
-            if optimize :
-                out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
+        if len(self.options_.clean_) > 0 :
+            out += "\n\nVider : "
+            out += f"\n\t- {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
+            for FSO in self.options_.clean_:
+                out += f"\n\t\t- [{'fichier' if FSO.isFile() else 'dossier'}] {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
+            out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[textAttribute.GRAS])}"
+            if self.options_.recurse:
+                out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
+            else:
+                out += "\n"
 
-            out += "\nMode : " + modeStr
+        return out
 
-            if optimize :
-                out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
-                out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
+    def _repr_no_verbose(self, modeStr, optimize):
+        out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
 
-            if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
-                out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
+        if optimize :
+            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
 
-                if self.options_.recurse:
-                        out += "\nRécursivité : oui"
+        out += "\nMode : " + modeStr
 
-            if False == self.options_.adjust_ :
-                out += f"\nItérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
+        if optimize :
+            out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
+            out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
+
+        if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
+            out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
+
+            if self.options_.recurse:
+                    out += "\nRécursivité : oui"
+
+        if False == self.options_.adjust_ :
+            out += f"\nItérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
+
         return out
 
     # Nettoyage (vidage) de dossiers ou fichiers
@@ -296,7 +301,7 @@ def objectFromName(name, params):
 
         if obj is not None:
             res = obj.init(name)
-            if False == res[0]:
+            if not res[0]:
                 if len(res[1]):
                     sys.stderr.write(f"{res[1]}\n")
                 return None
@@ -305,6 +310,60 @@ def objectFromName(name, params):
             sys.stderr.write(f"Nettoyage : '{name}' n'existe pas\n")
 
         return obj
+
+# Clean file(s) or folder(s)
+#
+def _cleanPartition(params, cleaner):
+    if  0 != len(params.clean_):
+        res = cleaner.cleanFolders(params.clean_)
+
+        if len(res[2]) > 0 :
+            if res[3]:
+                # Une erreur
+                sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
+            else:
+                # Juste un message ...
+                print(res[2])
+
+
+# Fill the partition
+#
+def _fillPartition(params, cleaner):
+    if  0 != len(params.clean_):
+        print("Vérification du dossier de 'padding'")
+        if False == cleaner.fillPartition():
+            # Il faut plutôt libérer de la place
+            cleaner.freePartition()
+
+        # Doit-on maintenant "salir" le disque ?
+        if False == params.adjust_:
+
+            for index in range(params.iterate_):
+                if index > 0:
+                    if params.verbose:
+                        cleaner.indented_print("On attend un peu...")
+                    cleaner.paddingFolder_.wait(params.waitTasks_)
+
+                if params.verbose:
+                    print(f"Itération {index+1}/{params.iterate_}")
+
+                cleaner.cleanPartition()
+
+# Handle unkown Exception
+#
+def _unknownException(e):
+    # Récupération des informations sur l'exception
+    _, _, exc_traceback = sys.exc_info()
+    # Juste la dernière ligne
+    lastFrame = None
+    for frame in traceback.extract_tb(exc_traceback):
+        lastFrame = frame
+
+    if lastFrame is not None :
+        sys.stderr.write(f"Autre erreur - {str(e)}\n")
+        sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}\n")
+        sys.stderr.write(f"  - Ligne: {lastFrame.lineno}\n")
+        sys.stderr.write(f"  - Code: {lastFrame.line}\n")
 
 #
 # Corps du programme
@@ -323,86 +382,47 @@ if '__main__' == __name__:
 
     # Ma ligne de commandes
     params = parameters.options()
-    if True == params.parse():
-        try:
-            done = True
-            print(params.version())
 
-            # Des dossiers ou fichiers à nettoyer ?
-            if params.clean_ is not None and len(params.clean_) > 0:
+    if not params.parse():
+        print("Erreur lors de l'analyse de la ligne de commandes")
+        exit()
 
-                # Analyse de la liste ...
-                #
-                # Encore des dossiers dans la liste ?
-                if False == _listOfFolders(params):
-                    sys.stderr.write("Pas de dossier ou de fichier à nettoyer\n")
+    try:
+        done = True
+        print(params.version())
 
-            # Lancement de l'application avec les paramètres
-            cleaner = dCleaner(params)
-            print(cleaner)
+        # Des dossiers ou fichiers à nettoyer ?
+        if params.clean_ is not None and len(params.clean_) > 0 and not _listOfFolders(params):
+            sys.stderr.write("Pas de dossier ou de fichier à nettoyer\n")
 
-            if params.clear_:
-                print("Nettoyage du dossier de 'padding'")
-                res = cleaner.cleanFolders()
-                if len(res[2]) > 0  and res[3]:
-                    sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
-                else:
-                    print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
+        # Lancement de l'application avec les paramètres
+        cleaner = dCleaner(params)
+        print(cleaner)
+
+        if params.clear_:
+            print("Nettoyage du dossier de 'padding'")
+            res = cleaner.cleanFolders()
+            if len(res[2]) > 0  and res[3]:
+                sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
             else:
-                # Nettoyer un ou plusieurs dossiers (ou fichiers) ?
-                if  0 != len(params.clean_):
-                    res = cleaner.cleanFolders(params.clean_)
+                print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
+        else:
+            # Nettoyage un ou plusieurs dossiers (ou fichiers) ?
+            _cleanPartition(params, cleaner)
 
-                    if len(res[2]) > 0 :
-                        if res[3]:
-                            # Une erreur
-                            sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
-                        else:
-                            # Juste un message ...
-                            print(res[2])
+            # Remplissage de la partition
+            _fillPartition(params, cleaner)
 
-                # Remplissage de la partition
-                if params.padding:
-                    print("Vérification du dossier de 'padding'")
-                    if False == cleaner.fillPartition():
-                        # Il faut plutôt libérer de la place
-                        cleaner.freePartition()
+    except IOError as ioe:
+        sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}\n")
+    except KeyboardInterrupt :
+        if params.color_ is not None:
+            print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
+    except ValueError as ve:
+        sys.stderr.write(f"Erreur d'initialisation : {str(ve)}\n")
+    except Exception as be:
+        _unknownException(be)
 
-                    # Doit-on maintenant "salir" le disque ?
-                    if False == params.adjust_:
-
-                        for index in range(params.iterate_):
-                            if index > 0:
-                                if params.verbose:
-                                    cleaner.indented_print("On attend un peu...")
-                                cleaner.paddingFolder_.wait(params.waitTasks_)
-
-                            if params.verbose:
-                                print(f"Itération {index+1}/{params.iterate_}")
-
-                            cleaner.cleanPartition()
-
-        except IOError as ioe:
-            sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}\n")
-        except KeyboardInterrupt as kbe:
-            if params.color_ is not None:
-                print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
-        except ValueError as ve:
-            sys.stderr.write(f"Erreur d'initialisation : {str(ve)}\n")
-        except Exception as be:
-            # Récupération des informations sur l'exception
-            _, _, exc_traceback = sys.exc_info()
-            # Juste la dernière ligne
-            lastFrame = None
-            for frame in traceback.extract_tb(exc_traceback):
-                lastFrame = frame
-
-            if lastFrame is not None :
-                sys.stderr.write(f"Autre erreur - {str(be)}\n")
-                sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}\n")
-                sys.stderr.write(f"  - Ligne: {lastFrame.lineno}\n")
-                sys.stderr.write(f"  - Code: {lastFrame.line}\n")
-        
     #  La fin, la vraie !
     if done and params.color_ is not None:
         print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose), addPID = (False == params.verbose)))

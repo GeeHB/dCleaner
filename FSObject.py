@@ -35,7 +35,7 @@ class FSObject(object):
 
     # Taille de l'objet (et de tout ce qu'il contient)
     #
-    #   element : Nom de l'élément à analyser ou None pour le dossier courant    #
+    #   element : Nom de l'élément à analyser ou None pour le dossier courant
     #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
     def sizes(self, element = "", recurse = False) -> tuple[int,int,int]:
         return self.size(), self.files(), 0
@@ -105,7 +105,6 @@ class FSObject(object):
     #
     @staticmethod
     def count2String(typeStr, count):
-
         try:
             myStr = f"{count} {typeStr}"
             if count > 1:
