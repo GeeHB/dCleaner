@@ -332,7 +332,7 @@ class paddingFolder(basicFolder):
             from fakeProgressBar import fakeProgressBar as progressBar
 
         if self.options.verbose:
-            print("Estimation de la taille totale de dossier à supprimer ou vider")
+            print("Estimation de la taille totale de dossier à supprimer ou à vider")
 
         barMax = expectedFiles = expectedFolders = 0
         with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]

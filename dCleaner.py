@@ -329,7 +329,7 @@ def _cleanPartition(params, cleaner):
 # Fill the partition
 #
 def _fillPartition(params, cleaner):
-    if  0 != len(params.clean_):
+    if  params.padding:
         print("Vérification du dossier de 'padding'")
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
