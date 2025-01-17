@@ -58,7 +58,7 @@ class dCleaner:
 
         # Quelques informations ...
         #
-        self.paddingFolder_.partitionUsage()
+        res = self.paddingFolder_.partitionUsage()
 
         if self.options_.clear_:
             mode = parameters.MODE_CLEAR
@@ -83,9 +83,9 @@ class dCleaner:
 
         optimize = (mode & parameters.MODE_FILL or mode & parameters.MODE_ADJUST)
 
-        return self._repr_verbose(modeStr, optimize) if self.options_.verbose else self._repr_no_verbose(modeStr, optimize)
+        return self._repr_verbose(res, modeStr, optimize) if self.options_.verbose else self._repr_no_verbose(res, modeStr, optimize)
 
-    def _repr_verbose(self, modeStr, optimize) -> str:
+    def _repr_verbose(self, res, modeStr, optimize) -> str:
         out = "Paramètres : "
         out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[textAttribute.GRAS])}"
 
@@ -122,7 +122,7 @@ class dCleaner:
 
         return out
 
-    def _repr_no_verbose(self, modeStr, optimize):
+    def _repr_no_verbose(self, res, modeStr, optimize):
         out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
 
         if optimize :
