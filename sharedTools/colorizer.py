@@ -10,7 +10,7 @@
 #
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
-import sys
+#import sys
 
 try :
     # Pour la coloration des sorties terminal
@@ -104,10 +104,7 @@ class colorizer:
             prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
 
         # On colorise ou pas ...
-        moduleName = 'colored'
-        if moduleName in sys.modules :
-            return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)
-        return text
+        return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)  # type: ignore
 
     # Début de ligne en mode [OK] / [KO]
     def checkBoxLine(self, checked = True, text = "", color = None, prefix = ""):
