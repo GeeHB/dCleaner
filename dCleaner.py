@@ -425,6 +425,6 @@ if '__main__' == __name__:
 
     #  La fin, la vraie !
     if done and params.color_ is not None:
-        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose_), addPID = (False == params.verbose_)))
+        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose), addPID = (False == params.verbose)))
 
 # EOF

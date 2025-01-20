@@ -18,12 +18,13 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.10.10
+#### Version 0.10.11
 * janvier 2024
 * Ajouts
 
 * Corrections
   * Code refactoring (pyRight)
+  * Erreurs d'affichage en mode log
 
 #### Version 0.10.5
 * 2 aout 2024

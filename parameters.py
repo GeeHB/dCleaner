@@ -13,8 +13,8 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner.py"
-APP_CURRENT_VERSION = "0.10.10"
-APP_RELEASE_DATE = "17/01/2025"
+APP_CURRENT_VERSION = "0.10.11"
+APP_RELEASE_DATE = "20/01/2025"
 APP_AUTHOR = "JHB - henry-barnaudiere.j@allier.fr"
 
 #
@@ -213,7 +213,6 @@ class options(object):
         self.color_ = None      # Outil de colorisation
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
         self.iterate_ = DEF_ITERATE
-        self.verbose_ = True
 
         self.fillRate_ = DEF_FILLRATE
         self.renewRate_ = DEF_PADDINGRATE
@@ -303,13 +302,13 @@ class options(object):
         self.test = args.test
 
         # Mode "verbeux"
-        self.verbose_ = (False == args.log)
+        self.verbose = (False == args.log)
 
         # Colorisation des affichages ?
         if self.color_ is None:
-            self.color_ = color.colorizer(False if not self.verbose_ else not args.nocolor)
+            self.color_ = color.colorizer(False if not self.verbose else not args.nocolor)
         else:
-            self.color_.setColorized(False if not self.verbose_ else not args.nocolor)
+            self.color_.setColorized(False if not self.verbose else not args.nocolor)
 
         # Pas de padding ?
         self.padding = (False == args.nopadding)
@@ -398,7 +397,7 @@ class options(object):
         if self.color_ is None:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose_), addPID=(False == self.verbose_))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose), addPID=(False == self.verbose))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     # Le dossier a t'il un accès restreint ?
     #
