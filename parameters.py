@@ -12,10 +12,10 @@ from sharedTools import colorizer as color
 from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
-APP_NAME = "dCleaner.py"
+APP_NAME = "dCleaner"
 APP_CURRENT_VERSION = "0.10.11"
 APP_RELEASE_DATE = "20/01/2025"
-APP_AUTHOR = "JHB - henry-barnaudiere.j@allier.fr"
+APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
 # Motif aléatoire
@@ -167,7 +167,7 @@ MAX_ELAPSETASKS = 180.0
 
 #
 # Options d'executions ...
-#   le paramètre mode_ est une combianise des différentes valeurs possibles
+#   le paramètre mode_ est une combinaison des différentes valeurs possibles
 #
 OPTION_INIT    = 0    # Rien à faire
 OPTION_TEST    = 1    # On teste ...
@@ -177,7 +177,6 @@ OPTION_RECURSE = 8    # Traitement recursif des dossiers
 
 # Valeur par défaut
 OPTION_DEFAULT = OPTION_PADDING | OPTION_VERBOSE
-
 
 #
 # Modes de fonctionement
