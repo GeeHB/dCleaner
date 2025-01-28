@@ -18,13 +18,14 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.10.11
+#### Version 0.10.12
 * janvier 2024
 * Ajouts
-
+  * Messages plus explicites
 * Corrections
-  * Code refactoring (pyRight)
+  * Code refactoring (pyRight & pyFlakes)
   * Erreurs d'affichage en mode log
+  * Bug : pas de dossier 'trash' sous ChromeOS::Debian
 
 #### Version 0.10.5
 * 2 aout 2024

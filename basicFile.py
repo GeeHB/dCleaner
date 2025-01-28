@@ -114,7 +114,7 @@ class basicFile(FSObject):
                     self.delete()
             else:
                 # Pas de nom
-                self.error = f"Impossible de créer le fichier. Il n'a pas de nom"
+                self.error = "Impossible de créer le fichier. Il n'a pas de nom"
 
             if self.success():
                 # Creation à la "bonne taille"
@@ -172,7 +172,7 @@ class basicFile(FSObject):
     def delete(self, replace = True):
         # Le fichier doit exister
         if not self.options.test and self.exists():
-            
+
             # L'accès en lecture et en ecriture doit être possible
             if False == os.access(self.name_, os.W_OK):
                 # sys.stderr.write(f"basicFile::cleanFolders - Erreur '{self.name_}' n'a pas l'attribut d'ecriture\n")
