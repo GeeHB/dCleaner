@@ -28,6 +28,19 @@ class paddingFolder(basicFolder):
         self.files_ = 0  # Nombre de fichiers générés
         super().__init__(options, pMaxSize)
 
+        # Création de la barre (reèlle ou pas ...)
+        if self.options.verbose:
+            try:
+                from alive_progress import alive_bar as pBar
+                self.progressBar_ = pBar
+            except ImportError:
+                print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
+                self.options.verbose = False
+
+        if not self.options.verbose:
+            from fakeProgressBar import fakeProgressBar as fakeBar
+            self.progressBar_ = fakeBar
+
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name = None):
@@ -92,10 +105,9 @@ class paddingFolder(basicFolder):
 
             if self.options.verbose:
                 try:
-                    from alive_progress import alive_bar as progressBar
                     barPos = 0  # Ou je suis ...
                     barMax = self.__convertSize2Progressbar(expectedFillSize * self.options.iterate_)
-                    with progressBar(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", elapsed = "en {elapsed}",stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar:
+                    with self.progressBar_(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", elapsed = "en {elapsed}",stats = False, monitor_end = "\033[2K") as bar:
                          # Boucle de remplissage
                          while totalSize < expectedFillSize and cont:
                              # Création d'un fichier sans nom
@@ -173,17 +185,6 @@ class paddingFolder(basicFolder):
             # On mélange la liste
             random.shuffle(files)
 
-            if self.options.verbose:
-                try:
-                    from alive_progress import alive_bar as pBar
-                    progressBar = pBar
-                except ImportError:
-                    print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
-                    self.options.verbose = False
-
-            if not self.options.verbose:
-                from fakeProgressBar import fakeProgressBar as fakeBar
-                progressBar = fakeBar
 
             # Barre de progression
             barPos = 0  # Là ou je suis ...
@@ -197,7 +198,7 @@ class paddingFolder(basicFolder):
                 barMax = count
                 barMonitor = "{count} / {total} - {percent:.0%}"
 
-            with progressBar(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
+            with self.progressBar_(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
                 # Suppression des fichiers
                 try:
                     # Les fichiers du dossier
@@ -320,24 +321,11 @@ class paddingFolder(basicFolder):
         if fList is None or 0 == len(fList):
             return 0, 0, "Le paramètre 'fList' n'est pas renseigné" , True
 
-        # Ajout (ou pas) des barres de progression
-        if self.options.verbose:
-            try:
-                from alive_progress import alive_bar as pBar
-                progressBar = pBar
-            except ImportError:
-                print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
-                self.options.verbose = False
-
-        if not self.options.verbose:
-            from fakeProgressBar import fakeProgressBar as fakeBar
-            progressBar = fakeBar
-
         if self.options.verbose:
             print("Estimation de la taille totale de dossier à supprimer ou à vider")
 
         barMax = expectedFiles = expectedFolders = 0
-        with progressBar(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
+        with self.progressBar_(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
             for FSO in fList:
                 try:
                     ret = FSO.sizes(recurse = self.options.recurse)
@@ -360,7 +348,7 @@ class paddingFolder(basicFolder):
         # Nettoyage des dossiers
         freed = barInc = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.options.iterate_)
-        with progressBar(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
+        with self.progressBar_(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
             for FSO in fList:
                 # Un dossier
                 if type(FSO) is basicFolder:
