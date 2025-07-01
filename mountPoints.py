@@ -25,15 +25,15 @@ except ModuleNotFoundError:
     print("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
     exit(1)
 
-# Liste des points montage
+# Liste des points de montage
 #
 #   Generator - "retourne" les dossiers existants
 #
 def mountPointTrashes(id, display = False):
     fstypes = [
         'cifs', # JHB : for old time kernels allowing CIFS & Samba < 2 compatibility ...
-        'nfs',
-        'nfs4',
+        #'nfs',
+        #'nfs4',
         'p9', # file system used in WSL 2 (Windows Subsystem for Linux)
         'btrfs',
         'fuse', # https://github.com/andreafrancia/trash-cli/issues/250
@@ -45,8 +45,12 @@ def mountPointTrashes(id, display = False):
     partitions = Partitions(fstypes)
     for p in psutil.disk_partitions(all=True):
         trashDir = os.path.join(p.mountpoint, f".Trash-{id}")
-        if os.path.isdir(trashDir) and \
-                partitions.shouldUsedAsTrash(p, display):
+
+        if trashDir.find("/mnt") == 0:
+            i = 7
+
+        if partitions.shouldUsedAsTrash(p, display)  and \
+            os.path.isdir(trashDir) :
             yield trashDir
 
 # La partition peut-elle accueillir une poubelle ?

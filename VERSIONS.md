@@ -18,8 +18,15 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
+#### Version 0.11.1
+* juillet 2025
+* Ajouts
+
+* Corrections
+  * Bug : Bloacgae si partition nfs 'mountée' et non présente
+
 #### Version 0.10.12
-* janvier 2024
+* janvier 2025
 * Ajouts
   * Messages plus explicites
 * Corrections
