@@ -185,7 +185,6 @@ class paddingFolder(basicFolder):
             # On mélange la liste
             random.shuffle(files)
 
-
             # Barre de progression
             barPos = 0  # Là ou je suis ...
 
