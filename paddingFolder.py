@@ -166,90 +166,86 @@ class paddingFolder(basicFolder):
     #   iterate : Dans une boucle d'itérations ?
     #
     #   retourne True lorsque l'opération s'est déroulée correctement
-    def deleteFiles(self, count = 0, size = 0, iterate = False):
+    def deleteFiles(self, count = 0, size = 0, iterate = False) -> bool:
+        # if True == self.valid_ and (not 0 == count or not 0 == size):
+        if not self.valid_ or (0 == count and 0 == size):
+            return False
+
         tSize = 0
         tFiles = 0
 
-        if True == self.valid_ and (not 0 == count or not 0 == size):
-            if self.options.verbose:
-                offset = "\t- " if iterate else ""
-                if not 0 == size :
-                    print(f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
-                else:
-                    print(f"{offset}Demande de suppression de {FSObject.count2String('fichier', count)}")
 
+        offset = "\t- " if iterate else ""
+        if not 0 == size :
+            self.__tprint(f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
+        else:
+            self.__tprint(f"{offset}Demande de suppression de {FSObject.count2String('fichier', count)}")
 
-            # Liste des fichiers du dossier
-            files = [ f for f in os.listdir(self.options.folder_) if os.path.isfile(os.path.join(self.options.folder_,f)) ]
+        # Liste des fichiers du dossier
+        files = [ f for f in os.listdir(self.options.folder_) if os.path.isfile(os.path.join(self.options.folder_,f)) ]
 
-            # On mélange la liste
-            random.shuffle(files)
+        # On mélange la liste
+        random.shuffle(files)
 
-            # Barre de progression
-            barPos = 0  # Là ou je suis ...
+        # Barre de progression
+        barPos = 0  # Là ou je suis ...
 
-            if not 0 == size :
-                # Suppression sur le critère de taille => on compte les ko
-                barMax = self.__convertSize2Progressbar(size * self.options.iterate_)
-                barMonitor = "{count} ko - {percent:.0%}"
-            else:
-                # On compte les fichiers
-                barMax = count
-                barMonitor = "{count} / {total} - {percent:.0%}"
+        if not 0 == size :
+            # Suppression sur le critère de taille => on compte les ko
+            barMax = self.__convertSize2Progressbar(size * self.options.iterate_)
+            barMonitor = "{count} ko - {percent:.0%}"
+        else:
+            # On compte les fichiers
+            barMax = count
+            barMonitor = "{count} / {total} - {percent:.0%}"
 
-            with self.progressBar_(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
-                # Suppression des fichiers
-                try:
-                    # Les fichiers du dossier
-                    for file in files:
-                        bFile = basicFile(parameters = self.options, path = self.options.folder_, fName = file)
+        with self.progressBar_(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
+            # Suppression des fichiers
+            try:
+                # Les fichiers du dossier
+                for file in files:
+                    bFile = basicFile(parameters = self.options, path = self.options.folder_, fName = file)
 
-                        # Suppression d'un fichier
-                        for frag in bFile.delete(True):
-                            if size:
-                                # Suppression sur critère de taille
-                                tSize += frag
-                                barInc = self.__convertSize2Progressbar(frag)
-                                if barInc > 0:
-                                    # Ici on peut dépasser ...
-                                    if (barPos + barInc) > barMax:
-                                        barInc = barMax - barPos
+                    # Suppression d'un fichier
+                    for frag in bFile.delete(True):
+                        if size:
+                            # Suppression sur critère de taille
+                            tSize += frag
+                            barInc = self.__convertSize2Progressbar(frag)
+                            if barInc > 0:
+                                # Ici on peut dépasser ...
+                                if (barPos + barInc) > barMax:
+                                    barInc = barMax - barPos
 
-                                    barPos += barInc
+                                barPos += barInc
 
-                                    # !!!
-                                    if barInc:
-                                        bar(barInc)
+                                # !!!
+                                if barInc:
+                                    bar(barInc)
 
-                        # Un fichier de moins
-                        tFiles+=1
+                    # Un fichier de moins
+                    tFiles+=1
 
-                        if 0 == size:
-                            # Suppression sur critère de nombre (de fichier)
-                            bar(1)
-                            barPos += 1
+                    if 0 == size:
+                        # Suppression sur critère de nombre (de fichier)
+                        bar(1)
+                        barPos += 1
 
-                        # Quota atteint
-                        if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
-                            break
+                    # Quota atteint
+                    if (count > 0 and tFiles >= count) or (size > 0 and tSize >= size):
+                        break
 
-                        # On attend ...
-                        self.wait(self.options.waitFiles_)
-                except KeyboardInterrupt:
-                    print("Interruption de la suppression")
-                    exit(1)
+                    # On attend ...
+                    self.wait(self.options.waitFiles_)
+            except KeyboardInterrupt:
+                print("Interruption de la suppression")
+                exit(1)
 
-                    # Inutile ...
-                    return False
-
-                # Retrait de la barre de progression
-                if self.options.verbose:
-                    print('\033[F', end='')
+            # Retrait de la barre de progression
+            self.__tprint('\033[F', '')
 
         # Terminé
-        if self.options.verbose:
-            # Retrait de la barre de progression
-            print('\033[F', end='')
+        self.__tprint('\033[F', '')
 
         # Fin des traitements
         offset = "\t " if iterate else ""
@@ -303,8 +299,7 @@ class paddingFolder(basicFolder):
                     bar()
 
         # Retrait de la barre de progression
-        if self.options.verbose:
-            print('\033[F', end='')
+        self.__tprint('\033[F', '')
 
         # Dossier vidé
         return count, ""
@@ -320,8 +315,7 @@ class paddingFolder(basicFolder):
         if fList is None or 0 == len(fList):
             return 0, 0, "Le paramètre 'fList' n'est pas renseigné" , True
 
-        if self.options.verbose:
-            print("Estimation de la taille totale de dossier à supprimer ou à vider")
+        self.__tprint("Estimation de la taille totale de dossier à supprimer ou à vider")
 
         barMax = expectedFiles = expectedFolders = 0
         with self.progressBar_(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
@@ -335,8 +329,7 @@ class paddingFolder(basicFolder):
                     pass
 
         # Retrait de la barre de progression
-        if self.options.verbose:
-            print('\033[F', end='')
+        self.__tprint('\033[F', '')
 
         # Rien à faire ?
         if 0 == expectedFolders and 0 == expectedFiles:
@@ -345,7 +338,7 @@ class paddingFolder(basicFolder):
         print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}")
 
         # Nettoyage des dossiers
-        freed = barInc = barPos = deletedFolders = deletedFiles = 0
+        freed = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.options.iterate_)
         with self.progressBar_(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
             for FSO in fList:
@@ -353,26 +346,7 @@ class paddingFolder(basicFolder):
                 if type(FSO) is basicFolder:
                     for isFile, fullName in FSO.browse(recurse = self.options.recurse, remove = self.options.cleanDepth_) :
                         if isFile:
-                            # Suppression du fichier
-                            bFile = basicFile(parameters = self.options)
-                            bFile.name = fullName
-                            for fragment in bFile.delete():
-                                freed+=fragment
-                                barInc = self.__convertSize2Progressbar(fragment)
-                                if barInc > 0:
-                                    if (barPos + barInc) > barMax:
-                                        barInc = barMax - barPos
-
-                                    barPos += barInc
-
-                                    # !!!
-                                    if barInc:
-                                        bar(barInc)
-
-                            if not bFile.success():
-                                sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression itérative de '{fullName}'\n")
-                            else:
-                                deletedFiles += 1
+                            barPos, deletedFiles, freed = self.__deleteFileInFolder(fullName, bar, barPos, barMax, deletedFiles, freed)
                         else:
                             # Un dossier ...
                             if self.rmdir(fullName):
@@ -388,31 +362,13 @@ class paddingFolder(basicFolder):
                     else:
                         # Un simple fichier ?
                         if type(FSO) is basicFile:
-                            for fragment in FSO.delete():
-                                freed+=fragment
-                                barInc = self.__convertSize2Progressbar(fragment)
-                                if barInc > 0:
-                                    if (barPos + barInc) > barMax:
-                                        barInc = barMax - barPos
-
-                                    barPos += barInc
-
-                                    # !!!
-                                    if barInc:
-                                        bar(barInc)
-                            # Terminé
-                            if not FSO.success():
-                                sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression du fichier '{FSO.name}'\n")
-                            else:
-                                deletedFiles += 1
+                            barPos, deletedFiles, freed = self.__deleteFile(FSO, bar, barPos, barMax, deletedFiles, freed)
 
             # Retrait de la barre
-            if self.options.verbose:
-                print('\033[F', end='')
+            self.__tprint('\033[F', '')
 
         print(f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")
-        if freed > 0 :
-            print(f"{FSObject.size2String(int(freed/self.options.iterate_))} libérés")
+        print(f"{FSObject.size2String(int(freed/self.options.iterate_))} libérés")
 
         return deletedFiles, deletedFolders, "", False
 
@@ -447,5 +403,60 @@ class paddingFolder(basicFolder):
 
         # Pas sous Windows ...
         return False
+
+    # Affichage dans la console
+    #
+    def __tprint(self, text, endL = None):
+        if self.options.verbose:
+            print(text, end = endL)
+
+    # Suppression directe d'un fichier
+    #
+    def __deleteFile(self, FSO, bar, barPos, barMax, deletedFiles, freed):
+        for fragment in FSO.delete():
+            freed+=fragment
+            barInc = self.__convertSize2Progressbar(fragment)
+            if barInc > 0:
+                if (barPos + barInc) > barMax:
+                    barInc = barMax - barPos
+
+                barPos += barInc
+
+                # !!!
+                if barInc:
+                    bar(barInc)
+        # Terminé
+        if not FSO.success():
+            sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression du fichier '{FSO.name}'\n")
+        else:
+            deletedFiles += 1
+
+        return barPos, deletedFiles, freed
+
+
+    # Suppression d'un fichier dans un dossier à supprimer ...
+    #
+    def __deleteFileInFolder(self, fullName, bar, barPos, barMax, deletedFiles, freed):
+        bFile = basicFile(parameters = self.options)
+        bFile.name = fullName
+        for fragment in bFile.delete():
+            freed+=fragment
+            barInc = self.__convertSize2Progressbar(fragment)
+            if barInc > 0:
+                if (barPos + barInc) > barMax:
+                    barInc = barMax - barPos
+
+                barPos += barInc
+
+                # !!!
+                if barInc:
+                    bar(barInc)
+
+        if not bFile.success():
+            sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression itérative de '{fullName}'\n")
+        else:
+            deletedFiles += 1
+
+        return barPos, deletedFiles, freed
 
 # EOF
