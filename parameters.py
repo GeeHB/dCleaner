@@ -13,7 +13,7 @@ from mountPoints import mountPointTrashes
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "0.11.2"
+APP_CURRENT_VERSION = "0.11.3"
 APP_RELEASE_DATE = "24/07/2025"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 

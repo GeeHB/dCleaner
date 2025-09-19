@@ -3,7 +3,7 @@
 #   Fichier     :   colorizer.py
 #
 #   Description :   Définition des objets :
-#                     - colorizer : Gestion de la colorisation des sorties enmode terminal (et/ou texte)
+#                     - colorizer : Gestion de la colorisation des sorties en mode terminal (et/ou texte)
 #                     - textAttribute : Liste des attributs
 #                     - textColor : Liste des couleurs de texte
 #                     - backColor : Liste des couleurs de fond
@@ -11,6 +11,8 @@
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
 #import sys
+
+COLORIZER_VERSION = "1.2.1"
 
 try :
     # Pour la coloration des sorties terminal
@@ -71,7 +73,7 @@ class textAttribute:
     UNDERLINE = SOULIGNE = "underline"
     BLINK = CLIGNOTANT = "blink"
     REVERSE = INVERSE = "reverse"
-    CONCELED = CACHE = "concealed"
+    CONCEALED = CACHE = "concealed"
 
 #
 #   colorizer  - Colorisation du texte

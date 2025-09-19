@@ -362,7 +362,7 @@ class paddingFolder(basicFolder):
                     else:
                         # Un simple fichier ?
                         if type(FSO) is basicFile:
-                            barPos, deletedFiles, freed = self.__deleteFile(FSO, bar, barPos, barMax, deletedFiles, freed)
+                            barPos, deletedFiles, freed = self.__deleteSingleFile(FSO, bar, barPos, barMax, deletedFiles, freed)
 
             # Retrait de la barre
             self.__tprint('\033[F', '')
@@ -410,9 +410,9 @@ class paddingFolder(basicFolder):
         if self.options.verbose:
             print(text, end = endL)
 
-    # Suppression directe d'un fichier
+    # Suppression directe d'un fichier seul
     #
-    def __deleteFile(self, FSO, bar, barPos, barMax, deletedFiles, freed):
+    def __deleteSingleFile(self, FSO, bar, barPos, barMax, deletedFiles, freed):
         for fragment in FSO.delete():
             freed+=fragment
             barInc = self.__convertSize2Progressbar(fragment)
