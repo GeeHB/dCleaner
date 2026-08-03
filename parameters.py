@@ -1,3 +1,5 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   parameters.py
@@ -7,14 +9,17 @@
 #   Description :   Gestion de la ligne de commande et des constantes
 #
 
-import argparse, os, platform
-from sharedTools import colorizer as color
+import argparse
+import os
+import platform
+
 from mountPoints import mountPointTrashes
+from sharedTools import colorizer as color
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "0.11.2"
-APP_RELEASE_DATE = "24/07/2025"
+APP_CURRENT_VERSION = "0.12.1"
+APP_RELEASE_DATE = "03/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
@@ -198,7 +203,7 @@ MODE_CLEAR_STR  = "libération"
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
-class options(object):
+class options:
 
     # Construction
     #
@@ -403,17 +408,14 @@ class options(object):
     def isRectrictedAccess(self, folder):
 
         if folder is not None:
-            try:
-                return folder in self.restricted_
-            except:
-                pass
+            return folder in self.restricted_
 
         # Une erreur ? => blocage
         return True
 
     # Retourne une valeur dans l'intervalle
     def inRange(self, value, min, max):
-        return max if value > max else ( min if value < min else value)
+        return max(min, value)
 
     # Liste des dossiers à nettoyer
     def handleCleanFolders(self, folders):
@@ -427,7 +429,7 @@ class options(object):
             if FOLDERS_TRASH == folder or FOLDERS_TRASH_BIS == folder:
                 # On ajoute tous les dossiers de la poubelle
                 for tFolder in myTrashFolders:
-                    destFolders.append(tFolder)
+                    destFolders.append(str(tFolder))
             else:
                 destFolders.append(os.path.expanduser(folder))
 

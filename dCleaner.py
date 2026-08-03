@@ -1,5 +1,5 @@
-#!/bin/python3
-
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichie      : dCleaner.py
@@ -12,15 +12,20 @@
 #
 #   Dépendances : Nécessite psutil
 #
+import datetime
+import os
+import random
+import sys
+import traceback
+
 import parameters
-import os,sys, traceback, random
-from datetime import datetime
-from FSObject import FSObject
 from basicFile import basicFile
 from basicFolder import basicFolder
-from winTrashFolder import winTrashFolder
+from FSObject import FSObject
 from paddingFolder import paddingFolder
 from sharedTools.colorizer import textAttribute, textColor
+from winTrashFolder import winTrashFolder
+
 
 # Classe dCleaner
 #   Actions sur le dossier de remplissage
@@ -240,7 +245,8 @@ class dCleaner:
     #
     def indented_print(self, line, date = False):
         if date:
-            today = datetime.now()
+            tz = datetime.tzinfo()
+            today = datetime.datetime.now(tz)
             prefix = f"{today.strftime(parameters.TIME_PREFIX)}[{os.getpid()}] "
         else:
             prefix = ""
@@ -360,7 +366,7 @@ def _unknownException(e):
         lastFrame = frame
 
     if lastFrame is not None :
-        sys.stderr.write(f"Autre erreur - {str(e)}\n")
+        sys.stderr.write(f"Autre erreur - {e!r}\n")
         sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}\n")
         sys.stderr.write(f"  - Ligne: {lastFrame.lineno}\n")
         sys.stderr.write(f"  - Code: {lastFrame.line}\n")
@@ -373,7 +379,7 @@ if '__main__' == __name__:
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
         print(f"{parameters.APP_NAME} doit être lancé par un compte 'non root'")
-        exit()
+        sys.exit()
 
     done = False
 
@@ -385,7 +391,7 @@ if '__main__' == __name__:
 
     if not params.parse():
         print("Erreur lors de l'analyse de la ligne de commandes")
-        exit()
+        sys.exit()
 
     try:
         done = True
@@ -413,15 +419,13 @@ if '__main__' == __name__:
             # Remplissage de la partition
             _fillPartition(params, cleaner)
 
-    except IOError as ioe:
-        sys.stderr.write(f"Erreur de paramètre(s) : {str(ioe)}\n")
+    except OSError as ioe:
+        sys.stderr.write(f"Erreur de paramètre(s) : {ioe!r}\n")
     except KeyboardInterrupt :
         if params.color_ is not None:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
     except ValueError as ve:
-        sys.stderr.write(f"Erreur d'initialisation : {str(ve)}\n")
-    except Exception as be:
-        _unknownException(be)
+        sys.stderr.write(f"Erreur d'initialisation : {ve!a}\n")
 
     #  La fin, la vraie !
     if done and params.color_ is not None:

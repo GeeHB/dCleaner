@@ -1,3 +1,5 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   winTrashFolder.py
@@ -6,16 +8,17 @@
 #
 #   Description :   Définition de l'objet winTrashFolder pour la modélisation de la poubelle Windows
 #
-#   Remarque    : 
+#   Remarque    :
 #
 from basicFolder import basicFolder
 from parameters import WINDOWS_TRASH
+
 
 #
 # Objet du système de fichier (dossier ou fichier) à supprimer / vider
 #
 class winTrashFolder(basicFolder):
-    
+
     # Taille en octets (ou None en cas d'erreur)
     def size(self):
         # Pas de connaissance de la taille
@@ -25,7 +28,7 @@ class winTrashFolder(basicFolder):
     def files(self):
         # Pour être certain de lancer le nettoyage
         return 1
-    
+
     # Taille du dossier (et de tout ce qu'il contient)
     #
     #   element : Nom du dossier à analyser ou None pour le dossier courant

@@ -1,3 +1,5 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   paddingFolder.py
@@ -12,12 +14,19 @@
 #
 #   Dépendances :  Utilise alive_progress (pip install alive-progress)
 #
-import os, random, shutil, time, platform, sys
-from FSObject import FSObject
+import os
+import platform
+import random
+import shutil
+import sys
+import time
+
+import fakeProgressBar
 from basicFile import basicFile
 from basicFolder import basicFolder
-import fakeProgressBar
+from FSObject import FSObject
 from winTrashFolder import winTrashFolder
+
 
 # Classe paddingFolder - un dossier de remplissage
 #
@@ -176,7 +185,7 @@ class paddingFolder(basicFolder):
 
 
         offset = "\t- " if iterate else ""
-        if not 0 == size :
+        if 0 != size :
             self.__tprint(f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
         else:
             self.__tprint(f"{offset}Demande de suppression de {FSObject.count2String('fichier', count)}")
@@ -190,7 +199,7 @@ class paddingFolder(basicFolder):
         # Barre de progression
         barPos = 0  # Là ou je suis ...
 
-        if not 0 == size :
+        if 0 != size :
             # Suppression sur le critère de taille => on compte les ko
             barMax = self.__convertSize2Progressbar(size * self.options.iterate_)
             barMonitor = "{count} ko - {percent:.0%}"
@@ -239,7 +248,7 @@ class paddingFolder(basicFolder):
                     self.wait(self.options.waitFiles_)
             except KeyboardInterrupt:
                 print("Interruption de la suppression")
-                exit(1)
+                sys.exit(1)
 
             # Retrait de la barre de progression
             self.__tprint('\033[F', '')
@@ -386,15 +395,10 @@ class paddingFolder(basicFolder):
         myPlatform = platform.system()
         if  myPlatform == "Windows":
             try :
-                import winshell # pyright: ignore[reportMissingImports]
+                import winshell  # pyright: ignore[reportMissingImports]
 
                 # On peut essayer de la vider
-                try:
-                    winshell.recycle_bin().empty(False, False, False)
-                except:
-                    sys.stderr.write("Erreur - impossible de vider la corbeille Windows\n")
-                    return False
-
+                winshell.recycle_bin().empty(False, False, False)
                 return True
 
             except ModuleNotFoundError:

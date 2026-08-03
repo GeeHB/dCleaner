@@ -1,3 +1,5 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   basicFolder.py
@@ -14,9 +16,15 @@
 #   Remarque    :
 #
 import os
-from FSObject import FSObject
+
 from basicFile import basicFile
-from parameters import WINDOWS_TRASH, PATTERN_MIN_LEN, PATTERN_MAX_LEN
+from FSObject import FSObject
+from parameters import (
+    PATTERN_MAX_LEN,
+    PATTERN_MIN_LEN,
+    WINDOWS_TRASH,
+)
+
 
 #
 # Classe basicFolder - un dossier de remplissage ou à vider ...
@@ -116,9 +124,7 @@ class basicFolder(FSObject):
             if entry.is_file():
                 # Un fichier
                 yield True, fullName
-            elif entry.is_dir():
-                # Un sous dossier => appel récursif
-                if recurse:
+            elif entry.is_dir() and recurse:
                     yield from self.browse(fullName, True, remove - 1 if remove > 0 else remove)
 
         # Suppression du dossier courant?

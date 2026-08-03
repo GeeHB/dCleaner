@@ -1,3 +1,5 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   FSObject.py
@@ -9,12 +11,14 @@
 #   Remarque    :
 #
 
-import math, os
+import math
+import os
+
 
 #
 # Objet du système de fichier (dossier ou fichier) à supprimer / vider
 #
-class FSObject(object):
+class FSObject:
 
     # Paramètres & options
     @property
@@ -61,12 +65,12 @@ class FSObject(object):
 
         # On va essayer d'ouvrir le fichier en lecture
         try:
-            file = open(fName, 'r')
-            file.close()
+            with open(fName, 'r') as file:
+                file.close()
             return True
         except FileNotFoundError :
             return False
-        except IOError:
+        except OSError:
             return False
 
     # Le dossier existe-il ?
@@ -84,8 +88,7 @@ class FSObject(object):
     @staticmethod
     def size2String(size):
 
-        if size < 0:
-            size = 0
+        size = max(size,0)
 
         # Unités
         sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
@@ -95,7 +98,7 @@ class FSObject(object):
 
         # on effectue un log base 1024 (= log 2 / 10)
         #   attention logn(0) n'existe pas !!!
-        index = 0 if size == 0 else int(math.log(size,2) / 10)
+        index = 0 if size == 0 else int(math.log2(size) / 10)
         if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
         return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
 
@@ -105,14 +108,9 @@ class FSObject(object):
     #
     @staticmethod
     def count2String(typeStr, count):
-        try:
-            myStr = f"{count} {typeStr}"
-            if count > 1:
-                myStr+="s"
-        except:
-            # Par défaut on retourne rien ...
-            myStr = ""
-
+        myStr = f"{count} {typeStr}"
+        if count > 1:
+            myStr+="s"
         return myStr
 
     # EOF

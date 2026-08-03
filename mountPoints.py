@@ -1,5 +1,5 @@
 #!/bin/python3
-
+#
 # coding=UTF-8
 #
 #   Fichier     :   mountPoints.py
@@ -19,11 +19,13 @@
 #           print(fs)
 
 import os
+import sys
+
 try:
     import psutil
 except ModuleNotFoundError:
     print("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
-    exit(1)
+    sys.exit(1)
 
 # Liste des points de montage
 #
@@ -41,13 +43,10 @@ def mountPointTrashes(id, display = False):
         'fuse.mergerfs',
     ]
 
-    fstypes += set([p.fstype for p in psutil.disk_partitions()])
+    fstypes += {p.fstype for p in psutil.disk_partitions()}
     partitions = Partitions(fstypes)
     for p in psutil.disk_partitions(all=True):
         trashDir = os.path.join(p.mountpoint, f".Trash-{id}")
-
-        if trashDir.find("/mnt") == 0:
-            i = 7
 
         if partitions.shouldUsedAsTrash(p, display)  and \
             os.path.isdir(trashDir) :

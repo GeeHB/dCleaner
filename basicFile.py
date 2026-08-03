@@ -1,3 +1,5 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   basicFile.py
@@ -8,9 +10,21 @@
 #
 #   Remarque    :
 #
-import os, stat, random, datetime, hashlib
+import datetime
+import hashlib
+import os
+import random
+import stat
+
 from FSObject import FSObject
-from parameters import FILESIZE_MAX, FILESIZE_MIN, PATTERN_MIN_LEN, PATTERN_MAX_LEN, PATTERN_BASE_STRING
+from parameters import (
+    FILESIZE_MAX,
+    FILESIZE_MIN,
+    PATTERN_BASE_STRING,
+    PATTERN_MAX_LEN,
+    PATTERN_MIN_LEN,
+)
+
 
 #
 # Classe basicFile - un fichier (à créer, salir ou supprimer)
@@ -119,8 +133,7 @@ class basicFile(FSObject):
             if self.success():
                 # Creation à la "bonne taille"
                 for _ in range(self.options.iterate_):
-                    for fragment in self._create(fileSize, maxFileSize, True):
-                        yield fragment
+                    yield from self._create(fileSize, maxFileSize, True)
 
     # Remplissage d'un fichier existant
     #
@@ -131,8 +144,7 @@ class basicFile(FSObject):
     def fill(self, rename = False):
         if not self.options.test and self.exists():
             for _ in range(self.options.iterate_):
-                for fragment in self._create():
-                    yield fragment
+                yield from self._create()
 
             if False == self.success():
                 return
@@ -191,8 +203,7 @@ class basicFile(FSObject):
 
                 # Nouveau contenu (on itère l'effacement)
                 for _ in range(self.options.iterate_):
-                    for fragment in self._create():
-                        yield fragment
+                    yield from self._create()
 
                 if False == self.success():
                     return
@@ -251,7 +262,8 @@ class basicFile(FSObject):
     #   Retourne le nouveau nom
     @staticmethod
     def _genName():
-        now = datetime.datetime.now()
+        tz = datetime.tzinfo()
+        now = datetime.datetime.now(tz)
         hash = hashlib.blake2b(digest_size=20)
         hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
         return hash.hexdigest()
@@ -260,7 +272,7 @@ class basicFile(FSObject):
     def _genPattern(self, maxPatternSize = PATTERN_MAX_LEN):
         self.pattern_ = ""
         iSize = int(maxPatternSize)
-        maxSize = PATTERN_MAX_LEN if iSize > PATTERN_MAX_LEN else (iSize if iSize > PATTERN_MIN_LEN else PATTERN_MIN_LEN)
+        maxSize = max(PATTERN_MAX_LEN, iSize)
         for _ in range(random.randint(PATTERN_MIN_LEN, maxSize)):
             self.pattern_+=PATTERN_BASE_STRING[random.randint(0, len(PATTERN_BASE_STRING) - 1)]
 
@@ -292,33 +304,26 @@ class basicFile(FSObject):
         pSize = len(self.pattern_)
 
         # Taille du buffer
-        buffSize = pSize if pSize < fileSize else fileSize
+        buffSize = min(pSize,fileSize)
 
         # Ouverture / création du fichier
         currentSize = 0
         try:
-            file = open(self.name_, 'w')
-        except OSError:
-            self.error = f"Impossible d'ouvrir '{self.name_}'"
-            return
+            with open(self.name_, 'w') as file:
+                # Remplissage du fichier
+                while currentSize < fileSize:
+                    # Le dernier paquet (qui peut aussi être le premier) doit-il être tronqué ?
+                    if (currentSize + buffSize) > fileSize:
+                        buffSize = fileSize - currentSize
+                        self.pattern_ = self.pattern_[:buffSize]
 
-        try:
-            # Remplissage du fichier
-            while currentSize < fileSize:
-                # Le dernier paquet (qui peut aussi être le premier) doit-il être tronqué ?
-                if (currentSize + buffSize) > fileSize:
-                    buffSize = fileSize - currentSize
-                    self.pattern_ = self.pattern_[:buffSize]
+                    # Ecriture du buffer
+                    file.write(self.pattern_)
+                    currentSize+=buffSize
 
-                # Ecriture du buffer
-                file.write(self.pattern_)
-                currentSize+=buffSize
-
-                # On retourne la taille du paquet écrit
-                yield buffSize
+                    # On retourne la taille du paquet écrit
+                    yield buffSize
         except OSError:
             self.error = f"Erreur lors de l'ecriture dans '{self.name_}'"
-        finally:
-            file.close()
 
 # EOF

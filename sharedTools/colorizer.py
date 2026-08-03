@@ -1,16 +1,19 @@
+#!/bin/python
+#
 # coding=UTF-8
 #
 #   Fichier     :   colorizer.py
 #
 #   Description :   Définition des objets :
-#                     - colorizer : Gestion de la colorisation des sorties enmode terminal (et/ou texte)
+#                     - colorizer : Gestion de la colorisation des sorties en mode terminal (et/ou texte)
 #                     - textAttribute : Liste des attributs
 #                     - textColor : Liste des couleurs de texte
 #                     - backColor : Liste des couleurs de fond
 #
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
-#import sys
+
+COLORIZER_VERSION = "1.2.2"
 
 try :
     # Pour la coloration des sorties terminal
@@ -20,8 +23,8 @@ except ModuleNotFoundError:
     packageTermColor__ = False
 
 # Pour l'ajout de la date et de l'heure en mode "logs
+import datetime
 import os
-from datetime import datetime
 
 # Format de la date (pour les logs)
 LOG_DATE_FORMAT = "%d/%m/%Y-%H:%M:%S"
@@ -71,7 +74,7 @@ class textAttribute:
     UNDERLINE = SOULIGNE = "underline"
     BLINK = CLIGNOTANT = "blink"
     REVERSE = INVERSE = "reverse"
-    CONCELED = CACHE = "concealed"
+    CONCEALED = CACHE = "concealed"
 
 #
 #   colorizer  - Colorisation du texte
@@ -100,7 +103,8 @@ class colorizer:
         prefix = ""
         if datePrefix:
             # En mode log. on ajoute la date et l'heure
-            today = datetime.now()
+            tz = datetime.tzinfo()
+            today = datetime.datetime.now(tz)
             prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
 
         # On colorise ou pas ...
