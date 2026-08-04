@@ -19,7 +19,7 @@ from sharedTools import colorizer as color
 # Nom et version de l'application
 APP_NAME = "dCleaner"
 APP_CURRENT_VERSION = "0.12.1"
-APP_RELEASE_DATE = "03/08/2026"
+APP_RELEASE_DATE = "05/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
@@ -68,7 +68,12 @@ TIME_PREFIX = "%H:%M:%S "
 # Mode non verbeux (spécifique pour les fichiers de logs) - Par défaut Non
 ARG_LOGMODE_S   = "-l"
 ARG_LOGMODE     = "--log"
-COMMENT_LOGMODE = "Mode non verbeux, pour les fichiers de logs"
+COMMENT_LOGMODE = "Mode peu verbeux, pour les fichiers de logs"
+
+# Mode silencieux Par défaut Non
+ARG_QUIETMODE_S   = "-q"
+ARG_QUIETMODE     = "--quiet"
+COMMENT_QUIETMODE = "Mode silencieux, aucune sortie texte"
 
 # Pas de colorisation des sorties - Par défaut les sorties seront colorisées
 ARG_NOCOLOR_S = "-nc"
@@ -177,11 +182,15 @@ MAX_ELAPSETASKS = 180.0
 OPTION_INIT    = 0    # Rien à faire
 OPTION_TEST    = 1    # On teste ...
 OPTION_PADDING = 2    # Remplissage du dossier de 'padding'
-OPTION_VERBOSE = 4    # Mode verbeux
-OPTION_RECURSE = 8    # Traitement recursif des dossiers
+
+OPTION_QUIET   = 4    # Complètement 'silencieux'
+OPTION_LOG     = 8    # Mode peu-verbeux (pour les logs)
+OPTION_FULL    = 0    # Par défaut on affiche tout !
+
+OPTION_RECURSE = 16    # Traitement recursif des dossiers
 
 # Valeur par défaut
-OPTION_DEFAULT = OPTION_PADDING | OPTION_VERBOSE
+OPTION_DEFAULT = OPTION_PADDING | OPTION_FULL
 
 #
 # Modes de fonctionement
@@ -239,13 +248,30 @@ class options:
         for trash in trashes:
             self.restricted_.append(trash)
 
-    # Mode verbeux ?
+    #
+    #  Modes d'affichage
+    #
+
+    # Mode 'silencieux'
     @property
-    def verbose(self):
-        return self.__isSet(OPTION_VERBOSE)
-    @verbose.setter
-    def verbose(self, value):
-        self.__set(OPTION_VERBOSE, value)
+    def quiet(self):
+        return self.__isSet(OPTION_QUIET)
+    @quiet.setter
+    def quiet(self, value):
+        self.__set(OPTION_QUIET, value)
+
+    # Mode log
+    @property
+    def log(self):
+        return self.__isSet(OPTION_LOG)
+    @log.setter
+    def log(self, value):
+        self.__set(OPTION_LOG, value)
+
+    # Tous les affichages ?
+    @property
+    def full(self):
+        return (not self.__isSet(OPTION_LOG) and not self.__isSet(OPTION_QUIET))
 
     # Récursivité ?
     @property
@@ -278,12 +304,11 @@ class options:
         parser = argparse.ArgumentParser(epilog = self.version())
 
         parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
-        parser.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
         parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
         parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
         parser.add_argument(ARG_RECURSE_S, ARG_RECURSE, action='store_true', help = COMMENT_RECURSE, required = False)
 
-        # Arguments mutuellement exclusifs
+        # Effacer et ajuster sont exclusifs
         lancement = parser.add_mutually_exclusive_group()
         lancement.add_argument(ARG_CLEAR_S, ARG_CLEAR, action='store_true', help = COMMENT_CLEAR, required = False)
         lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
@@ -298,21 +323,31 @@ class options:
         parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = [DEF_ELAPSEFILES], type=float)
         parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = [DEF_ELAPSETASKS], type=float)
 
+        # Niveau des affichages des logs ou mode silencieux (ou tout ...)
+        affichage = parser.add_mutually_exclusive_group()
+        affichage.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
+        affichage.add_argument(ARG_QUIETMODE_S, ARG_QUIETMODE, action='store_true', help = COMMENT_QUIETMODE, required = False)
+
         # Parse de la ligne
         #
         args = parser.parse_args()
 
-        # Mode "verbeux"
         self.test = args.test
 
         # Mode "verbeux"
-        self.verbose = (False == args.log)
+        if args.log :
+            self.log = True
+            self.quiet = False
+        else:
+            if args.quiet:
+                self.quiet = True
+                self.log = False
 
         # Colorisation des affichages ?
         if self.color_ is None:
-            self.color_ = color.colorizer(False if not self.verbose else not args.nocolor)
+            self.color_ = color.colorizer(False if not self.quiet else not args.nocolor)
         else:
-            self.color_.setColorized(False if not self.verbose else not args.nocolor)
+            self.color_.setColorized(False if not self.quiet else not args.nocolor)
 
         # Pas de padding ?
         self.padding = (False == args.nopadding)
@@ -400,7 +435,7 @@ class options:
         if self.color_ is None:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix=(False == self.verbose), addPID=(False == self.verbose))} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix= self.log, addPID=self.log)} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     # Le dossier a t'il un accès restreint ?
     #
@@ -419,7 +454,6 @@ class options:
     # Liste des dossiers à nettoyer
     def handleCleanFolders(self, folders):
         # Liste des poubelles
-        #print("Obtention de la liste des \"dossiers poubelle\"")
         myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs

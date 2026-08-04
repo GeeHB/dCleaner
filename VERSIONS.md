@@ -18,10 +18,15 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
+#### Version 0.12.1
+* 5 aout 2026
+* Ajouts
+  * mode silencieux (-q / --quiet)
+* Corrections
+  * Code refactoring avec RUFF
+
 #### Version 0.11.2
 * juillet 2025
-* Ajouts
-
 * Corrections
   * Bug : Bloacage si partition nfs 'mountée' et non présente
   * cyclomatic ...

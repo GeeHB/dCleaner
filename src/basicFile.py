@@ -205,9 +205,9 @@ class basicFile(FSObject):
                 for _ in range(self.options.iterate_):
                     yield from self._create()
 
+
                 if False == self.success():
                     return
-
             # Dans tous les cas, effacement
             try:
                 if len(self.name_)>0:
@@ -271,7 +271,8 @@ class basicFile(FSObject):
     def _genPattern(self, maxPatternSize = PATTERN_MAX_LEN):
         self.pattern_ = ""
         iSize = int(maxPatternSize)
-        maxSize = max(PATTERN_MAX_LEN, iSize)
+        maxSize = PATTERN_MAX_LEN if iSize > PATTERN_MAX_LEN else max(iSize, PATTERN_MIN_LEN)
+
         for _ in range(random.randint(PATTERN_MIN_LEN, maxSize)):
             self.pattern_+=PATTERN_BASE_STRING[random.randint(0, len(PATTERN_BASE_STRING) - 1)]
 

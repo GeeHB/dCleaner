@@ -87,7 +87,6 @@ class FSObject:
     #   Retourne une chaine de caractères
     @staticmethod
     def size2String(size):
-
         size = max(size,0)
 
         # Unités

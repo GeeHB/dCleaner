@@ -88,7 +88,7 @@ class dCleaner:
 
         optimize = (mode & parameters.MODE_FILL or mode & parameters.MODE_ADJUST)
 
-        return self._repr_verbose(res, modeStr, optimize) if self.options_.verbose else self._repr_no_verbose(res, modeStr, optimize)
+        return self._repr_verbose(res, modeStr, optimize) if self.options_.full else self._repr_no_verbose(res, modeStr, optimize)
 
     def _repr_verbose(self, res, modeStr, optimize) -> str:
         out = "Paramètres : "
@@ -128,6 +128,9 @@ class dCleaner:
         return out
 
     def _repr_no_verbose(self, res, modeStr, optimize):
+        if self.options_.quiet:
+            return ""
+
         out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
 
         if optimize :
@@ -189,7 +192,7 @@ class dCleaner:
         maxFillSize = totalSize * self.options_.fillRate_ / 100
 
         if currentFillSize > maxFillSize:
-            if self.options_.verbose:
+            if self.options_.full:
                 print(self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
@@ -200,16 +203,18 @@ class dCleaner:
 
             if gap > paddingFillSize:
                 # Tout le dossier de 'padding' n'y suffira pas ...
-                print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", textColor.JAUNE))
+                if not self.options_.quiet:
+                    print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", textColor.JAUNE))
+                    print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
+
                 res = self.paddingFolder_.clean()
-                print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
 
                 if len(res[1]) > 0:
                     sys.stderr.write(f"Erreur lors du vidage du dossier de remplissage : {res[1]}\n")
                     return False
             else:
                 # Retrait du "minimum"
-                if not self.options_.verbose:
+                if not self.options_.full:
                     print(self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
                 self.paddingFolder_.deleteFiles(size=gap)
 
@@ -231,15 +236,15 @@ class dCleaner:
         # on recadre avec l'espace effectivement dispo
         renewSize = int(self.options_.inRange(renewSize, 0, res[2] * self.options_.renewRate_ / 100))
 
-        if self.options_.verbose:
-            self.indented_print("Remplissage", True)
+        if self.options_.full:
+            self.indented_print("Remplissage", False)
         self.paddingFolder_.newFiles(renewSize, iterate = True)
 
-        if self.options_.verbose:
+        if self.options_.full:
             self.indented_print("Suppression", True)
         self.paddingFolder_.deleteFiles(size = renewSize, iterate = True)
-        if  self.options_.verbose:
-            self.indented_print("Terminé", True)
+        if  self.options_.full:
+            self.indented_print("Terminé", False)
 
     # Affichage d'une ligne indentée
     #
@@ -328,14 +333,16 @@ def _cleanPartition(params, cleaner):
                 sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
             else:
                 # Juste un message ...
-                print(res[2])
+                if not params.quiet:
+                    print(res[2])
 
 
 # Fill the partition
 #
 def _fillPartition(params, cleaner):
     if  params.padding:
-        print("Vérification du dossier de 'padding'")
+        if not params.quiet:
+            print("Vérification du dossier de 'padding'")
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
             cleaner.freePartition()
@@ -345,11 +352,11 @@ def _fillPartition(params, cleaner):
 
             for index in range(params.iterate_):
                 if index > 0:
-                    if params.verbose:
+                    if params.full:
                         cleaner.indented_print("On attend un peu...")
                     cleaner.paddingFolder_.wait(params.waitTasks_)
 
-                if params.verbose:
+                if params.full:
                     print(f"Itération {index+1}/{params.iterate_}")
 
                 cleaner.cleanPartition()
@@ -394,7 +401,9 @@ if '__main__' == __name__:
 
     try:
         done = True
-        print(params.version())
+
+        if not params.quiet:
+            print(params.version())
 
         # Des dossiers ou fichiers à nettoyer ?
         if params.clean_ is not None and len(params.clean_) > 0 and not _listOfFolders(params):
@@ -405,12 +414,14 @@ if '__main__' == __name__:
         print(cleaner)
 
         if params.clear_:
-            print("Nettoyage du dossier de 'padding'")
+            if not params.quiet:
+                print("Nettoyage du dossier de 'padding'")
             res = cleaner.cleanFolders()
             if len(res[2]) > 0  and res[3]:
                 sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
             else:
-                print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
+                if not params.quiet:
+                    print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
         else:
             # Nettoyage un ou plusieurs dossiers (ou fichiers) ?
             _cleanPartition(params, cleaner)
@@ -421,13 +432,13 @@ if '__main__' == __name__:
     except OSError as ioe:
         sys.stderr.write(f"Erreur de paramètre(s) : {ioe!r}\n")
     except KeyboardInterrupt :
-        if params.color_ is not None:
+        if params.color_ is not None and not params.quiet:
             print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
     except ValueError as ve:
         sys.stderr.write(f"Erreur d'initialisation : {ve!a}\n")
 
     #  La fin, la vraie !
-    if done and params.color_ is not None:
-        print(params.color_.colored("Fin des traitements", datePrefix = (False == params.verbose), addPID = (False == params.verbose)))
+    if done and not params.quiet and params.color_ is not None:
+        print(params.color_.colored("Fin des traitements", datePrefix = params.log, addPID = params.log))
 
 # EOF

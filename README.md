@@ -22,7 +22,7 @@ En plus de la saturation du disque dur, `dCleaner` peut être utilisé pour nett
 
 | Dépôt          | dCleaner                                                                                                                      |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------|
-| **Date**           | 03 aug. 2026                                                                                                                  |
+| **Date**           | 5 aug. 2026                                                                                                                  |
 | **Auteur** | JHB - [henry-barnaudiere.j@allier.fr](mailto:henry-barnaudiere.j@allier.fr) |
 | **Version stable** | **0.12.1 - branche** `master`                                                                                                       |
 | **Dépendances**    | Python 3.xx                                                                                                                   |

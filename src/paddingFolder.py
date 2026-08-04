@@ -38,15 +38,15 @@ class paddingFolder(basicFolder):
         super().__init__(options, pMaxSize)
 
         # Création de la barre (reèlle ou pas ...)
-        if self.options.verbose:
+        if self.options.full:
             try:
                 from alive_progress import alive_bar as pBar
                 self.progressBar_ = pBar
             except ImportError:
                 print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
-                self.options.verbose = False
+                self.options.quiet = True
 
-        if not self.options.verbose:
+        if not self.options.full:
             from fakeProgressBar import fakeProgressBar as fakeBar
             self.progressBar_ = fakeBar
 
@@ -61,12 +61,12 @@ class paddingFolder(basicFolder):
 
         # Le dossier existe t'il ?
         if not FSObject.existsFolder(self.options.folder_):
-            if self.options.verbose:
+            if self.options.full:
                 print(f"Le dossier '{self.options.folder_}' n'existe pas")
 
             # On essaye de le créer
             if self.create(self.options.folder_):
-                if self.options.verbose:
+                if self.options.full:
                     print(f"Dossier '{self.options.folder_} crée avec succès")
             else:
                 return False, f"Impossible de créer le dossier '{self.options.folder_}'"
@@ -102,7 +102,7 @@ class paddingFolder(basicFolder):
             return True
 
         if True == self.valid_ and expectedFillSize > 0:
-            if self.options.verbose :
+            if self.options.full :
                 offset = "\t- " if iterate else ""
                 print(f"{offset}Demande de remplissage de {FSObject.size2String(expectedFillSize)}")
 
@@ -112,7 +112,7 @@ class paddingFolder(basicFolder):
             files = 0
             cont = True
 
-            if self.options.verbose:
+            if self.options.full:
                 try:
                     barPos = 0  # Ou je suis ...
                     barMax = self.__convertSize2Progressbar(expectedFillSize * self.options.iterate_)
@@ -141,7 +141,7 @@ class paddingFolder(basicFolder):
                     print('\033[F', end='')
                 except ImportError:
                     print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
-                    self.options.verbose = False
+                    self.options.quiet = True
             else:
                 # sans barre de progression ...
                 while totalSize < expectedFillSize and cont:
@@ -160,7 +160,10 @@ class paddingFolder(basicFolder):
                         self.wait(self.options.waitFiles_)
 
             offset = "\t " if iterate else ""
-            print(f"{offset}Remplissage de {FSObject.size2String(totalSize / self.options.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
+
+            if not self.options.quiet:
+                print(f"{offset}Remplissage de {FSObject.size2String(totalSize / self.options.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
+
             return True
 
         # Erreur
@@ -258,7 +261,10 @@ class paddingFolder(basicFolder):
 
         # Fin des traitements
         offset = "\t " if iterate else ""
-        print(f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {FSObject.count2String('fichier', tFiles)}")
+
+        if self.options.full:
+            print(f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {FSObject.count2String('fichier', tFiles)}")
+
         return True
 
     # Vidage du dossier courant
@@ -277,15 +283,15 @@ class paddingFolder(basicFolder):
             return 0, ""
 
         count = 0   # Ce que j'ai effectivement supprimé ...
-        if self.options.verbose:
+        if self.options.full:
             try:
                 from alive_progress import alive_bar as pBar
                 progressBar = pBar
             except ImportError:
                 print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
-                self.options.verbose = False
+                self.options.quiet = True
 
-        if not self.options.verbose:
+        if not self.options.full:
             from fakeProgressBar import fakeProgressBar as fakeBar
             progressBar = fakeBar
 
@@ -344,7 +350,8 @@ class paddingFolder(basicFolder):
         if 0 == expectedFolders and 0 == expectedFiles:
             return 0, 0, "Rien à supprimer", False
 
-        print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}")
+        if not self.options.quiet:
+            print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}")
 
         # Nettoyage des dossiers
         freed = barPos = deletedFolders = deletedFiles = 0
@@ -376,8 +383,9 @@ class paddingFolder(basicFolder):
             # Retrait de la barre
             self.__tprint('\033[F', '')
 
-        print(f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")
-        print(f"{FSObject.size2String(int(freed/self.options.iterate_))} libérés")
+        if not self.options.quiet:
+            print(f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")
+            print(f"{FSObject.size2String(int(freed/self.options.iterate_))} libérés")
 
         return deletedFiles, deletedFolders, "", False
 
@@ -411,7 +419,7 @@ class paddingFolder(basicFolder):
     # Affichage dans la console
     #
     def __tprint(self, text, endL = None):
-        if self.options.verbose:
+        if not self.options.quiet:
             print(text, end = endL)
 
     # Suppression directe d'un fichier
