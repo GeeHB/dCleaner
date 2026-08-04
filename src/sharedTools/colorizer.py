@@ -103,8 +103,7 @@ class colorizer:
         prefix = ""
         if datePrefix:
             # En mode log. on ajoute la date et l'heure
-            tz = datetime.tzinfo()
-            today = datetime.datetime.now(tz)
+            today = datetime.datetime.now(tz=datetime.timezone.utc)
             prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
 
         # On colorise ou pas ...

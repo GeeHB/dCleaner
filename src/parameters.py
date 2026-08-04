@@ -344,7 +344,6 @@ class options:
             # Si pas de récursivité, la profondeur max est 0 !
             self.cleanDepth_ = 0
 
-        # Nettoyage d'un (ou plusieurs) dossier(s)
         if args.clean is not None:
             self.handleCleanFolders(args.clean)
 
@@ -354,7 +353,7 @@ class options:
 
         return True
 
-    # Dossier "root"
+    # Dossier "root
     @staticmethod
     def homeFolder():
         return os.path.expanduser(DEF_ROOT_FOLDER)
@@ -414,8 +413,8 @@ class options:
         return True
 
     # Retourne une valeur dans l'intervalle
-    def inRange(self, value, min, max):
-        return max(min, value)
+    def inRange(self, value, minv, maxv):
+        return min(max(minv, value), maxv)
 
     # Liste des dossiers à nettoyer
     def handleCleanFolders(self, folders):

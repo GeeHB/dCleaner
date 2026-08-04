@@ -262,8 +262,7 @@ class basicFile(FSObject):
     #   Retourne le nouveau nom
     @staticmethod
     def _genName():
-        tz = datetime.tzinfo()
-        now = datetime.datetime.now(tz)
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
         hash = hashlib.blake2b(digest_size=20)
         hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
         return hash.hexdigest()

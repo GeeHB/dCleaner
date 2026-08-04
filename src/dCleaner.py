@@ -245,8 +245,7 @@ class dCleaner:
     #
     def indented_print(self, line, date = False):
         if date:
-            tz = datetime.tzinfo()
-            today = datetime.datetime.now(tz)
+            today = datetime.datetime.now(tz=datetime.timezone.utc)
             prefix = f"{today.strftime(parameters.TIME_PREFIX)}[{os.getpid()}] "
         else:
             prefix = ""
