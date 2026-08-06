@@ -217,7 +217,6 @@ class options:
     # Construction
     #
     def __init__(self):
-
         self.done_ = False
 
         # Valeurs par défaut
@@ -300,7 +299,6 @@ class options:
     # Analyse de la ligne de commandes
     #   returne un booléen
     def parse(self):
-
         parser = argparse.ArgumentParser(epilog = self.version())
 
         parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
@@ -440,7 +438,6 @@ class options:
     # Le dossier a t'il un accès restreint ?
     #
     def isRectrictedAccess(self, folder):
-
         if folder is not None:
             return folder in self.restricted_
 

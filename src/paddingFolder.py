@@ -186,7 +186,6 @@ class paddingFolder(basicFolder):
         tSize = 0
         tFiles = 0
 
-
         offset = "\t- " if iterate else ""
         if 0 != size :
             self.__tprint(f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
@@ -254,10 +253,12 @@ class paddingFolder(basicFolder):
                 sys.exit(1)
 
             # Retrait de la barre de progression
-            self.__tprint('\033[F', '')
+            if self.options.full:
+                self.__tprint('\033[F', '')
 
         # Terminé
-        self.__tprint('\033[F', '')
+        if self.options.full:
+            self.__tprint('\033[F', '')
 
         # Fin des traitements
         offset = "\t " if iterate else ""
@@ -290,8 +291,7 @@ class paddingFolder(basicFolder):
             except ImportError:
                 print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.quiet = True
-
-        if not self.options.full:
+        else:
             from fakeProgressBar import fakeProgressBar as fakeBar
             progressBar = fakeBar
 
@@ -314,7 +314,8 @@ class paddingFolder(basicFolder):
                     bar()
 
         # Retrait de la barre de progression
-        self.__tprint('\033[F', '')
+        if self.options.full:
+            self.__tprint('\033[F', '')
 
         # Dossier vidé
         return count, ""
@@ -344,7 +345,8 @@ class paddingFolder(basicFolder):
                     pass
 
         # Retrait de la barre de progression
-        self.__tprint('\033[F', '')
+        if self.options.full :
+            self.__tprint('\033[F', '')
 
         # Rien à faire ?
         if 0 == expectedFolders and 0 == expectedFiles:
@@ -381,7 +383,8 @@ class paddingFolder(basicFolder):
                             barPos, deletedFiles, freed = self.__deleteFile(FSO, bar, barPos, barMax, deletedFiles, freed)
 
             # Retrait de la barre
-            self.__tprint('\033[F', '')
+            if self.options.full:
+                self.__tprint('\033[F', '')
 
         if not self.options.quiet:
             print(f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")

@@ -23,7 +23,7 @@ from basicFile import basicFile
 from basicFolder import basicFolder
 from FSObject import FSObject
 from paddingFolder import paddingFolder
-from sharedTools.colorizer import textAttribute, textColor
+from sharedTools import colorizer as color
 from winTrashFolder import winTrashFolder
 
 
@@ -31,9 +31,6 @@ from winTrashFolder import winTrashFolder
 #   Actions sur le dossier de remplissage
 #
 class dCleaner:
-    # Données membre
-    #
-
     # Construction
     def __init__(self, options):
         # Initialisation des données membres
@@ -57,7 +54,6 @@ class dCleaner:
 
     # Affichage des paramètres internes de l'objet
     def __repr__(self):
-
         mode = parameters.MODE_NONE
         modeStr = ""
 
@@ -92,34 +88,34 @@ class dCleaner:
 
     def _repr_verbose(self, res, modeStr, optimize) -> str:
         out = "Paramètres : "
-        out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[textAttribute.GRAS])}"
+        out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[color.textAttribute.GRAS])}"
 
         if optimize :
-            out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
-            out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
+            out += "\n\t- Taux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[color.textAttribute.GRAS])
+            out += "\n\t- Taux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[color.textAttribute.GRAS])
 
             out += f"\n\t- Attente entre 2 fichiers : {self.options_.waitFiles_}s"
             out += f"\n\t- Attente entre 2 itérations : {self.options_.waitTasks_}s"
 
         if False == self.options_.adjust_ :
-            out += f"\n\t- Itérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
+            out += f"\n\t- Itérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[color.textAttribute.GRAS])}"
 
         if optimize :
             out += "\n\nPartition : "
             out += f"\n\t- Taille : {FSObject.size2String(res[0])}"
-            out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
+            out += "\n\t- Remplie à " + self.options_.color_.colored(f"{round(res[1] / res[0] * 100 , 2)}%", formatAttr=[color.textAttribute.GRAS]) + " - " + FSObject.size2String(res[1])
 
             if self.options_.padding:
                 out += "\n\nRemplissage : "
-                out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])}"
+                out += f"\n\t- Nom : {self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[color.textAttribute.GRAS])}"
                 out += f"\n\t- Contenu : {FSObject.size2String(self.paddingFolder_.size())}\n"
 
         if len(self.options_.clean_) > 0 :
             out += "\n\nVider : "
             out += f"\n\t- {FSObject.count2String('élément', len(self.options_.clean_))} à vider :"
             for FSO in self.options_.clean_:
-                out += f"\n\t\t- [{'fichier' if FSO.isFile() else 'dossier'}] {self.options_.color_.colored(FSO.name, formatAttr=[textAttribute.GRAS])}"
-            out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[textAttribute.GRAS])}"
+                out += f"\n\t\t- [{'fichier' if FSO.isFile() else 'dossier'}] {self.options_.color_.colored(FSO.name, formatAttr=[color.textAttribute.GRAS])}"
+            out += f"\n\t- Récursivité : {self.options_.color_.colored('oui' if self.options_.recurse else 'non', formatAttr=[color.textAttribute.GRAS])}"
             if self.options_.recurse:
                 out += f"\n\t- Profondeur : {self.options_.cleanDepth_}\n"
             else:
@@ -134,22 +130,22 @@ class dCleaner:
         out = f"Partition : {FSObject.size2String(res[0])} - remplie à {round(res[1] / res[0] * 100 ,0)}%"
 
         if optimize :
-            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[textAttribute.GRAS])
+            out += "\nRemplissage : " + self.options_.color_.colored(self.paddingFolder_.name, formatAttr=[color.textAttribute.GRAS])
 
         out += "\nMode : " + modeStr
 
         if optimize :
-            out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[textAttribute.GRAS])
-            out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[textAttribute.GRAS])
+            out += "\nTaux de remplissage max : " + self.options_.color_.colored(f"{self.options_.fillRate_}%", formatAttr=[color.textAttribute.GRAS])
+            out += "\nTaux de renouvellement de la partition : " + self.options_.color_.colored(f"{self.options_.renewRate_}%", formatAttr=[color.textAttribute.GRAS])
 
         if self.options_.clean_ is not None and len(self.options_.clean_) > 0:
-            out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[textAttribute.GRAS])
+            out += "\nVider : " + self.options_.color_.colored(f"{FSObject.count2String('élément', len(self.options_.clean_))} - Profondeur : {self.options_.cleanDepth_}", formatAttr=[color.textAttribute.GRAS])
 
             if self.options_.recurse:
                     out += "\nRécursivité : oui"
 
         if False == self.options_.adjust_ :
-            out += f"\nItérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[textAttribute.GRAS])}"
+            out += f"\nItérations : {self.options_.color_.colored(str(self.options_.iterate_), formatAttr=[color.textAttribute.GRAS])}"
 
         return out
 
@@ -186,14 +182,13 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
     def freePartition(self):
-
         # Mode "initial" : on fait en sorte de coller immédiatement au taux de remplissage
         totalSize, currentFillSize, _ = self.paddingFolder_.partitionUsage()
         maxFillSize = totalSize * self.options_.fillRate_ / 100
 
         if currentFillSize > maxFillSize:
             if self.options_.full:
-                print(self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", textColor.JAUNE))
+                print(self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", color.textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -204,8 +199,8 @@ class dCleaner:
             if gap > paddingFillSize:
                 # Tout le dossier de 'padding' n'y suffira pas ...
                 if not self.options_.quiet:
-                    print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", textColor.JAUNE))
-                    print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[textAttribute.GRAS]))
+                    print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", color.textColor.JAUNE))
+                    print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[color.textAttribute.GRAS]))
 
                 res = self.paddingFolder_.clean()
 
@@ -226,7 +221,6 @@ class dCleaner:
     # Rafraichissement - remplissage et nettoyage ponctuel
     #
     def cleanPartition(self):
-
         # Taille en octets du volume à renouveller
         res = self.paddingFolder_.partitionUsage()
 
@@ -275,7 +269,6 @@ def isRootLikeUser():
 #   retourne un booléen : des éléments à supprimer ?
 #
 def _listOfFolders(params):
-
     # On s'assure que les dossiers/fichiers existent et on crée les objets en conséquence
     fileOrFolders = []
     for folder in params.clean_:
@@ -335,7 +328,6 @@ def _cleanPartition(params, cleaner):
                 # Juste un message ...
                 if not params.quiet:
                     print(res[2])
-
 
 # Fill the partition
 #
@@ -433,7 +425,7 @@ if '__main__' == __name__:
         sys.stderr.write(f"Erreur de paramètre(s) : {ioe!r}\n")
     except KeyboardInterrupt :
         if params.color_ is not None and not params.quiet:
-            print(params.color_.colored("Interruption des traitements", textColor.JAUNE))
+            print(params.color_.colored("Interruption des traitements", color.textColor.JAUNE))
     except ValueError as ve:
         sys.stderr.write(f"Erreur d'initialisation : {ve!a}\n")
 

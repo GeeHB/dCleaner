@@ -19,7 +19,6 @@ import os
 # Objet du système de fichier (dossier ou fichier) à supprimer / vider
 #
 class FSObject:
-
     # Paramètres & options
     @property
     def options(self):
