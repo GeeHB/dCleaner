@@ -18,7 +18,7 @@ from sharedTools import colorizer as color
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "0.12.2"
+APP_CURRENT_VERSION = "0.12.3"
 APP_RELEASE_DATE = "06/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
@@ -188,6 +188,7 @@ OPTION_LOG     = 8    # Mode peu-verbeux (pour les logs)
 OPTION_FULL    = 0    # Par défaut on affiche tout !
 
 OPTION_RECURSE = 16    # Traitement recursif des dossiers
+OPTION_CLEANFOLDERS = 32 # Nettoyuage d'un ou de pluseirus dossiers
 
 # Valeur par défaut
 OPTION_DEFAULT = OPTION_PADDING | OPTION_FULL
@@ -290,8 +291,11 @@ class options:
 
     # Des dossiers à nettoyer ?
     @property
-    def cleanFolders(self) -> bool:
-        return (len(self.clean_) > 0)
+    def clean(self) -> bool:
+        return self.__isSet(OPTION_CLEANFOLDERS)
+    @clean.setter
+    def clean(self, value):
+        self.__set(OPTION_CLEANFOLDERS, value)
 
     # Test ?
     @property
@@ -383,7 +387,10 @@ class options:
             self.cleanDepth_ = 0
 
         if args.clean is not None:
+            self.clean = True
             self.handleCleanFolders(args.clean)
+        else:
+            self.clean = False
 
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)

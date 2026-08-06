@@ -74,7 +74,7 @@ class dCleaner:
                     mode = parameters.MODE_FILL
                     modeStr = parameters.MODE_FILL_STR
 
-        if self.options_.cleanFolders:
+        if self.options_.clean:
             mode |= parameters.MODE_CLEAN
             if len(modeStr) > 0 :
                 modeStr = modeStr + " & " + parameters.MODE_CLEAN_STR

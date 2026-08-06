@@ -327,7 +327,6 @@ class paddingFolder(basicFolder):
     #   Retourne le tuple {#fichiers, #dossiers, message, erreur ?}
     #
     def cleanFolders(self, fList):
-
         if fList is None or 0 == len(fList):
             return 0, 0, "Le paramètre 'fList' n'est pas renseigné" , True
 
