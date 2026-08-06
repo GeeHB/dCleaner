@@ -18,12 +18,15 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
-#### Version 0.12.1
-* 5 aout 2026
+#### Version 0.12.2
+* 6 aout 2026
 * Ajouts
   * mode silencieux (-q / --quiet)
+  * Récupération du fuseau horaire pour l'affichage des logs
 * Corrections
   * Code refactoring avec RUFF
+  * Affichages PID
+  * Caractères de contrôles dans les logs
 
 #### Version 0.11.2
 * juillet 2025

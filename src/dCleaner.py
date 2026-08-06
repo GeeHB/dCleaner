@@ -17,6 +17,7 @@ import os
 import random
 import sys
 import traceback
+from zoneinfo import ZoneInfo
 
 import parameters
 from basicFile import basicFile
@@ -73,11 +74,12 @@ class dCleaner:
                     mode = parameters.MODE_FILL
                     modeStr = parameters.MODE_FILL_STR
 
-        if len(self.options_.clean_) > 0:
+        if self.options_.cleanFolders:
             mode |= parameters.MODE_CLEAN
             if len(modeStr) > 0 :
-                modeStr = modeStr + " & "
-            modeStr = modeStr + parameters.MODE_CLEAN_STR
+                modeStr = modeStr + " & " + parameters.MODE_CLEAN_STR
+            else :
+                modeStr = parameters.MODE_CLEAN_STR
 
         if self.options_.test :
             modeStr = "Test | " + modeStr
@@ -244,7 +246,7 @@ class dCleaner:
     #
     def indented_print(self, line, date = False):
         if date:
-            today = datetime.datetime.now(tz=datetime.timezone.utc)
+            today = datetime.datetime.now(tz=ZoneInfo(color.COLORIZER_REGION))
             prefix = f"{today.strftime(parameters.TIME_PREFIX)}[{os.getpid()}] "
         else:
             prefix = ""

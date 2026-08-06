@@ -18,8 +18,8 @@ from sharedTools import colorizer as color
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "0.12.1"
-APP_RELEASE_DATE = "05/08/2026"
+APP_CURRENT_VERSION = "0.12.2"
+APP_RELEASE_DATE = "06/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
@@ -287,6 +287,11 @@ class options:
     @padding.setter
     def padding(self, value):
         self.__set(OPTION_PADDING, value)
+
+    # Des dossiers à nettoyer ?
+    @property
+    def cleanFolders(self) -> bool:
+        return (len(self.clean_) > 0)
 
     # Test ?
     @property

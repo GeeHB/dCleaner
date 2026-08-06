@@ -15,6 +15,7 @@ import hashlib
 import os
 import random
 import stat
+from zoneinfo import ZoneInfo
 
 from FSObject import FSObject
 from parameters import (
@@ -24,6 +25,7 @@ from parameters import (
     PATTERN_MAX_LEN,
     PATTERN_MIN_LEN,
 )
+from sharedTools.colorizer import COLORIZER_REGION
 
 
 #
@@ -262,7 +264,7 @@ class basicFile(FSObject):
     #   Retourne le nouveau nom
     @staticmethod
     def _genName():
-        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        now = datetime.datetime.now(tz=ZoneInfo(COLORIZER_REGION))
         hash = hashlib.blake2b(digest_size=20)
         hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
         return hash.hexdigest()

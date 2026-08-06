@@ -13,7 +13,8 @@
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
 
-COLORIZER_VERSION = "1.2.2"
+COLORIZER_VERSION = "1.2.3"
+COLORIZER_REGION = "Europe/Paris"
 
 try :
     # Pour la coloration des sorties terminal
@@ -25,12 +26,13 @@ except ModuleNotFoundError:
 # Pour l'ajout de la date et de l'heure en mode "logs"
 import datetime
 import os
+from zoneinfo import ZoneInfo
 
 # Format de la date (pour les logs)
 LOG_DATE_FORMAT = "%d/%m/%Y-%H:%M:%S"
 
 # Avec le PID
-LOG_DATE_FORMAT_PID = f"{LOG_DATE_FORMAT}[{os.getpid()}] "
+LOG_DATE_FORMAT_PID = f"{LOG_DATE_FORMAT} [{os.getpid()}] "
 
 # Messages d'erreur
 #
@@ -99,7 +101,7 @@ class colorizer:
         prefix = ""
         if datePrefix:
             # En mode log. on ajoute la date et l'heure
-            today = datetime.datetime.now(tz=datetime.timezone.utc)
+            today = datetime.datetime.now(tz=ZoneInfo(COLORIZER_REGION))
             prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
 
         # On colorise ou pas ...
