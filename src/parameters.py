@@ -15,11 +15,12 @@ import platform
 
 from mountPoints import mountPointTrashes
 from sharedTools import colorizer as color
+from sharedTools import jlogger as logs
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "0.12.3"
-APP_RELEASE_DATE = "06/08/2026"
+APP_CURRENT_VERSION = "1.0.1"
+APP_RELEASE_DATE = "07/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
@@ -53,10 +54,6 @@ FILESIZE_MAX = 1024
 FOLDERS_TRASH = "%trash%"          # La poubelle de l'utilisateur
 FOLDERS_TRASH_BIS = "__trash__"
 WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de Windows
-
-# Constantes générales
-#
-TIME_PREFIX = "%H:%M:%S "
 
 #
 # Commandes / arguments reconnu(e)s (longues et courtes)
@@ -223,6 +220,7 @@ class options:
         # Valeurs par défaut
         #
         self.option_ = OPTION_DEFAULT
+        self.logs_ = logs.jLogger()
         self.color_ = None      # Outil de colorisation
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
         self.iterate_ = DEF_ITERATE
@@ -257,16 +255,22 @@ class options:
     def quiet(self):
         return self.__isSet(OPTION_QUIET)
     @quiet.setter
-    def quiet(self, value):
+    def quiet(self, value : bool):
         self.__set(OPTION_QUIET, value)
+        if value :
+            self.logs_.level = logs.LogLevel.LOG_QUIET
 
     # Mode log
     @property
     def log(self):
         return self.__isSet(OPTION_LOG)
     @log.setter
-    def log(self, value):
+    def log(self, value : bool):
         self.__set(OPTION_LOG, value)
+        if value :
+            self.logs_.level = logs.LogLevel.LOG_NORMAL
+        self.logs_.log = value
+        self.logs_.pid = value
 
     # Tous les affichages ?
     @property
@@ -306,8 +310,8 @@ class options:
         self.__set(OPTION_TEST, value)
 
     # Analyse de la ligne de commandes
-    #   returne un booléen
-    def parse(self):
+    #   retourne un booléen
+    def parse(self) -> bool:
         parser = argparse.ArgumentParser(epilog = self.version())
 
         parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
@@ -344,11 +348,9 @@ class options:
         # Mode "verbeux"
         if args.log :
             self.log = True
-            self.quiet = False
         else:
             if args.quiet:
                 self.quiet = True
-                self.log = False
 
         # Colorisation des affichages ?
         if self.color_ is None:
@@ -357,7 +359,7 @@ class options:
             self.color_.setColorized(False if not self.quiet else not args.nocolor)
 
         # Pas de padding ?
-        self.padding = (False == args.nopadding)
+        self.padding = not args.nopadding
 
         # Nettoyage
         self.clear_ = args.clear
@@ -389,8 +391,6 @@ class options:
         if args.clean is not None:
             self.clean = True
             self.handleCleanFolders(args.clean)
-        else:
-            self.clean = False
 
         # Attentes
         self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
@@ -445,7 +445,7 @@ class options:
         if self.color_ is None:
             self.color_ = color.colorizer(True)
 
-        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD], datePrefix= self.log, addPID=self.log)} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
+        return f"{self.color_.colored(APP_NAME, formatAttr=[color.textAttribute.BOLD])} par {APP_AUTHOR} - v{APP_CURRENT_VERSION} du {APP_RELEASE_DATE}"
 
     # Le dossier a t'il un accès restreint ?
     #
@@ -484,7 +484,7 @@ class options:
     # Méthodes à usage interne
     #
 
-    # Un bit d'OPTION_VERBOSE est-il positionné ?
+    # Un bit est-il positionné ?
     #
     #   bit : Mode(s) ou bit(s) à rechercher
     #

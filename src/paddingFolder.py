@@ -25,6 +25,7 @@ import fakeProgressBar
 from basicFile import basicFile
 from basicFolder import basicFolder
 from FSObject import FSObject
+from sharedTools import jlogger as logs
 from winTrashFolder import winTrashFolder
 
 
@@ -43,7 +44,7 @@ class paddingFolder(basicFolder):
                 from alive_progress import alive_bar as pBar
                 self.progressBar_ = pBar
             except ImportError:
-                print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
+                self.options.logs.error(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.quiet = True
 
         if not self.options.full:
@@ -61,13 +62,11 @@ class paddingFolder(basicFolder):
 
         # Le dossier existe t'il ?
         if not FSObject.existsFolder(self.options.folder_):
-            if self.options.full:
-                print(f"Le dossier '{self.options.folder_}' n'existe pas")
+            self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = f"Le dossier '{self.options.folder_}' n'existe pas")
 
             # On essaye de le créer
             if self.create(self.options.folder_):
-                if self.options.full:
-                    print(f"Dossier '{self.options.folder_} crée avec succès")
+                self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = f"Dossier '{self.options.folder_} crée avec succès")
             else:
                 return False, f"Impossible de créer le dossier '{self.options.folder_}'"
 
@@ -102,9 +101,8 @@ class paddingFolder(basicFolder):
             return True
 
         if True == self.valid_ and expectedFillSize > 0:
-            if self.options.full :
-                offset = "\t- " if iterate else ""
-                print(f"{offset}Demande de remplissage de {FSObject.size2String(expectedFillSize)}")
+            offset = "\t- " if iterate else ""
+            self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = f"{offset}Demande de remplissage de {FSObject.size2String(expectedFillSize)}")
 
             # Rien n'a été fait !!!
             still = int(expectedFillSize)
@@ -138,9 +136,9 @@ class paddingFolder(basicFolder):
                                  self.wait(self.options.waitFiles_)
 
                     # Retrait de la barre de progression
-                    print('\033[F', end='')
+                    self.__tprint('\033[F', '')
                 except ImportError:
-                    print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
+                    self.options.logs.error(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                     self.options.quiet = True
             else:
                 # sans barre de progression ...
@@ -161,9 +159,7 @@ class paddingFolder(basicFolder):
 
             offset = "\t " if iterate else ""
 
-            if not self.options.quiet:
-                print(f"{offset}Remplissage de {FSObject.size2String(totalSize / self.options.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
-
+            self.options.logs.print(level = logs.LogLevel.LOG_NORMAL, text = f"{offset}Remplissage de {FSObject.size2String(totalSize / self.options.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
             return True
 
         # Erreur
@@ -188,9 +184,9 @@ class paddingFolder(basicFolder):
 
         offset = "\t- " if iterate else ""
         if 0 != size :
-            self.__tprint(f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
+            self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = f"{offset}Demande de suppression à hauteur de {FSObject.size2String(size)}")
         else:
-            self.__tprint(f"{offset}Demande de suppression de {FSObject.count2String('fichier', count)}")
+            self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = f"{offset}Demande de suppression de {FSObject.count2String('fichier', count)}")
 
         # Liste des fichiers du dossier
         files = [ f for f in os.listdir(self.options.folder_) if os.path.isfile(os.path.join(self.options.folder_,f)) ]
@@ -249,7 +245,7 @@ class paddingFolder(basicFolder):
                     # On attend ...
                     self.wait(self.options.waitFiles_)
             except KeyboardInterrupt:
-                print("Interruption de la suppression")
+                self.options.logs.error("Interruption de la suppression")
                 sys.exit(1)
 
             # Retrait de la barre de progression
@@ -262,9 +258,7 @@ class paddingFolder(basicFolder):
 
         # Fin des traitements
         offset = "\t " if iterate else ""
-
-        if self.options.full:
-            print(f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {FSObject.count2String('fichier', tFiles)}")
+        self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {FSObject.count2String('fichier', tFiles)}")
 
         return True
 
@@ -289,7 +283,7 @@ class paddingFolder(basicFolder):
                 from alive_progress import alive_bar as pBar
                 progressBar = pBar
             except ImportError:
-                print(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
+                self.options.logs.error(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.quiet = True
         else:
             from fakeProgressBar import fakeProgressBar as fakeBar
@@ -306,7 +300,7 @@ class paddingFolder(basicFolder):
                         pass
 
                     if not bFile.success():
-                        sys.stderr.write(f"paddingFolder::clean - Erreur lors de la suppression de '{fName}'\n")
+                        self.options.logs.error(f"paddingFolder::clean - Erreur lors de la suppression de '{fName}'\n")
                     else:
                         count += 1
 
@@ -330,7 +324,7 @@ class paddingFolder(basicFolder):
         if fList is None or 0 == len(fList):
             return 0, 0, "Le paramètre 'fList' n'est pas renseigné" , True
 
-        self.__tprint("Estimation de la taille totale de dossier à supprimer ou à vider")
+        self.options.logs.print(level = logs.LogLevel.LOG_FULL, text = "Estimation de la taille totale de dossier à supprimer ou à vider")
 
         barMax = expectedFiles = expectedFolders = 0
         with self.progressBar_(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
@@ -351,8 +345,7 @@ class paddingFolder(basicFolder):
         if 0 == expectedFolders and 0 == expectedFiles:
             return 0, 0, "Rien à supprimer", False
 
-        if not self.options.quiet:
-            print(f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}")
+        self.options.logs.print(level = logs.LogLevel.LOG_NORMAL, text = f"A supprimer: {FSObject.size2String(barMax)} dans {FSObject.count2String('fichier', expectedFiles)} et {FSObject.count2String('dossier', expectedFolders)}")
 
         # Nettoyage des dossiers
         freed = barPos = deletedFolders = deletedFiles = 0
@@ -369,7 +362,7 @@ class paddingFolder(basicFolder):
                             if self.rmdir(fullName):
                                 deletedFolders += 1
                             else:
-                                sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression du dossier '{fullName}'\n")
+                                self.options.logs.error(f"paddingFolder::cleanFolders - Erreur lors de la suppression du dossier '{fullName}'\n")
                 else:
                     # Dossier windows ?
                     if type(FSO) is winTrashFolder:
@@ -385,9 +378,8 @@ class paddingFolder(basicFolder):
             if self.options.full:
                 self.__tprint('\033[F', '')
 
-        if not self.options.quiet:
-            print(f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")
-            print(f"{FSObject.size2String(int(freed/self.options.iterate_))} libérés")
+        self.options.logs.print(level = logs.LogLevel.LOG_NORMAL, text = f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")
+        self.options.logs.print(level = logs.LogLevel.LOG_NORMAL, text = f"{FSObject.size2String(int(freed/self.options.iterate_))} libérés")
 
         return deletedFiles, deletedFolders, "", False
 
@@ -412,7 +404,7 @@ class paddingFolder(basicFolder):
                 return True
 
             except ModuleNotFoundError:
-                sys.stderr.write("Erreur - Le module 'winshell' est absent\n")
+                self.options.logs.error("Erreur - Le module 'winshell' est absent\n")
                 return False
 
         # Pas sous Windows ...
@@ -441,7 +433,7 @@ class paddingFolder(basicFolder):
                     bar(barInc)
         # Terminé
         if not FSO.success():
-            sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression du fichier '{FSO.name}'\n")
+            self.options.logs.error(f"paddingFolder::cleanFolders - Erreur lors de la suppression du fichier '{FSO.name}'\n")
         else:
             deletedFiles += 1
 
@@ -467,7 +459,7 @@ class paddingFolder(basicFolder):
                     bar(barInc)
 
         if not bFile.success():
-            sys.stderr.write(f"paddingFolder::cleanFolders - Erreur lors de la suppression itérative de '{fullName}'\n")
+            self.options.logs.error(f"paddingFolder::cleanFolders - Erreur lors de la suppression itérative de '{fullName}'\n")
         else:
             deletedFiles += 1
 

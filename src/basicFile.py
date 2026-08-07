@@ -25,7 +25,7 @@ from parameters import (
     PATTERN_MAX_LEN,
     PATTERN_MIN_LEN,
 )
-from sharedTools.colorizer import COLORIZER_REGION
+from sharedTools.jlogger import JLOG_DATE_REGION
 
 
 #
@@ -57,7 +57,7 @@ class basicFile(FSObject):
                     # Génération d'un nom nouveau
                     name = basicFile.genName(path, False)
                     if name is None:
-                        self.error = "Impossible de générer un nom de fichier pour le dossier '{path}'"
+                        self.error = f"Impossible de générer un nom de fichier pour le dossier '{path}'"
                     else:
                         self.name = name
             else:
@@ -264,7 +264,7 @@ class basicFile(FSObject):
     #   Retourne le nouveau nom
     @staticmethod
     def _genName():
-        now = datetime.datetime.now(tz=ZoneInfo(COLORIZER_REGION))
+        now = datetime.datetime.now(tz=ZoneInfo(JLOG_DATE_REGION))
         hash = hashlib.blake2b(digest_size=20)
         hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
         return hash.hexdigest()

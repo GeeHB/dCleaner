@@ -18,6 +18,14 @@
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
 
+#### Version 1.0.1
+* 6 aout 2026
+* Ajouts
+  * sharedTools.gLogger : gesion des affichages et des logs
+  
+* Corrections
+
+
 #### Version 0.12.3
 * 6 aout 2026
 * Ajouts

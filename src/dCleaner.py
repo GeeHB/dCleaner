@@ -12,12 +12,9 @@
 #
 #   Dépendances : Nécessite psutil
 #
-import datetime
 import os
 import random
 import sys
-import traceback
-from zoneinfo import ZoneInfo
 
 import parameters
 from basicFile import basicFile
@@ -25,6 +22,7 @@ from basicFolder import basicFolder
 from FSObject import FSObject
 from paddingFolder import paddingFolder
 from sharedTools import colorizer as color
+from sharedTools import jlogger as logs
 from winTrashFolder import winTrashFolder
 
 
@@ -189,8 +187,7 @@ class dCleaner:
         maxFillSize = totalSize * self.options_.fillRate_ / 100
 
         if currentFillSize > maxFillSize:
-            if self.options_.full:
-                print(self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", color.textColor.JAUNE))
+            self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", color.textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -200,19 +197,17 @@ class dCleaner:
 
             if gap > paddingFillSize:
                 # Tout le dossier de 'padding' n'y suffira pas ...
-                if not self.options_.quiet:
-                    print(self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", color.textColor.JAUNE))
-                    print(self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[color.textAttribute.GRAS]))
+                self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", color.textColor.JAUNE))
+                self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[color.textAttribute.GRAS]))
 
                 res = self.paddingFolder_.clean()
 
                 if len(res[1]) > 0:
-                    sys.stderr.write(f"Erreur lors du vidage du dossier de remplissage : {res[1]}\n")
+                    self.options_.log_.error(f"Erreur lors du vidage du dossier de remplissage : {res[1]}\n")
                     return False
             else:
                 # Retrait du "minimum"
-                if not self.options_.full:
-                    print(self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
+                self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
                 self.paddingFolder_.deleteFiles(size=gap)
 
             return True
@@ -232,25 +227,12 @@ class dCleaner:
         # on recadre avec l'espace effectivement dispo
         renewSize = int(self.options_.inRange(renewSize, 0, res[2] * self.options_.renewRate_ / 100))
 
-        if self.options_.full:
-            self.indented_print("Remplissage", False)
+        self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tRemplissage")
         self.paddingFolder_.newFiles(renewSize, iterate = True)
 
-        if self.options_.full:
-            self.indented_print("Suppression", True)
+        self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tSuppression")
         self.paddingFolder_.deleteFiles(size = renewSize, iterate = True)
-        if  self.options_.full:
-            self.indented_print("Terminé", False)
-
-    # Affichage d'une ligne indentée
-    #
-    def indented_print(self, line, date = False):
-        if date:
-            today = datetime.datetime.now(tz=ZoneInfo(color.COLORIZER_REGION))
-            prefix = f"{today.strftime(parameters.TIME_PREFIX)}[{os.getpid()}] "
-        else:
-            prefix = ""
-        print("\t-"+prefix+line)
+        self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tTerminé")
 
 # Vérification des privilèges
 def isRootLikeUser():
@@ -308,11 +290,11 @@ def objectFromName(name, params):
             res = obj.init(name)
             if not res[0]:
                 if len(res[1]):
-                    sys.stderr.write(f"{res[1]}\n")
+                    params.logs_.error(f"{res[1]}\n")
                 return None
 
         if obj is None:
-            sys.stderr.write(f"Nettoyage : '{name}' n'existe pas\n")
+            params.logs_.error(f"Nettoyage : '{name}' n'existe pas\n")
 
         return obj
 
@@ -325,18 +307,16 @@ def _cleanPartition(params, cleaner):
         if len(res[2]) > 0 :
             if res[3]:
                 # Une erreur
-                sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
+                params.logs_.error(f"Erreur lors de la suppression : {res[2]}\n")
             else:
                 # Juste un message ...
-                if not params.quiet:
-                    print(res[2])
+                params.logs.print(text = res[2], level = logs.LogLevel.LOG_NORMAL)
 
 # Fill the partition
 #
 def _fillPartition(params, cleaner):
     if  params.padding:
-        if not params.quiet:
-            print("Vérification du dossier de 'padding'")
+        params.logs.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
             cleaner.freePartition()
@@ -350,35 +330,18 @@ def _fillPartition(params, cleaner):
                         cleaner.indented_print("On attend un peu...")
                     cleaner.paddingFolder_.wait(params.waitTasks_)
 
-                if params.full:
-                    print(f"Itération {index+1}/{params.iterate_}")
-
+                params.log_.print(level = logs.LogLevel.LOG_FULL, text = f"Itération {index+1}/{params.iterate_}")
                 cleaner.cleanPartition()
-
-# Handle unkown Exception
-#
-def _unknownException(e):
-    # Récupération des informations sur l'exception
-    _, _, exc_traceback = sys.exc_info()
-    # Juste la dernière ligne
-    lastFrame = None
-    for frame in traceback.extract_tb(exc_traceback):
-        lastFrame = frame
-
-    if lastFrame is not None :
-        sys.stderr.write(f"Autre erreur - {e!r}\n")
-        sys.stderr.write(f"  - Fichier: {os.path.split(lastFrame.filename)[1]}\n")
-        sys.stderr.write(f"  - Ligne: {lastFrame.lineno}\n")
-        sys.stderr.write(f"  - Code: {lastFrame.line}\n")
 
 #
 # Corps du programme
 #
 if '__main__' == __name__:
+    params = parameters.options()
 
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
-        print(f"{parameters.APP_NAME} doit être lancé par un compte 'non root'")
+        params.logs_.print(level = logs.LogLevel.LOG_QUIET, text = f"{parameters.APP_NAME} doit être lancé par un compte 'non root'")
         sys.exit()
 
     done = False
@@ -387,35 +350,30 @@ if '__main__' == __name__:
     random.seed()
 
     # Ma ligne de commandes
-    params = parameters.options()
-
     if not params.parse():
-        print("Erreur lors de l'analyse de la ligne de commandes")
+        params.logs_.print(level = logs.LogLevel.LOG_QUIET, text = "Erreur lors de l'analyse de la ligne de commandes")
         sys.exit()
 
     try:
         done = True
 
-        if not params.quiet:
-            print(params.version())
+        params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = params.version())
 
         # Des dossiers ou fichiers à nettoyer ?
         if params.clean_ is not None and len(params.clean_) > 0 and not _listOfFolders(params):
-            sys.stderr.write("Pas de dossier ou de fichier à nettoyer\n")
+            params.logs_.error("Pas de dossier ou de fichier à nettoyer\n")
 
         # Lancement de l'application avec les paramètres
         cleaner = dCleaner(params)
         print(cleaner)
 
         if params.clear_:
-            if not params.quiet:
-                print("Nettoyage du dossier de 'padding'")
+            params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = "Nettoyage du dossier de 'padding'")
             res = cleaner.cleanFolders()
             if len(res[2]) > 0  and res[3]:
-                sys.stderr.write(f"Erreur lors de la suppression : {res[2]}\n")
+                params.logs_.error(f"Erreur lors de la suppression : {res[2]}\n")
             else:
-                if not params.quiet:
-                    print(f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
+                params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
         else:
             # Nettoyage un ou plusieurs dossiers (ou fichiers) ?
             _cleanPartition(params, cleaner)
@@ -424,15 +382,15 @@ if '__main__' == __name__:
             _fillPartition(params, cleaner)
 
     except OSError as ioe:
-        sys.stderr.write(f"Erreur de paramètre(s) : {ioe!r}\n")
+        params.logs_.error(f"Erreur de paramètre(s) : {ioe!r}\n")
     except KeyboardInterrupt :
-        if params.color_ is not None and not params.quiet:
-            print(params.color_.colored("Interruption des traitements", color.textColor.JAUNE))
+        if params.color_ is not None:
+            params.logs_.print(level = logs.LogLevel.LOG_FULL, text = params.color_.colored("Interruption des traitements", color.textColor.JAUNE))
     except ValueError as ve:
-        sys.stderr.write(f"Erreur d'initialisation : {ve!a}\n")
+        params.logs_.error(f"Erreur d'initialisation : {ve!a}\n")
 
     #  La fin, la vraie !
-    if done and not params.quiet and params.color_ is not None:
-        print(params.color_.colored("Fin des traitements", datePrefix = params.log, addPID = params.log))
+    if params.color_ is not None:
+        params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = params.color_.colored("Fin des traitements"))
 
 # EOF

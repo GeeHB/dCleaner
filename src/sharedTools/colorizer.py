@@ -13,8 +13,7 @@
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
 
-COLORIZER_VERSION = "1.2.3"
-COLORIZER_REGION = "Europe/Paris"
+COLORIZER_VERSION = "2.0.1"
 
 try :
     # Pour la coloration des sorties terminal
@@ -22,17 +21,6 @@ try :
     packageTermColor__ = True
 except ModuleNotFoundError:
     packageTermColor__ = False
-
-# Pour l'ajout de la date et de l'heure en mode "logs"
-import datetime
-import os
-from zoneinfo import ZoneInfo
-
-# Format de la date (pour les logs)
-LOG_DATE_FORMAT = "%d/%m/%Y-%H:%M:%S"
-
-# Avec le PID
-LOG_DATE_FORMAT_PID = f"{LOG_DATE_FORMAT} [{os.getpid()}] "
 
 # Messages d'erreur
 #
@@ -80,10 +68,9 @@ class textAttribute:
 #   colorizer  - Colorisation du texte
 #
 class colorizer:
-    colored_ = False       # Doit-on coloriser ?
-
     # Construction
     def __init__(self, colored = True, message = True):
+        self.colored_ = False       # Doit-on coloriser ?
         self.setColorized(packageTermColor__ if colored is None else colored, message)
 
     # Mise en place de la colorisation
@@ -97,19 +84,12 @@ class colorizer:
 
     # Formatage d'une ligne de texte
     #   Retourne la chaine complète
-    def colored(self, text, txtColor = None, bkColor = None, formatAttr = None, datePrefix = False, addPID = False):
-        prefix = ""
-        if datePrefix:
-            # En mode log. on ajoute la date et l'heure
-            today = datetime.datetime.now(tz=ZoneInfo(COLORIZER_REGION))
-            prefix = today.strftime(LOG_DATE_FORMAT_PID if addPID else LOG_DATE_FORMAT)
-
-        # On colorise ou pas ...
-        return prefix + (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)  # type: ignore
+    def colored(self, text, txtColor = None, bkColor = None, formatAttr = None):
+        return (colored(text, color=txtColor, on_color = bkColor, attrs = formatAttr) if True == self.colored_ else text)  # type: ignore
 
     # Début de ligne en mode [OK] / [KO]
-    def checkBoxLine(self, checked = True, text = "", color = None, prefix = ""):
-        box=prefix + "["
+    def checkBoxLine(self, checked = True, text = "", color = None):
+        box="["
         if True == checked:
             box+=self.colored("OK", textColor.VERT)
         else:

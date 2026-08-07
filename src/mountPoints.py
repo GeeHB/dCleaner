@@ -24,7 +24,7 @@ import sys
 try:
     import psutil
 except ModuleNotFoundError:
-    print("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
+    sys.stderr.write("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
     sys.exit(1)
 
 # Liste des points de montage
