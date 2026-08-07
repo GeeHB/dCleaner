@@ -310,13 +310,13 @@ def _cleanPartition(params, cleaner):
                 params.logs_.error(f"Erreur lors de la suppression : {res[2]}\n")
             else:
                 # Juste un message ...
-                params.logs.print(text = res[2], level = logs.LogLevel.LOG_NORMAL)
+                params.logs_.print(text = res[2], level = logs.LogLevel.LOG_NORMAL)
 
 # Fill the partition
 #
 def _fillPartition(params, cleaner):
     if  params.padding:
-        params.logs.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
+        params.logs_.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
             cleaner.freePartition()
