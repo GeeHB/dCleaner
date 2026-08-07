@@ -365,7 +365,7 @@ if '__main__' == __name__:
 
         # Lancement de l'application avec les paramètres
         cleaner = dCleaner(params)
-        print(cleaner)
+        params.logs_.print(level = logs.LogLevel.LOG_NORMAL, bloc = cleaner.__repr__())
 
         if params.clear_:
             params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = "Nettoyage du dossier de 'padding'")

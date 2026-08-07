@@ -33,9 +33,9 @@ class LogLevel:
 class jLogger:
     # Construction
     def __init__(self):
-        self.level = LogLevel.LOG_FULL
-        self.logInfos = False
-        self.pid = False
+        self.level_ = LogLevel.LOG_FULL
+        self.logInfos_ = False
+        self.pid_ = False
 
     # Niveau de logs
     @property
@@ -63,23 +63,28 @@ class jLogger:
         self.pid_ = value
 
     # Ajout d'une ligne de texte
-    def print(self, level = LogLevel.LOG_NORMAL, text = ""):
-        # Juste ce qu'il faut afficher
-        if len(text) and (level == LogLevel.LOG_ERROR or self.level >= level) :
-            prefix = ""
-            if self.log:
-                # En mode log. on ajoute la date et l'heure et éventuellement le pid
-                today = datetime.datetime.now(tz=ZoneInfo(JLOG_DATE_REGION))
-                prefix = today.strftime(JLOG_DATE_FORMAT_PID if self.pid else JLOG_DATE_FORMAT)
-                line = prefix + " " + text
-            else:
-                line = text
+    def print(self, level = LogLevel.LOG_NORMAL, text = "", bloc = ""):
+        # plusieurs lignes ?
+        if len(bloc) > 0:
+            lignes = bloc.splitlines()
+            for ligne in lignes :
+                self.print(level, text = ligne)
+        else:
+            # Juste ce qu'il faut afficher
+            if len(text) and (level == LogLevel.LOG_ERROR or self.level >= level) :
+                prefix = ""
+                if self.log:
+                    # En mode log. on ajoute la date et l'heure et éventuellement le pid
+                    today = datetime.datetime.now(tz=ZoneInfo(JLOG_DATE_REGION))
+                    prefix = today.strftime(JLOG_DATE_FORMAT_PID if self.pid else JLOG_DATE_FORMAT)
+                    line = prefix + " " + text
+                else:
+                    line = text
 
-            if level == LogLevel.LOG_ERROR :
-                sys.stderr.write(line)
-            else:
-                print(line)
-
+                if level == LogLevel.LOG_ERROR :
+                    sys.stderr.write(line)
+                else:
+                    print(line)
 
     # Ajout d'une ligne d'erreur ou d'avertissement
     def error(self, msg : str, level = LogLevel.LOG_NORMAL):
