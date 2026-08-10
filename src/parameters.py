@@ -62,15 +62,20 @@ WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de W
 # Commutateurs
 #
 
-# Mode non verbeux (spécifique pour les fichiers de logs) - Par défaut Non
+# Mode non verbeux (spécifique pour les fichiers de logs)
 ARG_LOGMODE_S   = "-l"
 ARG_LOGMODE     = "--log"
 COMMENT_LOGMODE = "Mode peu verbeux, pour les fichiers de logs"
 
-# Mode silencieux Par défaut Non
+# Mode silencieux, par défaut
 ARG_QUIETMODE_S   = "-q"
 ARG_QUIETMODE     = "--quiet"
 COMMENT_QUIETMODE = "Mode silencieux, aucune sortie texte"
+
+# Mode Debug
+ARG_DEBUGMODE_S   = "-d"
+ARG_DEBUGMODE     = "--debug"
+COMMENT_DEBUGMODE = "Mode DEBUG - Maximum de logs"
 
 # Pas de colorisation des sorties - Par défaut les sorties seront colorisées
 ARG_NOCOLOR_S = "-nc"
@@ -180,15 +185,16 @@ OPTION_INIT    = 0    # Rien à faire
 OPTION_TEST    = 1    # On teste ...
 OPTION_PADDING = 2    # Remplissage du dossier de 'padding'
 
-OPTION_QUIET   = 4    # Complètement 'silencieux'
-OPTION_LOG     = 8    # Mode peu-verbeux (pour les logs)
-OPTION_FULL    = 0    # Par défaut on affiche tout !
+OPTION_LOG_QUIET   = 4    # Complètement 'silencieux'
+OPTION_LOG_NORMAL  = 8    # Mode peu-verbeux (pour les logs)
+OPTION_LOG_FULL    = 0    # Par défaut on affiche tout !
+OPTION_LOG_DEBUG   = 16
 
-OPTION_RECURSE = 16    # Traitement recursif des dossiers
-OPTION_CLEANFOLDERS = 32 # Nettoyuage d'un ou de pluseirus dossiers
+OPTION_RECURSE = 32    # Traitement recursif des dossiers
+OPTION_CLEANFOLDERS = 16 # Nettoyuage d'un ou de pluseirus dossiers
 
 # Valeur par défaut
-OPTION_DEFAULT = OPTION_PADDING | OPTION_FULL
+OPTION_DEFAULT = OPTION_PADDING | OPTION_LOG_FULL
 
 #
 # Modes de fonctionement
@@ -253,20 +259,20 @@ class options:
     # Mode 'silencieux'
     @property
     def quiet(self):
-        return self.__isSet(OPTION_QUIET)
+        return self.__isSet(OPTION_LOG_QUIET)
     @quiet.setter
     def quiet(self, value : bool):
-        self.__set(OPTION_QUIET, value)
+        self.__set(OPTION_LOG_QUIET, value)
         if value :
             self.logs_.level = logs.LogLevel.LOG_QUIET
 
     # Mode log
     @property
     def log(self):
-        return self.__isSet(OPTION_LOG)
+        return self.__isSet(OPTION_LOG_NORMAL)
     @log.setter
     def log(self, value : bool):
-        self.__set(OPTION_LOG, value)
+        self.__set(OPTION_LOG_NORMAL, value)
         if value :
             self.logs_.level = logs.LogLevel.LOG_NORMAL
         self.logs_.log = value
@@ -275,7 +281,19 @@ class options:
     # Tous les affichages ?
     @property
     def full(self):
-        return (not self.__isSet(OPTION_LOG) and not self.__isSet(OPTION_QUIET))
+        return (not self.__isSet(OPTION_LOG_NORMAL) and not self.__isSet(OPTION_LOG_QUIET))
+
+    # En mode debug
+    @property
+    def debug(self):
+        return self.__isSet(OPTION_LOG_DEBUG)
+    @debug.setter
+    def debug(self, value : bool):
+        self.__set(OPTION_LOG_DEBUG, value)
+        if value :
+            self.logs_.level = logs.LogLevel.LOG_DEBUG
+        self.logs_.log = value
+        self.logs_.pid = value
 
     # Récursivité ?
     @property
@@ -338,6 +356,7 @@ class options:
         affichage = parser.add_mutually_exclusive_group()
         affichage.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
         affichage.add_argument(ARG_QUIETMODE_S, ARG_QUIETMODE, action='store_true', help = COMMENT_QUIETMODE, required = False)
+        affichage.add_argument(ARG_DEBUGMODE_S, ARG_DEBUGMODE, action='store_true', help = COMMENT_DEBUGMODE, required = False)
 
         # Parse de la ligne
         #
@@ -348,9 +367,13 @@ class options:
         # Mode "verbeux"
         if args.log :
             self.log = True
-        else:
-            if args.quiet:
-                self.quiet = True
+
+        if args.quiet:
+            self.quiet = True
+
+        # Affichages en mode "Debug"
+        if args.debug :
+            self.debug = True
 
         # Colorisation des affichages ?
         if self.color_ is None:

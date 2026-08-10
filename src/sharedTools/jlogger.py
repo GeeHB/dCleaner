@@ -15,19 +15,19 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-# Format de la date (pour les logs)
-JLOG_VERSION = "1.0.1"
+JLOG_VERSION = "1.0.2"
 
 # Date et heure pour les logs
 JLOG_DATE_REGION = "Europe/Paris"
 JLOG_DATE_FORMAT = "%d/%m/%Y-%H:%M:%S"
-JLOG_DATE_FORMAT_PID = f"{JLOG_DATE_FORMAT} [{os.getpid()}] "
+JLOG_DATE_FORMAT_PID = f"{JLOG_DATE_FORMAT} [{os.getpid()}]"
 
 class LogLevel:
     LOG_NONE = 0
     LOG_QUIET = 1
     LOG_NORMAL = 10
-    LOG_FULL = 100
+    LOG_FULL = 20
+    LOG_DEBUG = 200
     LOG_ERROR = 255     # Toujours affiché
 
 class jLogger:
@@ -87,7 +87,11 @@ class jLogger:
                     print(line)
 
     # Ajout d'une ligne d'erreur ou d'avertissement
-    def error(self, msg : str, level = LogLevel.LOG_NORMAL):
-        self.print(text = msg, level = LogLevel.LOG_ERROR)
+    def error(self, msg : str, defLevel = LogLevel.LOG_ERROR):
+        self.print(text = msg, level = defLevel)
+
+    # Ajout d'une ligne de logs enmode debug
+    def debug(self, msg : str, defLevel = LogLevel.LOG_DEBUG):
+        self.print(text = msg, level = defLevel)
 
 # EOF

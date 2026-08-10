@@ -156,6 +156,8 @@ class dCleaner:
     #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "", erreur ?)
     #
     def cleanFolders(self, fList = None):
+        self.options_.log_.debug("dCleaner::cleanFolders")
+
         if fList is None or 0 == len(fList):
             ret = self.paddingFolder_.clean()
             return ret[0], 0, ret[1], True
@@ -166,6 +168,8 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
     def fillPartition(self):
+        self.options_.log_.debug("dCleaner::fillPartition")
+
         res = self.paddingFolder_.partitionUsage()
         maxFill = res[0] * self.options_.fillRate_ / 100
 
@@ -182,6 +186,8 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
     def freePartition(self):
+        self.options_.log_.debug("dCleaner::freeFolders")
+
         # Mode "initial" : on fait en sorte de coller immédiatement au taux de remplissage
         totalSize, currentFillSize, _ = self.paddingFolder_.partitionUsage()
         maxFillSize = totalSize * self.options_.fillRate_ / 100
@@ -218,6 +224,8 @@ class dCleaner:
     # Rafraichissement - remplissage et nettoyage ponctuel
     #
     def cleanPartition(self):
+        self.options_.log_.debug("dCleaner::cleanPartition")
+
         # Taille en octets du volume à renouveller
         res = self.paddingFolder_.partitionUsage()
 
@@ -253,10 +261,12 @@ def isRootLikeUser():
 #   retourne un booléen : des éléments à supprimer ?
 #
 def _listOfFolders(params):
+    params.log_.debug("_listOfFolders")
+
     # On s'assure que les dossiers/fichiers existent et on crée les objets en conséquence
     fileOrFolders = []
     for folder in params.clean_:
-        currentFSO = objectFromName(folder, params)
+        currentFSO = _objectFromName(folder, params)
         if currentFSO is not None:
             fileOrFolders.append(currentFSO)
 
@@ -272,7 +282,9 @@ def _listOfFolders(params):
 #
 #   retourne un objet (basicFile ou basicFolder) en fonction du nom ou None en cas d'erreur
 #
-def objectFromName(name, params):
+def _objectFromName(name, params):
+    params.log_.debug("_objectFromName")
+
     # Un fichier ?
     if FSObject.existsFile(name):
         return basicFile(parameters = params, FQN = name)
@@ -301,6 +313,8 @@ def objectFromName(name, params):
 # Clean file(s) or folder(s)
 #
 def _cleanPartition(params, cleaner):
+    params.log_.debug("_cleanPartition")
+
     if  0 != len(params.clean_):
         res = cleaner.cleanFolders(params.clean_)
 
@@ -315,6 +329,8 @@ def _cleanPartition(params, cleaner):
 # Fill the partition
 #
 def _fillPartition(params, cleaner):
+    params.log_.debug("_fillPartition")
+
     if  params.padding:
         params.logs_.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
         if False == cleaner.fillPartition():
