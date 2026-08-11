@@ -19,8 +19,8 @@ from sharedTools import jlogger as logs
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "1.0.1"
-APP_RELEASE_DATE = "07/08/2026"
+APP_CURRENT_VERSION = "1.0.2"
+APP_RELEASE_DATE = "11/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
@@ -73,7 +73,7 @@ ARG_QUIETMODE     = "--quiet"
 COMMENT_QUIETMODE = "Mode silencieux, aucune sortie texte"
 
 # Mode Debug
-ARG_DEBUGMODE_S   = "-d"
+ARG_DEBUGMODE_S   = "-dbg"
 ARG_DEBUGMODE     = "--debug"
 COMMENT_DEBUGMODE = "Mode DEBUG - Maximum de logs"
 
@@ -226,7 +226,7 @@ class options:
         # Valeurs par défaut
         #
         self.option_ = OPTION_DEFAULT
-        self.logs_ = logs.jLogger()
+        self.logger_ = logs.jLogger()
         self.color_ = None      # Outil de colorisation
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
         self.iterate_ = DEF_ITERATE
@@ -264,19 +264,19 @@ class options:
     def quiet(self, value : bool):
         self.__set(OPTION_LOG_QUIET, value)
         if value :
-            self.logs_.level = logs.LogLevel.LOG_QUIET
+            self.logger_.level = logs.LogLevel.LOG_QUIET
 
-    # Mode log
+    # Mode log / trace
     @property
     def log(self):
         return self.__isSet(OPTION_LOG_NORMAL)
     @log.setter
     def log(self, value : bool):
         self.__set(OPTION_LOG_NORMAL, value)
-        if value :
-            self.logs_.level = logs.LogLevel.LOG_NORMAL
-        self.logs_.log = value
-        self.logs_.pid = value
+        if value:
+            self.logger_.level = logs.LogLevel.LOG_NORMAL
+        self.logger_.log = value
+        self.logger_.pid = value
 
     # Tous les affichages ?
     @property
@@ -290,10 +290,10 @@ class options:
     @debug.setter
     def debug(self, value : bool):
         self.__set(OPTION_LOG_DEBUG, value)
-        if value :
-            self.logs_.level = logs.LogLevel.LOG_DEBUG
-        self.logs_.log = value
-        self.logs_.pid = value
+        if value:
+            self.logger_.level = logs.LogLevel.LOG_DEBUG
+        self.logger_.log = value
+        self.logger_.pid = value
 
     # Récursivité ?
     @property
@@ -372,7 +372,7 @@ class options:
             self.quiet = True
 
         # Affichages en mode "Debug"
-        if args.debug :
+        if args.debug:
             self.debug = True
 
         # Colorisation des affichages ?

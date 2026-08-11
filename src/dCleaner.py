@@ -156,7 +156,7 @@ class dCleaner:
     #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "", erreur ?)
     #
     def cleanFolders(self, fList = None):
-        self.options_.log_.debug("dCleaner::cleanFolders")
+        self.options_.logger_.debug("dCleaner::cleanFolders")
 
         if fList is None or 0 == len(fList):
             ret = self.paddingFolder_.clean()
@@ -168,7 +168,7 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
     def fillPartition(self):
-        self.options_.log_.debug("dCleaner::fillPartition")
+        self.options_.logger_.debug("dCleaner::fillPartition")
 
         res = self.paddingFolder_.partitionUsage()
         maxFill = res[0] * self.options_.fillRate_ / 100
@@ -186,14 +186,14 @@ class dCleaner:
     #   Retourne un booléen indiquant si l'action a été effectuée
     #
     def freePartition(self):
-        self.options_.log_.debug("dCleaner::freeFolders")
+        self.options_.logger_.debug("dCleaner::freeFolders")
 
         # Mode "initial" : on fait en sorte de coller immédiatement au taux de remplissage
         totalSize, currentFillSize, _ = self.paddingFolder_.partitionUsage()
         maxFillSize = totalSize * self.options_.fillRate_ / 100
 
         if currentFillSize > maxFillSize:
-            self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", color.textColor.JAUNE))
+            self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", color.textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -203,17 +203,17 @@ class dCleaner:
 
             if gap > paddingFillSize:
                 # Tout le dossier de 'padding' n'y suffira pas ...
-                self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", color.textColor.JAUNE))
-                self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[color.textAttribute.GRAS]))
+                self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored("Le vidage du dossier de remplissage ne sera pas suffisant pour atteindre le taux de remplissage demandé", color.textColor.JAUNE))
+                self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored("Dossier de 'padding' vidé", formatAttr=[color.textAttribute.GRAS]))
 
                 res = self.paddingFolder_.clean()
 
                 if len(res[1]) > 0:
-                    self.options_.log_.error(f"Erreur lors du vidage du dossier de remplissage : {res[1]}\n")
+                    self.options_.logger_.error(f"Erreur lors du vidage du dossier de remplissage : {res[1]}\n")
                     return False
             else:
                 # Retrait du "minimum"
-                self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
+                self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
                 self.paddingFolder_.deleteFiles(size=gap)
 
             return True
@@ -224,7 +224,7 @@ class dCleaner:
     # Rafraichissement - remplissage et nettoyage ponctuel
     #
     def cleanPartition(self):
-        self.options_.log_.debug("dCleaner::cleanPartition")
+        self.options_.logger_.debug("dCleaner::cleanPartition")
 
         # Taille en octets du volume à renouveller
         res = self.paddingFolder_.partitionUsage()
@@ -235,12 +235,12 @@ class dCleaner:
         # on recadre avec l'espace effectivement dispo
         renewSize = int(self.options_.inRange(renewSize, 0, res[2] * self.options_.renewRate_ / 100))
 
-        self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tRemplissage")
+        self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tRemplissage")
         self.paddingFolder_.newFiles(renewSize, iterate = True)
 
-        self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tSuppression")
+        self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tSuppression")
         self.paddingFolder_.deleteFiles(size = renewSize, iterate = True)
-        self.options_.log_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tTerminé")
+        self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tTerminé")
 
 # Vérification des privilèges
 def isRootLikeUser():
@@ -261,7 +261,7 @@ def isRootLikeUser():
 #   retourne un booléen : des éléments à supprimer ?
 #
 def _listOfFolders(params):
-    params.log_.debug("_listOfFolders")
+    params.logger_.debug("_listOfFolders")
 
     # On s'assure que les dossiers/fichiers existent et on crée les objets en conséquence
     fileOrFolders = []
@@ -283,7 +283,7 @@ def _listOfFolders(params):
 #   retourne un objet (basicFile ou basicFolder) en fonction du nom ou None en cas d'erreur
 #
 def _objectFromName(name, params):
-    params.log_.debug("_objectFromName")
+    params.logger_.debug("_objectFromName")
 
     # Un fichier ?
     if FSObject.existsFile(name):
@@ -302,18 +302,18 @@ def _objectFromName(name, params):
             res = obj.init(name)
             if not res[0]:
                 if len(res[1]):
-                    params.logs_.error(f"{res[1]}\n")
+                    params.logger_.error(f"{res[1]}\n")
                 return None
 
         if obj is None:
-            params.logs_.error(f"Nettoyage : '{name}' n'existe pas\n")
+            params.logger_.error(f"Nettoyage : '{name}' n'existe pas\n")
 
         return obj
 
 # Clean file(s) or folder(s)
 #
 def _cleanPartition(params, cleaner):
-    params.log_.debug("_cleanPartition")
+    params.logger_.debug("_cleanPartition")
 
     if  0 != len(params.clean_):
         res = cleaner.cleanFolders(params.clean_)
@@ -321,18 +321,18 @@ def _cleanPartition(params, cleaner):
         if len(res[2]) > 0 :
             if res[3]:
                 # Une erreur
-                params.logs_.error(f"Erreur lors de la suppression : {res[2]}\n")
+                params.logger_.error(f"Erreur lors de la suppression : {res[2]}\n")
             else:
                 # Juste un message ...
-                params.logs_.print(text = res[2], level = logs.LogLevel.LOG_NORMAL)
+                params.logger_.print(text = res[2], level = logs.LogLevel.LOG_NORMAL)
 
 # Fill the partition
 #
 def _fillPartition(params, cleaner):
-    params.log_.debug("_fillPartition")
+    params.logger_.debug("_fillPartition")
 
     if  params.padding:
-        params.logs_.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
+        params.logger_.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
         if False == cleaner.fillPartition():
             # Il faut plutôt libérer de la place
             cleaner.freePartition()
@@ -357,7 +357,7 @@ if '__main__' == __name__:
 
     # Ne peut-être lancé par un compte root ou "sudoisé"
     if isRootLikeUser() :
-        params.logs_.print(level = logs.LogLevel.LOG_QUIET, text = f"{parameters.APP_NAME} doit être lancé par un compte 'non root'")
+        params.logger_.print(level = logs.LogLevel.LOG_QUIET, text = f"{parameters.APP_NAME} doit être lancé par un compte 'non root'")
         sys.exit()
 
     done = False
@@ -367,29 +367,29 @@ if '__main__' == __name__:
 
     # Ma ligne de commandes
     if not params.parse():
-        params.logs_.print(level = logs.LogLevel.LOG_QUIET, text = "Erreur lors de l'analyse de la ligne de commandes")
+        params.logger_.print(level = logs.LogLevel.LOG_QUIET, text = "Erreur lors de l'analyse de la ligne de commandes")
         sys.exit()
 
     try:
         done = True
 
-        params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = params.version())
+        params.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = params.version())
 
         # Des dossiers ou fichiers à nettoyer ?
         if params.clean_ is not None and len(params.clean_) > 0 and not _listOfFolders(params):
-            params.logs_.error("Pas de dossier ou de fichier à nettoyer\n")
+            params.logger_.error("Pas de dossier ou de fichier à nettoyer\n")
 
         # Lancement de l'application avec les paramètres
         cleaner = dCleaner(params)
-        params.logs_.print(level = logs.LogLevel.LOG_NORMAL, bloc = cleaner.__repr__())
+        params.logger_.print(level = logs.LogLevel.LOG_NORMAL, bloc = cleaner.__repr__())
 
         if params.clear_:
-            params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = "Nettoyage du dossier de 'padding'")
+            params.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "Nettoyage du dossier de 'padding'")
             res = cleaner.cleanFolders()
             if len(res[2]) > 0  and res[3]:
-                params.logs_.error(f"Erreur lors de la suppression : {res[2]}\n")
+                params.logger_.error(f"Erreur lors de la suppression : {res[2]}\n")
             else:
-                params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
+                params.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = f"{FSObject.count2String('fichier', res[0])} supprimé(s)")
         else:
             # Nettoyage un ou plusieurs dossiers (ou fichiers) ?
             _cleanPartition(params, cleaner)
@@ -398,15 +398,15 @@ if '__main__' == __name__:
             _fillPartition(params, cleaner)
 
     except OSError as ioe:
-        params.logs_.error(f"Erreur de paramètre(s) : {ioe!r}\n")
+        params.logger_.error(f"Erreur de paramètre(s) : {ioe!r}\n")
     except KeyboardInterrupt :
         if params.color_ is not None:
-            params.logs_.print(level = logs.LogLevel.LOG_FULL, text = params.color_.colored("Interruption des traitements", color.textColor.JAUNE))
+            params.logger_.print(level = logs.LogLevel.LOG_FULL, text = params.color_.colored("Interruption des traitements", color.textColor.JAUNE))
     except ValueError as ve:
-        params.logs_.error(f"Erreur d'initialisation : {ve!a}\n")
+        params.logger_.error(f"Erreur d'initialisation : {ve!a}\n")
 
     #  La fin, la vraie !
     if params.color_ is not None:
-        params.logs_.print(level = logs.LogLevel.LOG_NORMAL, text = params.color_.colored("Fin des traitements"))
+        params.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = params.color_.colored("Fin des traitements"))
 
 # EOF

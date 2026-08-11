@@ -15,13 +15,18 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-JLOG_VERSION = "1.0.2"
+JLOG_VERSION = "1.0.3"
 
 # Date et heure pour les logs
 JLOG_DATE_REGION = "Europe/Paris"
 JLOG_DATE_FORMAT = "%d/%m/%Y-%H:%M:%S"
 JLOG_DATE_FORMAT_PID = f"{JLOG_DATE_FORMAT} [{os.getpid()}]"
 
+# Prefixes des lignes
+LOG_PREFIX_DEBUG = "DBG"
+LOG_PREFIX_ERROR = "ERR"
+
+# Niveaux reconnus
 class LogLevel:
     LOG_NONE = 0
     LOG_QUIET = 1
@@ -43,7 +48,7 @@ class jLogger:
         return self.level_
     @level.setter
     def level(self, value : int):
-        if value >= LogLevel.LOG_NONE and value <= LogLevel.LOG_FULL :
+        if value >= LogLevel.LOG_NONE and value <= LogLevel.LOG_DEBUG :
             self.level_ = value
 
     # Ajout de la date et de l'heure
@@ -63,7 +68,7 @@ class jLogger:
         self.pid_ = value
 
     # Ajout d'une ligne de texte
-    def print(self, level = LogLevel.LOG_NORMAL, text = "", bloc = ""):
+    def print(self, level = LogLevel.LOG_NORMAL, text = "", bloc = "", linePrefix = ""):
         # plusieurs lignes ?
         if len(bloc) > 0:
             lignes = bloc.splitlines()
@@ -72,11 +77,11 @@ class jLogger:
         else:
             # Juste ce qu'il faut afficher
             if len(text) and (level == LogLevel.LOG_ERROR or self.level >= level) :
-                prefix = ""
+                prefix = f" [{linePrefix}] " if len(linePrefix) >0 else ""
                 if self.log:
                     # En mode log. on ajoute la date et l'heure et éventuellement le pid
                     today = datetime.datetime.now(tz=ZoneInfo(JLOG_DATE_REGION))
-                    prefix = today.strftime(JLOG_DATE_FORMAT_PID if self.pid else JLOG_DATE_FORMAT)
+                    prefix = today.strftime(JLOG_DATE_FORMAT_PID if self.pid else JLOG_DATE_FORMAT) + prefix
                     line = prefix + " " + text
                 else:
                     line = text
@@ -87,11 +92,11 @@ class jLogger:
                     print(line)
 
     # Ajout d'une ligne d'erreur ou d'avertissement
-    def error(self, msg : str, defLevel = LogLevel.LOG_ERROR):
-        self.print(text = msg, level = defLevel)
+    def error(self, msg : str):
+        self.print(text = msg, level = LogLevel.LOG_ERROR)
 
     # Ajout d'une ligne de logs enmode debug
-    def debug(self, msg : str, defLevel = LogLevel.LOG_DEBUG):
-        self.print(text = msg, level = defLevel)
+    def debug(self, msg : str):
+        self.print(text = msg, level = LogLevel.LOG_DEBUG, linePrefix = LOG_PREFIX_DEBUG)
 
 # EOF

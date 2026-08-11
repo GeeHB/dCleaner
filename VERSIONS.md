@@ -17,12 +17,13 @@
 * Corrections
   * Plantage ou comportements imprévus lorsque le disque est plein
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
+  * -x => pas besoin de nettoyer "proprement", juste effacer les fichiers
 
-#### Version 1.0.1
+#### Version 1.0.2
 * xxx aout 2026
 * Ajouts
   * sharedTools.jLogger : gestion des affichages et des logs
-  * Ajout du mode DEBUG (-d --debug) ainsisi qu'à jLogger 
+  * Ajout du mode DEBUG (-dbg / --debug) ainsisi qu'à jLogger 
   
 * Corrections
   * caractères "espaces" superflus dans les log
