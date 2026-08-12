@@ -97,7 +97,8 @@ class FSObject:
         # on effectue un log base 1024 (= log 2 / 10)
         #   attention logn(0) n'existe pas !!!
         index = 0 if size == 0 else int(math.log2(size) / 10)
-        if index >= len(sizeUnits) : index = len(sizeUnits) - 1 # Indice max
+        if index >= len(sizeUnits):
+            index = len(sizeUnits) - 1 # Indice max
         return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
 
     # Gestion des pluriels ...

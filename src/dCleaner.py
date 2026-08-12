@@ -339,7 +339,6 @@ def _fillPartition(params, cleaner):
 
         # Doit-on maintenant "salir" le disque ?
         if False == params.adjust_:
-
             for index in range(params.iterate_):
                 if index > 0:
                     params.logger_.print(level = logs.LogLevel.LOG_FULL, text= "\tOn attend un peu ...")
