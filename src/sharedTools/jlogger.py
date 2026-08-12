@@ -6,7 +6,7 @@
 #
 #   Description :   Définition des objets :
 #                     - LogLevel : Niveau des logs
-#                     - jLogger : Gestion des affichages et des logs
+#                     - jLogger : Gestion des erreurs et des logs
 #
 #
 
@@ -15,7 +15,7 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-JLOG_VERSION = "1.0.3"
+JLOG_VERSION = "1.0.4"
 
 # Date et heure pour les logs
 JLOG_DATE_REGION = "Europe/Paris"
@@ -34,6 +34,8 @@ class LogLevel:
     LOG_FULL = 20
     LOG_DEBUG = 200
     LOG_ERROR = 255     # Toujours affiché
+    LOG_MIN = LOG_NONE
+    LOG_MAX = LOG_ERROR
 
 class jLogger:
     # Construction
@@ -48,7 +50,7 @@ class jLogger:
         return self.level_
     @level.setter
     def level(self, value : int):
-        if value >= LogLevel.LOG_NONE and value <= LogLevel.LOG_DEBUG :
+        if value >= LogLevel.LOG_MIN and value <= LogLevel.LOG_MAX :
             self.level_ = value
 
     # Ajout de la date et de l'heure

@@ -193,7 +193,7 @@ class dCleaner:
         maxFillSize = totalSize * self.options_.fillRate_ / 100
 
         if currentFillSize > maxFillSize:
-            self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}% )", color.textColor.JAUNE))
+            self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"La partition est déja trop remplie ({FSObject.size2String(currentFillSize)} - {round(currentFillSize / totalSize * 100 ,0)}%)", color.textColor.JAUNE))
 
             # ... en retirant les fichiers déja générés
             paddingFillSize = self.paddingFolder_.size()
@@ -213,7 +213,7 @@ class dCleaner:
                     return False
             else:
                 # Retrait du "minimum"
-                self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}", datePrefix = True, addPID = True))
+                self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}"))
                 self.paddingFolder_.deleteFiles(size=gap)
 
             return True
@@ -342,7 +342,7 @@ def _fillPartition(params, cleaner):
 
             for index in range(params.iterate_):
                 if index > 0:
-                    params.logger_.print(level = logs.LogLevel.LOG_FULL, text= "\tOn attend un peu...")
+                    params.logger_.print(level = logs.LogLevel.LOG_FULL, text= "\tOn attend un peu ...")
                     cleaner.paddingFolder_.wait(params.waitTasks_)
 
                 params.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"Itération {index+1}/{params.iterate_}")
