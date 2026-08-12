@@ -363,7 +363,7 @@ def _fillPartition(params, cleaner):
             if False == params.adjust_:
                 for index in range(params.iterate_):
                     if index > 0:
-                        params.logger_.print(level = logs.LogLevel.LOG_FULL, text= "\tOn attend un peu ...")
+                        params.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {params.waitTasks_} sec.")
                         cleaner.paddingFolder_.wait(params.waitTasks_)
 
                     params.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"Itération {index+1}/{params.iterate_}")

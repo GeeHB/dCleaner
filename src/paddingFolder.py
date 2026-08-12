@@ -133,6 +133,7 @@ class paddingFolder(basicFolder):
 
                              # On attend ...
                              if self.options.waitFiles_ > 0:
+                                 self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {self.options.waitFiles_} sec.")
                                  self.wait(self.options.waitFiles_)
 
                     # Retrait de la barre de progression
@@ -155,6 +156,7 @@ class paddingFolder(basicFolder):
 
                     # On attend ...
                     if self.options.waitFiles_ > 0:
+                        self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {self.options.waitFiles_} sec.")
                         self.wait(self.options.waitFiles_)
 
             offset = "\t " if iterate else ""
@@ -243,6 +245,7 @@ class paddingFolder(basicFolder):
                         break
 
                     # On attend ...
+                    self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {self.options.waitFiles_} sec.")
                     self.wait(self.options.waitFiles_)
             except KeyboardInterrupt:
                 self.options.logger_.error("Interruption de la suppression")
