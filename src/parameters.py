@@ -19,7 +19,7 @@ from sharedTools import jlogger as logs
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "1.0.3"
+APP_CURRENT_VERSION = "1.0.4"
 APP_RELEASE_DATE = "12/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 

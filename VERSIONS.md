@@ -19,11 +19,12 @@
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
   * -x => pas besoin de nettoyer "proprement", juste effacer les fichiers
 
-#### Version 1.0.3
+#### Version 1.0.4
 * 12 aout 2026
 * Ajouts
   * sharedTools.jLogger : gestion des affichages et des logs
   * Ajout du mode DEBUG (-dbg / --debug) ainsisi qu'à jLogger 
+  * Ajout du nom de la fonction/méthode en mode débug
   
 * Corrections
   * caractères "espaces" superflus dans les log

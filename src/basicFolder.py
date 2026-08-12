@@ -66,7 +66,6 @@ class basicFolder(FSObject):
     # Constructeur
     #
     def __init__(self, parameters, pMaxSize = 0):
-
         super().__init__(parameters)
 
         # Initialisation des données membres
@@ -81,7 +80,6 @@ class basicFolder(FSObject):
     #
     #  Retourne le tuple (booléen , message d'erreur)
     def init(self, name = None) -> tuple[bool, str]:
-
         if name is not None and False == FSObject.existsFolder(name):
             return False, f"Le dossier '{name}' n'existe pas"
 
