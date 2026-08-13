@@ -108,15 +108,14 @@ class paddingFolder(basicFolder):
             still = int(expectedFillSize)
             totalSize = 0
             files = 0
-            cont = True
 
             if self.options.showProgress:
                 try:
                     barPos = 0  # Ou je suis ...
-                    barMax = self.__convertSize2Progressbar(expectedFillSize * self.options.iterate_)
+                    barMax = self.__convertSize2Progressbar(expectedFillSize)
                     with self.progressBar_(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", elapsed = "en {elapsed}",stats = False, monitor_end = "\033[2K") as bar:
                          # Boucle de remplissage
-                         while totalSize < expectedFillSize and cont:
+                         while totalSize < expectedFillSize:
                              # Création d'un fichier sans nom
                              bFile = basicFile(parameters = self.options, path = self.name, fName = None)
                              for fragment in bFile.create(maxFileSize = still) :
@@ -143,7 +142,7 @@ class paddingFolder(basicFolder):
                     self.options.quiet = True
             else:
                 # sans barre de progression ...
-                while totalSize < expectedFillSize and cont:
+                while totalSize < expectedFillSize:
                     # Création d'un fichier sans nom
                     bFile = basicFile(parameters = self.options, path = self.name, fName = None)
                     bFile.create(maxFileSize = still)
@@ -161,7 +160,7 @@ class paddingFolder(basicFolder):
 
             offset = "\t " if iterate else ""
 
-            self.options.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = f"{offset}Remplissage de {FSObject.size2String(totalSize / self.options.iterate_)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
+            self.options.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = f"{offset}Remplissage de {FSObject.size2String(totalSize)} - {files} " + "fichiers crées" if files > 1 else f"{files} fichier crée")
             return True
 
         # Erreur
@@ -201,7 +200,7 @@ class paddingFolder(basicFolder):
 
         if 0 != size :
             # Suppression sur le critère de taille => on compte les ko
-            barMax = self.__convertSize2Progressbar(size * self.options.iterate_)
+            barMax = self.__convertSize2Progressbar(size)
             barMonitor = "{count} ko - {percent:.0%}"
         else:
             # On compte les fichiers
@@ -262,7 +261,7 @@ class paddingFolder(basicFolder):
 
         # Fin des traitements
         offset = "\t " if iterate else ""
-        self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"{offset}Suppression de {FSObject.size2String(tSize / self.options.iterate_)} avec {FSObject.count2String('fichier', tFiles)}")
+        self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"{offset}Suppression de {FSObject.size2String(tSize)} avec {FSObject.count2String('fichier', tFiles)}")
 
         return True
 
