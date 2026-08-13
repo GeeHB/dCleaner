@@ -25,9 +25,9 @@
   * sharedTools.jLogger : gestion des affichages et des logs
   * Ajout du mode DEBUG (-dbg / --debug) ainsisi qu'à jLogger 
   * Ajout du nom de la fonction/méthode en mode débug
-  
 * Corrections
-  * caractères "espaces" superflus dans les log
+  * Caractères "espaces" superflus dans les log
+  * Pas de barre de progression dans les fichiers de logs !
 
 #### Version 0.12.3
 * 6 aout 2026

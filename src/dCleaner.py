@@ -362,8 +362,8 @@ def _fillPartition(params, cleaner):
             # Doit-on maintenant "salir" le disque ?
             if False == params.adjust_:
                 for index in range(params.iterate_):
-                    if index > 0:
-                        params.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {params.waitTasks_} sec.")
+                    if index > 0 and params.waitTasks_ > 0 :
+                        params.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"\tAttente avant le prochain traitement : {int(params.waitTasks_)} sec.")
                         cleaner.paddingFolder_.wait(params.waitTasks_)
 
                     params.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"Itération {index+1}/{params.iterate_}")

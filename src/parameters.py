@@ -65,7 +65,7 @@ WINDOWS_TRASH = "__wintrash__"     # pour reconnaitre le "dossier" poubelle de W
 # Mode non verbeux (spécifique pour les fichiers de logs)
 ARG_LOGMODE_S   = "-l"
 ARG_LOGMODE     = "--log"
-COMMENT_LOGMODE = "Mode peu verbeux, pour les fichiers de logs"
+COMMENT_LOGMODE = "Pour les fichiers de logs, sans barres de progression"
 
 # Mode silencieux, par défaut
 ARG_QUIETMODE_S   = "-q"
@@ -76,6 +76,11 @@ COMMENT_QUIETMODE = "Mode silencieux, aucune sortie texte"
 ARG_DEBUGMODE_S   = "-dbg"
 ARG_DEBUGMODE     = "--debug"
 COMMENT_DEBUGMODE = "Mode DEBUG - Maximum de logs"
+
+# Barres de progression
+ARG_NOPROGRESS_S   = "-nb"
+ARG_NOPROGRESS     = "--noprogressbar"
+COMMENT_NOPROGRESS = "Pas d'affichage des barres de progression"
 
 # Pas de colorisation des sorties - Par défaut les sorties seront colorisées
 ARG_NOCOLOR_S = "-nc"
@@ -180,20 +185,21 @@ MAX_ELAPSETASKS = 180.0
 # Options d'executions ...
 #   le paramètre mode_ est une combinaison des différentes valeurs possibles
 #
-OPTION_INIT    = 0    # Rien à faire
-OPTION_TEST    = 1    # On teste ...
-OPTION_PADDING = 2    # Remplissage du dossier de 'padding'
+OPTION_INIT             = 0    # Rien à faire
+OPTION_TEST             = 1    # On teste ...
+OPTION_PADDING          = 2    # Remplissage du dossier de 'padding'
+OPTION_SHOW_PROGRESSBAR = 4    # Affichage de la barre de progression
 
-OPTION_LOG_QUIET   = 4    # Complètement 'silencieux'
-OPTION_LOG_NORMAL  = 8    # Mode peu-verbeux (pour les logs)
-OPTION_LOG_FULL    = 0    # Par défaut on affiche tout !
-OPTION_LOG_DEBUG   = 16
+OPTION_LOG_QUIET        = 8    # Complètement 'silencieux'
+OPTION_LOG_NORMAL       = 16   # Mode peu-verbeux (pour les logs)
+OPTION_LOG_FULL         = 0    # Par défaut on affiche tout !
+OPTION_LOG_DEBUG        = 32
 
 OPTION_RECURSE = 32    # Traitement recursif des dossiers
 OPTION_CLEANFOLDERS = 16 # Nettoyuage d'un ou de pluseirus dossiers
 
 # Valeur par défaut
-OPTION_DEFAULT = OPTION_PADDING | OPTION_LOG_FULL
+OPTION_DEFAULT = OPTION_PADDING | OPTION_LOG_FULL | OPTION_SHOW_PROGRESSBAR
 
 #
 # Modes de fonctionement
@@ -229,6 +235,7 @@ class options:
         self.color_ = None      # Outil de colorisation
         self.adjust_ = False    # Par défaut tous les traitements sont effectués
         self.iterate_ = DEF_ITERATE
+        self.progress_ = True   # Affichage de la barre de défilement
 
         self.fillRate_ = DEF_FILLRATE
         self.renewRate_ = DEF_PADDINGRATE
@@ -274,6 +281,7 @@ class options:
         self.__set(OPTION_LOG_NORMAL, value)
         if value:
             self.logger_.level = logs.LogLevel.LOG_NORMAL
+            self.showProgress = False   # Pas de barre de progression dans les logs !
         self.logger_.log = value
         self.logger_.pid = value
 
@@ -281,6 +289,14 @@ class options:
     @property
     def full(self):
         return (not self.__isSet(OPTION_LOG_NORMAL) and not self.__isSet(OPTION_LOG_QUIET))
+
+    # Affichage de la barre de progression
+    @property
+    def showProgress(self):
+        return self.__isSet(OPTION_SHOW_PROGRESSBAR)
+    @showProgress.setter
+    def showProgress(self, value : bool):
+        self.__set(OPTION_SHOW_PROGRESSBAR, value)
 
     # En mode debug
     @property
@@ -291,6 +307,7 @@ class options:
         self.__set(OPTION_LOG_DEBUG, value)
         if value:
             self.logger_.level = logs.LogLevel.LOG_DEBUG
+            #self.showProgress = False   # Pas de progression en mode debug
         self.logger_.log = value
         self.logger_.pid = value
 
@@ -357,6 +374,9 @@ class options:
         affichage.add_argument(ARG_QUIETMODE_S, ARG_QUIETMODE, action='store_true', help = COMMENT_QUIETMODE, required = False)
         affichage.add_argument(ARG_DEBUGMODE_S, ARG_DEBUGMODE, action='store_true', help = COMMENT_DEBUGMODE, required = False)
 
+        # Barres de progression ?
+        parser.add_argument(ARG_NOPROGRESS_S, ARG_NOPROGRESS, action='store_true', help = COMMENT_NOPROGRESS, required = False)
+
         # Parse de la ligne
         #
         args = parser.parse_args()
@@ -373,6 +393,10 @@ class options:
         # Affichages en mode "Debug"
         if args.debug:
             self.debug = True
+
+        # Barre de progression
+        if args.noprogressbar:
+            self.showProgress = False
 
         # Colorisation des affichages ?
         if self.color_ is None:

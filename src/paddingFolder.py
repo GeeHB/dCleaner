@@ -39,7 +39,7 @@ class paddingFolder(basicFolder):
         super().__init__(options, pMaxSize)
 
         # Création de la barre (reèlle ou pas ...)
-        if self.options.full:
+        if self.options.showProgress:
             try:
                 from alive_progress import alive_bar as pBar
                 self.progressBar_ = pBar
@@ -47,7 +47,7 @@ class paddingFolder(basicFolder):
                 self.options.logger_.error(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.quiet = True
 
-        if not self.options.full:
+        if not self.options.showProgress:
             from fakeProgressBar import fakeProgressBar as fakeBar
             self.progressBar_ = fakeBar
 
@@ -110,7 +110,7 @@ class paddingFolder(basicFolder):
             files = 0
             cont = True
 
-            if self.options.full:
+            if self.options.showProgress:
                 try:
                     barPos = 0  # Ou je suis ...
                     barMax = self.__convertSize2Progressbar(expectedFillSize * self.options.iterate_)
@@ -133,7 +133,7 @@ class paddingFolder(basicFolder):
 
                              # On attend ...
                              if self.options.waitFiles_ > 0:
-                                 self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {self.options.waitFiles_} sec.")
+                                 self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"\tAttente entre 2 fcihiers : {int(self.options.waitFiles_)} sec.")
                                  self.wait(self.options.waitFiles_)
 
                     # Retrait de la barre de progression
@@ -156,7 +156,7 @@ class paddingFolder(basicFolder):
 
                     # On attend ...
                     if self.options.waitFiles_ > 0:
-                        self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {self.options.waitFiles_} sec.")
+                        self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"\tAttente avant le prochain traitement : {int(self.options.waitFiles_)} sec.")
                         self.wait(self.options.waitFiles_)
 
             offset = "\t " if iterate else ""
@@ -245,18 +245,19 @@ class paddingFolder(basicFolder):
                         break
 
                     # On attend ...
-                    self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text= f"\tOn attend {self.options.waitFiles_} sec.")
-                    self.wait(self.options.waitFiles_)
+                    if self.options.waitFiles_ > 0:
+                        self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text = f"\tAttente avant le prochain traitement : {int(self.options.waitFiles_)} sec.")
+                        self.wait(self.options.waitFiles_)
             except KeyboardInterrupt:
                 self.options.logger_.error("Interruption de la suppression")
                 sys.exit(1)
 
             # Retrait de la barre de progression
-            if self.options.full:
+            if self.options.showProgress:
                 self.__tprint('\033[F', '')
 
         # Terminé
-        if self.options.full:
+        if self.options.showProgress:
             self.__tprint('\033[F', '')
 
         # Fin des traitements
@@ -281,7 +282,7 @@ class paddingFolder(basicFolder):
             return 0, ""
 
         count = 0   # Ce que j'ai effectivement supprimé ...
-        if self.options.full:
+        if self.options.showProgress:
             try:
                 from alive_progress import alive_bar as pBar
                 progressBar = pBar
@@ -311,7 +312,7 @@ class paddingFolder(basicFolder):
                     bar()
 
         # Retrait de la barre de progression
-        if self.options.full:
+        if self.options.showProgress:
             self.__tprint('\033[F', '')
 
         # Dossier vidé
@@ -341,7 +342,7 @@ class paddingFolder(basicFolder):
                     pass
 
         # Retrait de la barre de progression
-        if self.options.full :
+        if self.options.showProgress :
             self.__tprint('\033[F', '')
 
         # Rien à faire ?
@@ -378,7 +379,7 @@ class paddingFolder(basicFolder):
                             barPos, deletedFiles, freed = self.__deleteFile(FSO, bar, barPos, barMax, deletedFiles, freed)
 
             # Retrait de la barre
-            if self.options.full:
+            if self.options.showProgress:
                 self.__tprint('\033[F', '')
 
         self.options.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = f"Suppression de {FSObject.count2String('fichier', deletedFiles)} et de {FSObject.count2String('dossier', deletedFolders)}")
