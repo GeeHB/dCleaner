@@ -20,7 +20,7 @@ from sharedTools import jlogger as logs
 # Nom et version de l'application
 APP_NAME = "dCleaner"
 APP_CURRENT_VERSION = "1.0.4"
-APP_RELEASE_DATE = "12/08/2026"
+APP_RELEASE_DATE = "13/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
 #
@@ -152,7 +152,6 @@ MAX_FILLRATE = 95
 # Pourcentage restant de la partition à salir à chaque itération - Par défut 30%
 ARG_PADDINGRATE_S = "-p"
 ARG_PADDINGRATE   = "--padding"
-#COMMENT_PADDINGRATE = "Taille (en pourcentage de la taille libre) à nettoyer"
 COMMENT_PADDINGRATE = "Taille (en %% de la taille libre) à nettoyer"
 
 DEF_PADDINGRATE = 30           # Dans le % restant, quelle est le taux de renouvellement (ie ce pourcentage sera nettoyé à chaque lancement)

@@ -79,7 +79,7 @@ class jLogger:
         else:
             # Juste ce qu'il faut afficher
             if len(text) and (level == LogLevel.LOG_ERROR or self.level >= level) :
-                prefix = f"[{linePrefix}]" if len(linePrefix) >0 else ""
+                prefix = f" [{linePrefix}]" if len(linePrefix) >0 else ""
                 if self.log:
                     # En mode log. on ajoute la date et l'heure et éventuellement le pid
                     today = datetime.datetime.now(tz=ZoneInfo(JLOG_DATE_REGION))

@@ -20,7 +20,7 @@
   * -x => pas besoin de nettoyer "proprement", juste effacer les fichiers
 
 #### Version 1.0.4
-* 12 aout 2026
+* 13 aout 2026
 * Ajouts
   * sharedTools.jLogger : gestion des affichages et des logs
   * Ajout du mode DEBUG (-dbg / --debug) ainsisi qu'à jLogger 
