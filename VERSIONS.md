@@ -23,11 +23,12 @@
 * 13 aout 2026
 * Ajouts
   * sharedTools.jLogger : gestion des affichages et des logs
-  * Ajout du mode DEBUG (-dbg / --debug) ainsisi qu'à jLogger 
+  * Ajout du mode DEBUG (-dbg / --debug) ainsi qu'à jLogger 
   * Ajout du nom de la fonction/méthode en mode débug
 * Corrections
   * Caractères "espaces" superflus dans les log
   * Pas de barre de progression dans les fichiers de logs !
+  * Erreur dans le calcul de la valeur max. des barres de progression
 
 #### Version 0.12.3
 * 6 aout 2026
