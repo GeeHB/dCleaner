@@ -25,6 +25,7 @@ import fakeProgressBar
 from basicFile import basicFile
 from basicFolder import basicFolder
 from FSObject import FSObject
+from parameters import options as opts
 from sharedTools import jlogger as logs
 from winTrashFolder import winTrashFolder
 
@@ -33,13 +34,13 @@ from winTrashFolder import winTrashFolder
 #
 class paddingFolder(basicFolder):
     # Constructeur
-    def __init__(self, options, pMaxSize = 0):
+    def __init__(self, options:opts, pMaxSize:int = 0):
         # Initialisation de l'objet
         self.files_:int = 0  # Nombre de fichiers générés
         super().__init__(options, pMaxSize)
 
         # Création de la barre (reèlle ou pas ...)
-        if self.options.showProgress:
+        if self.params_.showProgress:
             try:
                 from alive_progress import alive_bar as pBar
                 self.progressBar_ = pBar

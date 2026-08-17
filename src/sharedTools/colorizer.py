@@ -107,9 +107,9 @@ class textAttribute:
 #
 class colorizer:
     # Construction
-    def __init__(self, colored:bool | None = True, message:bool = True):
+    def __init__(self, colored:bool | None = True, _message:bool = True):
         self.colored_:bool = False       # Doit-on coloriser ?
-        self.setColorized(packageTermColor__ if colored is None else colored, message)
+        self.setColorized(packageTermColor__ if colored is None else colored)
 
     # Mise en place de la colorisation
     def setColorized(self, colored:bool = True, message:str | None = None):

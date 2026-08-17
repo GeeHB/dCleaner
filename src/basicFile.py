@@ -195,7 +195,6 @@ class basicFile(FSObject):
                 except OSError:
                     self.error = f"Erreur - pas d'accès en ecriture pour '{self.name_}'"
 
-
             # Remplacement du contenu ?
             if replace:
                 # Nouveau nom

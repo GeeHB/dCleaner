@@ -16,6 +16,7 @@ import platform
 from mountPoints import mountPointTrashes
 from sharedTools import colorizer as color
 from sharedTools import jlogger as logs
+from sharedTools import statusBits as ownStatus
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
@@ -231,9 +232,9 @@ class options:
 
         # Valeurs par défaut
         #
-        self.option_:int = OPTION_DEFAULT
-        self.logger_ = logs.jLogger()
-        self.color_ = None      # Outil de colorisation
+        self.status_ : ownStatus.statusBits = ownStatus.statusBits(OPTION_DEFAULT)
+        self.logger_ : logs.jLogger = logs.jLogger()
+        self.color_ : color.colorizer | None = None      # Outil de colorisation
         self.adjust_: bool = False    # Par défaut tous les traitements sont effectués
         self.iterate_:int = DEF_ITERATE
         self.progress_: bool = True   # Affichage de la barre de défilement
@@ -245,7 +246,7 @@ class options:
         self.waitFiles_:float = MIN_ELAPSEFILES
         self.waitTasks_:float = MIN_ELAPSETASKS
 
-        self.clean_ = []               # Nettoyage d'un ou plusieurs dossiers
+        self.clean_ : list[str]               # Nettoyage d'un ou plusieurs dossiers
         self.cleanDepth_: int = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
@@ -253,7 +254,7 @@ class options:
 
         # Liste des dossiers que l'on ne peut supprimer
         #
-        self.restricted_ = []
+        self.restricted_ : list[str] = []
         self.restricted_.append(self.homeFolder())
         trashes = self.trashFolders()
         for trash in trashes:
@@ -265,21 +266,21 @@ class options:
 
     # Mode 'silencieux'
     @property
-    def quiet(self):
-        return self.__isSet(OPTION_LOG_QUIET)
+    def quiet(self)->bool:
+        return self.status_.isSet(OPTION_LOG_QUIET)
     @quiet.setter
     def quiet(self, value : bool):
-        self.__set(OPTION_LOG_QUIET, value)
+        self.status_.set(OPTION_LOG_QUIET, value)
         if value :
             self.logger_.level = logs.LogLevel.LOG_QUIET
 
     # Mode log / trace
     @property
-    def log(self):
-        return self.__isSet(OPTION_LOG_NORMAL)
+    def log(self)->bool:
+        return self.status_.isSet(OPTION_LOG_NORMAL)
     @log.setter
     def log(self, value : bool):
-        self.__set(OPTION_LOG_NORMAL, value)
+        self.status_.set(OPTION_LOG_NORMAL, value)
         if value:
             self.logger_.level = logs.LogLevel.LOG_NORMAL
             self.showProgress = False   # Pas de barre de progression dans les logs !
@@ -288,24 +289,24 @@ class options:
 
     # Tous les affichages ?
     @property
-    def full(self):
-        return (not self.__isSet(OPTION_LOG_NORMAL) and not self.__isSet(OPTION_LOG_QUIET))
+    def full(self)->bool:
+        return (not self.status_.isSet(OPTION_LOG_NORMAL) and not self.status_.isSet(OPTION_LOG_QUIET))
 
     # Affichage de la barre de progression
     @property
-    def showProgress(self):
-        return self.__isSet(OPTION_SHOW_PROGRESSBAR)
+    def showProgress(self)->bool:
+        return self.status_.isSet(OPTION_SHOW_PROGRESSBAR)
     @showProgress.setter
     def showProgress(self, value : bool):
-        self.__set(OPTION_SHOW_PROGRESSBAR, value)
+        self.status_.set(OPTION_SHOW_PROGRESSBAR, value)
 
     # En mode debug
     @property
-    def debug(self):
-        return self.__isSet(OPTION_LOG_DEBUG)
+    def debug(self)->bool:
+        return self.status_.isSet(OPTION_LOG_DEBUG)
     @debug.setter
     def debug(self, value : bool):
-        self.__set(OPTION_LOG_DEBUG, value)
+        self.status_.set(OPTION_LOG_DEBUG, value)
         if value:
             self.logger_.level = logs.LogLevel.LOG_DEBUG
             #self.showProgress = False   # Pas de progression en mode debug
@@ -314,69 +315,69 @@ class options:
 
     # Récursivité ?
     @property
-    def recurse(self):
-        return self.__isSet(OPTION_RECURSE)
+    def recurse(self)->bool:
+        return self.status_.isSet(OPTION_RECURSE)
     @recurse.setter
-    def recurse(self, value):
-        self.__set(OPTION_RECURSE, value)
+    def recurse(self, value:bool):
+        self.status_.set(OPTION_RECURSE, value)
 
     # Remplissage ?
     @property
-    def padding(self):
-        return self.__isSet(OPTION_PADDING)
+    def padding(self)->bool:
+        return self.status_.isSet(OPTION_PADDING)
     @padding.setter
-    def padding(self, value):
-        self.__set(OPTION_PADDING, value)
+    def padding(self, value:bool):
+        self.status_.set(OPTION_PADDING, value)
 
     # Des dossiers à nettoyer ?
     @property
-    def clean(self) -> bool:
-        return self.__isSet(OPTION_CLEANFOLDERS)
+    def clean(self)->bool:
+        return self.status_.isSet(OPTION_CLEANFOLDERS)
     @clean.setter
-    def clean(self, value):
-        self.__set(OPTION_CLEANFOLDERS, value)
+    def clean(self, value:bool):
+        self.status_.set(OPTION_CLEANFOLDERS, value)
 
     # Test ?
     @property
-    def test(self) -> bool:
-        return self.__isSet(OPTION_TEST)
+    def test(self)->bool:
+        return self.status_.isSet(OPTION_TEST)
     @test.setter
     def test(self, value:bool):
-        self.__set(OPTION_TEST, value)
+        self.status_.set(OPTION_TEST, value)
 
     # Analyse de la ligne de commandes
     #   retourne un booléen
     def parse(self) -> bool:
         parser = argparse.ArgumentParser(epilog = self.version())
 
-        parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
-        parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
-        parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
-        parser.add_argument(ARG_RECURSE_S, ARG_RECURSE, action='store_true', help = COMMENT_RECURSE, required = False)
+        _ = parser.add_argument(ARG_TEST_S, ARG_TEST, action='store_true', help = COMMENT_TEST, required = False)
+        _ = parser.add_argument(ARG_NOCOLOR_S, ARG_NOCOLOR, action='store_true', help = COMMENT_NOCOLOR, required = False)
+        _ = parser.add_argument(ARG_NOPADDING_S, ARG_NOPADDING, action='store_true', help = COMMENT_NOPADDING, required = False)
+        _ = parser.add_argument(ARG_RECURSE_S, ARG_RECURSE, action='store_true', help = COMMENT_RECURSE, required = False)
 
         # Effacer et ajuster sont exclusifs
         lancement = parser.add_mutually_exclusive_group()
-        lancement.add_argument(ARG_CLEAR_S, ARG_CLEAR, action='store_true', help = COMMENT_CLEAR, required = False)
-        lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
+        _ = lancement.add_argument(ARG_CLEAR_S, ARG_CLEAR, action='store_true', help = COMMENT_CLEAR, required = False)
+        _ = lancement.add_argument(ARG_ADJUST_S, ARG_ADJUST, action='store_true', help = COMMENT_ADJUST, required = False)
 
-        parser.add_argument(ARG_FOLDER_S, ARG_FOLDER, help = COMMENT_FOLDER, required = False, nargs=1)
-        parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = [DEF_ITERATE], type=int, choices=range(MIN_ITERATE, MAX_ITERATE + 1))
-        parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = [DEF_FILLRATE], type=int)
-        parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = [DEF_PADDINGRATE], type=int)
-        parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, type=int, choices=range(MIN__DEPTH, MAX_DEPTH + 1))
-        parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs='+')
+        _ = parser.add_argument(ARG_FOLDER_S, ARG_FOLDER, help = COMMENT_FOLDER, required = False, nargs=1)
+        _ = parser.add_argument(ARG_ITERATE_S, ARG_ITERATE, help = COMMENT_ITERATE, required = False, nargs=1, default = [DEF_ITERATE], type=int, choices=range(MIN_ITERATE, MAX_ITERATE + 1))
+        _ = parser.add_argument(ARG_FILLRATE_S, ARG_FILLRATE, help = COMMENT_FILLRATE, required = False, nargs=1, default = [DEF_FILLRATE], type=int)
+        _ = parser.add_argument(ARG_PADDINGRATE_S, ARG_PADDINGRATE, help = COMMENT_PADDINGRATE, required = False, nargs=1, default = [DEF_PADDINGRATE], type=int)
+        _ = parser.add_argument(ARG_DEPTH_S, ARG_DEPTH, help = COMMENT_DEPTH, required = False, nargs=1, type=int, choices=range(MIN__DEPTH, MAX_DEPTH + 1))
+        _ = parser.add_argument(ARG_CLEANFOLDER_S, ARG_CLEANFOLDER, help = COMMENT_CLEANFOLDER, required = False, nargs='+')
 
-        parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = [DEF_ELAPSEFILES], type=float)
-        parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = [DEF_ELAPSETASKS], type=float)
+        _ = parser.add_argument(ARG_ELAPSEFILES_S, ARG_ELAPSEFILES, help = COMMENT_ELAPSEFILES, required = False, nargs=1, default = [DEF_ELAPSEFILES], type=float)
+        _ = parser.add_argument(ARG_ELAPSETASKS_S, ARG_ELAPSETASKS, help = COMMENT_ELAPSETASKS, required = False, nargs=1, default = [DEF_ELAPSETASKS], type=float)
 
         # Niveau des affichages des logs ou mode silencieux (ou tout ...)
         affichage = parser.add_mutually_exclusive_group()
-        affichage.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
-        affichage.add_argument(ARG_QUIETMODE_S, ARG_QUIETMODE, action='store_true', help = COMMENT_QUIETMODE, required = False)
-        affichage.add_argument(ARG_DEBUGMODE_S, ARG_DEBUGMODE, action='store_true', help = COMMENT_DEBUGMODE, required = False)
+        _ = affichage.add_argument(ARG_LOGMODE_S, ARG_LOGMODE, action='store_true', help = COMMENT_LOGMODE, required = False)
+        _ = affichage.add_argument(ARG_QUIETMODE_S, ARG_QUIETMODE, action='store_true', help = COMMENT_QUIETMODE, required = False)
+        _ = affichage.add_argument(ARG_DEBUGMODE_S, ARG_DEBUGMODE, action='store_true', help = COMMENT_DEBUGMODE, required = False)
 
         # Barres de progression ?
-        parser.add_argument(ARG_NOPROGRESS_S, ARG_NOPROGRESS, action='store_true', help = COMMENT_NOPROGRESS, required = False)
+        _ = parser.add_argument(ARG_NOPROGRESS_S, ARG_NOPROGRESS, action='store_true', help = COMMENT_NOPROGRESS, required = False)
 
         # Parse de la ligne
         #
@@ -452,8 +453,8 @@ class options:
 
     # Dossiers de la 'poubelle' de l'agent
     @staticmethod
-    def trashFolders():
-        folders = []
+    def trashFolders()->list[str]:
+        folders : list[str] = []
         myPlatform = platform.system()
         if  myPlatform == "Windows":
             # Il y a bien un ou plusieurs dossiers Windows mais on ne peut y accéder
@@ -488,7 +489,7 @@ class options:
     #
     #   retourne la chaine caractérisant la version
     #
-    def version(self):
+    def version(self)->str:
         if self.color_ is None:
             self.color_ = color.colorizer(True)
 
@@ -496,7 +497,7 @@ class options:
 
     # Le dossier a t'il un accès restreint ?
     #
-    def isRectrictedAccess(self, folder):
+    def isRectrictedAccess(self, folder:str | None):
         if folder is not None:
             return folder in self.restricted_
 
@@ -504,16 +505,16 @@ class options:
         return True
 
     # Retourne une valeur dans l'intervalle
-    def inRange(self, value, minv, maxv):
+    def inRange(self, value:int, minv:int, maxv:int)->int:
         return min(max(minv, value), maxv)
 
     # Liste des dossiers à nettoyer
-    def handleCleanFolders(self, folders):
+    def handleCleanFolders(self, folders:list[str]):
         # Liste des poubelles
         myTrashFolders = options.trashFolders()
 
         # Remplacement des valeurs
-        destFolders = []
+        destFolders : list[str] = []
         for folder in folders:
             if FOLDERS_TRASH == folder or FOLDERS_TRASH_BIS == folder:
                 # On ajoute tous les dossiers de la poubelle
