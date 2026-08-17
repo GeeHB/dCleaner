@@ -35,7 +35,7 @@ class paddingFolder(basicFolder):
     # Constructeur
     def __init__(self, options, pMaxSize = 0):
         # Initialisation de l'objet
-        self.files_ = 0  # Nombre de fichiers générés
+        self.files_:int = 0  # Nombre de fichiers générés
         super().__init__(options, pMaxSize)
 
         # Création de la barre (reèlle ou pas ...)

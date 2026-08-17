@@ -15,6 +15,7 @@ import hashlib
 import os
 import random
 import stat
+from typing import override
 from zoneinfo import ZoneInfo
 
 from FSObject import FSObject
@@ -25,6 +26,7 @@ from parameters import (
     PATTERN_MAX_LEN,
     PATTERN_MIN_LEN,
 )
+from parameters import options as opt
 from sharedTools.jlogger import JLOG_DATE_REGION
 
 
@@ -34,14 +36,14 @@ from sharedTools.jlogger import JLOG_DATE_REGION
 class basicFile(FSObject):
 
     # Constructeur
-    def __init__(self, parameters, path = None, fName = None, FQN = None):
+    def __init__(self, parameters : opt, path : str | None = None, fName : str | None = None, FQN : str | None = None):
 
         super().__init__(parameters)
 
         # Initialisation des données membres
-        self.pattern_ = ""
-        self.error_ = ""
-        self.name_ = ""
+        self.pattern_: str = ""
+        self.error_: str  = ""
+        self.name_: str = ""
 
         # Un nom complet (ie. le fichier existe !!!)
         if FQN is not None :
@@ -55,37 +57,34 @@ class basicFile(FSObject):
                     self.name = os.path.join(path, fName)
                 else:
                     # Génération d'un nom nouveau
-                    name = basicFile.genName(path, False)
-                    if name is None:
-                        self.error = f"Impossible de générer un nom de fichier pour le dossier '{path}'"
-                    else:
-                        self.name = name
+                    self.name_ = basicFile.genName(path, False)
             else:
                 # pas de nom (pour l'instant)
-                self.name = ""
+                self.name_ = ""
 
     # Est-ce un fichier ?
-    def isFile(self):
+    @override
+    def isFile(self) -> bool:
         return True
 
     # Nom du fichier
     @property
     def name(self):
-        return self.name_ if self.name_ is not None else ""
+        return self.name_
 
     @name.setter
-    def name(self, value):
-        self.name_ = value if isinstance(value, str) else ""
+    def name(self, value:str):
+        self.name_ = value
 
     # Nom court
-    def shortName(self):
+    def shortName(self)->str:
         if len(self.name_) == 0:
             return ""
         _, sName = os.path.split(self.name_)
         return sName
 
     # Nom du dossier
-    def folder(self):
+    def folder(self) -> str | None:
         if 0 == len(self.name):
             return None
 
@@ -96,7 +95,7 @@ class basicFile(FSObject):
     # Gestion des erreurs
     #
     @property
-    def error(self):
+    def error(self)->str:
         message =self.error_
         if len(message):
             # Effacement du message après consultation
@@ -104,11 +103,11 @@ class basicFile(FSObject):
         return message
 
     @error.setter
-    def error(self, value):
+    def error(self, value:str):
         self.error_ = value
 
     # La dernière opération s'est correctement déroulée ?
-    def success(self):
+    def success(self)->bool:
         return 0 == len(self.error_)
 
     #
@@ -122,12 +121,12 @@ class basicFile(FSObject):
     #   fileSize : Taille en octets du fichier (ou 0 si taille aléatoire)
     #   maxFileSize : Taille max. n octets d'un fichier
     #
-    def create(self, fileSize = 0, maxFileSize = 0):
+    def create(self, fileSize:int = 0, maxFileSize:int = 0):
         if not self.options.test:
-            if len(self.name):
+            if len(self.name_):
                 # Si le fichier existe, je le supprime ...
                 if self.exists():
-                    self.delete()
+                    _ = self.delete()
             else:
                 # Pas de nom
                 self.error = "Impossible de créer le fichier. Il n'a pas de nom"
@@ -143,7 +142,7 @@ class basicFile(FSObject):
     #
     #   rename : Doit-on renomer le fichier (avec un nom aléatoire) ?
     #
-    def fill(self, rename = False):
+    def fill(self, rename:bool = False):
         if not self.options.test and self.exists():
             for _ in range(self.options.iterate_):
                 yield from self._create()
@@ -158,15 +157,16 @@ class basicFile(FSObject):
     # Renomage
     #
     #   Retourne le nouveau nom (ou "" en cas d'erreur)
-    def rename(self):
+    def rename(self)->str:
         #if (not force and self.exists()) or force:
         if not self.options.test and self.exists():
             folder, _ = os.path.split(self.name)
 
             # Nouveau nom "complet"
-            name = self.genName(folder)
+            name:str = basicFile.genName(folder)
             try:
-                os.rename(self.name_, name)
+                if len(self.name_):
+                    os.rename(self.name_, name)
                 self.name_ = name
             except OSError:
                 # une erreur
@@ -183,7 +183,7 @@ class basicFile(FSObject):
     #
     #   Generator qui énumère les blocks d'octets supprimés
     #
-    def delete(self, replace = True):
+    def delete(self, replace:bool = True):
         # Le fichier doit exister
         if not self.options.test and self.exists():
 
@@ -194,19 +194,18 @@ class basicFile(FSObject):
                     os.chmod(self.name_, stat.S_IWUSR)
                 except OSError:
                     self.error = f"Erreur - pas d'accès en ecriture pour '{self.name_}'"
-                    return
+
 
             # Remplacement du contenu ?
             if replace:
                 # Nouveau nom
-                nName = self.rename()
-                if nName is None or len(nName) == 0:
+                nName:str = self.rename()
+                if len(nName) == 0:
                     self.error = f"Impossible de renommer '{self.name_}'"
 
                 # Nouveau contenu (on itère l'effacement)
                 for _ in range(self.options.iterate_):
                     yield from self._create()
-
 
                 if False == self.success():
                     return
@@ -218,17 +217,19 @@ class basicFile(FSObject):
                 self.error = f"Erreur lors de la tentative de suppression de '{self.name_}'"
 
     # Taille en octets (ou None en cas d'erreur)
-    def size(self):
+    @override
+    def size(self)->int:
         return 0 if len(self.name_) == 0 or not self.exists() else os.path.getsize(self.name_)
 
     # Nombre de fichier(s) contenus
-    def files(self):
+    @override
+    def files(self)->int:
         # Juste moi ...
         return 1
 
     # Le fichier existe t'il ?
     #
-    def exists(self):
+    def exists(self)->bool:
         return False if len(self.name) == 0 else FSObject.existsFile(self.name)
 
     # Génération d'un nom de fichier pour un fichier existant ou un nouveau fichier
@@ -238,7 +239,7 @@ class basicFile(FSObject):
     #
     #   Retourne le nouveau nom complet ou "" en cas d'anomalie
     @staticmethod
-    def genName(parentFolder, folder = False):
+    def genName(parentFolder:str | None, folder:bool = False)->str:
         # Dossier parent
         if parentFolder is None:
             return ""
@@ -263,14 +264,14 @@ class basicFile(FSObject):
     # Génération d'un nouveau nom (fichier ou dossier)
     #   Retourne le nouveau nom
     @staticmethod
-    def _genName():
+    def _genName()->str:
         now = datetime.datetime.now(tz=ZoneInfo(JLOG_DATE_REGION))
         hash = hashlib.blake2b(digest_size=20)
         hash.update(str.encode(now.strftime("%Y%m%d-%H%M%S-%f")))
         return hash.hexdigest()
 
     # Génération d'un motif aléatoire
-    def _genPattern(self, maxPatternSize = PATTERN_MAX_LEN):
+    def _genPattern(self, maxPatternSize:int = PATTERN_MAX_LEN):
         self.pattern_ = ""
         iSize = int(maxPatternSize)
         maxSize = PATTERN_MAX_LEN if iSize > PATTERN_MAX_LEN else max(iSize, PATTERN_MIN_LEN)
@@ -285,42 +286,43 @@ class basicFile(FSObject):
     #   maxFileSize : Taille max. n octets d'un fichier
     #   isNew : Est-ce une création de fichier ?
     #
-    def _create(self, fileSize = 0, maxFileSize = 0, isNew = False):
+    def _create(self, fileSize:int = 0, maxFileSize:int = 0, isNew:bool = False):
         # Création ?
+        size:int = fileSize
         if isNew:
             # Si la taille est nulle => on choisit aléatoirement
             if 0 == fileSize:
                 # 1 => ko, 2 = Mo
-                unit = 1 + random.randint(1, 1024) % 2
-                fileSize = 2 ** (unit * 10) * random.randint(FILESIZE_MIN, FILESIZE_MAX)
+                unit:int = 1 + random.randint(1, 1024) % 2
+                size = pow(base=2, exp=unit * 10) * random.randint(FILESIZE_MIN, FILESIZE_MAX)
 
                 # On remplit (mais on ne déborde pas !)
-                if maxFileSize >0 and fileSize > maxFileSize:
-                    fileSize = maxFileSize
+                if maxFileSize >0 and size > maxFileSize:
+                    size = maxFileSize
         else:
             # On conserve la taille
-            fileSize = self.size()
+            size = self.size()
 
         # Nouveau motif
-        self._genPattern(fileSize)
+        self._genPattern(size)
         pSize = len(self.pattern_)
 
         # Taille du buffer
-        buffSize = min(pSize,fileSize)
+        buffSize = min(pSize, size)
 
         # Ouverture / création du fichier
         currentSize = 0
         try:
             with open(self.name_, 'w') as file:
                 # Remplissage du fichier
-                while currentSize < fileSize:
+                while currentSize < size:
                     # Le dernier paquet (qui peut aussi être le premier) doit-il être tronqué ?
-                    if (currentSize + buffSize) > fileSize:
-                        buffSize = fileSize - currentSize
+                    if (currentSize + buffSize) > size:
+                        buffSize = size - currentSize
                         self.pattern_ = self.pattern_[:buffSize]
 
                     # Ecriture du buffer
-                    file.write(self.pattern_)
+                    _ = file.write(self.pattern_)
                     currentSize+=buffSize
 
                     # On retourne la taille du paquet écrit

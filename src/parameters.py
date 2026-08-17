@@ -19,7 +19,7 @@ from sharedTools import jlogger as logs
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
-APP_CURRENT_VERSION = "1.0.4"
+APP_CURRENT_VERSION = "1.1.1"
 APP_RELEASE_DATE = "13/08/2026"
 APP_AUTHOR = "JHB | henry-barnaudiere.j@allier.fr"
 
@@ -132,9 +132,11 @@ ARG_DEPTH_S = "-d"
 ARG_DEPTH   = "--depth"
 COMMENT_DEPTH = "Profondeur des dossiers pour la suppression (0 = dossier courant)"
 
-DEF_DEPTH = None    # Par défaut pas de nettoyage en profondeur des dossiers (on ne supprime pas les sous-dossiers)
+DEPTH_NONE      = -1
 MIN__DEPTH      = 0
 MAX_DEPTH       = 15
+DEF_DEPTH = DEPTH_NONE    # Par défaut pas de nettoyage en profondeur des dossiers (on ne supprime pas les sous-dossiers)
+
 
 # Nombre d'itération à effectuer - Par défaut = 1
 ARG_ITERATE_S = "-i"
@@ -222,33 +224,32 @@ MODE_CLEAR_STR  = "libération"
 #   classe options : Gestion de la ligne de commande et des paramètres ou options
 #
 class options:
-
     # Construction
     #
     def __init__(self):
-        self.done_ = False
+        self.done_:bool = False
 
         # Valeurs par défaut
         #
-        self.option_ = OPTION_DEFAULT
+        self.option_:int = OPTION_DEFAULT
         self.logger_ = logs.jLogger()
         self.color_ = None      # Outil de colorisation
-        self.adjust_ = False    # Par défaut tous les traitements sont effectués
-        self.iterate_ = DEF_ITERATE
-        self.progress_ = True   # Affichage de la barre de défilement
+        self.adjust_: bool = False    # Par défaut tous les traitements sont effectués
+        self.iterate_:int = DEF_ITERATE
+        self.progress_: bool = True   # Affichage de la barre de défilement
 
-        self.fillRate_ = DEF_FILLRATE
-        self.renewRate_ = DEF_PADDINGRATE
-        self.clear_ = False
+        self.fillRate_:int = DEF_FILLRATE
+        self.renewRate_:int = DEF_PADDINGRATE
+        self.clear_:bool = False
 
-        self.waitFiles_ = MIN_ELAPSEFILES
-        self.waitTasks_ = MIN_ELAPSETASKS
+        self.waitFiles_:float = MIN_ELAPSEFILES
+        self.waitTasks_:float = MIN_ELAPSETASKS
 
         self.clean_ = []               # Nettoyage d'un ou plusieurs dossiers
-        self.cleanDepth_ = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
+        self.cleanDepth_: int = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
-        self.folder_ = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)
+        self.folder_:str = os.path.join(options.homeFolder(), DEF_FOLDER_NAME)
 
         # Liste des dossiers que l'on ne peut supprimer
         #
@@ -337,10 +338,10 @@ class options:
 
     # Test ?
     @property
-    def test(self):
+    def test(self) -> bool:
         return self.__isSet(OPTION_TEST)
     @test.setter
-    def test(self, value):
+    def test(self, value:bool):
         self.__set(OPTION_TEST, value)
 
     # Analyse de la ligne de commandes
@@ -526,34 +527,4 @@ class options:
         for val in uniqueVals:
             self.clean_.append(val)
 
-    #
-    # Méthodes à usage interne
-    #
-
-    # Un bit est-il positionné ?
-    #
-    #   bit : Mode(s) ou bit(s) à rechercher
-    #
-    #   retourne un booléen
-    #
-    def __isSet(self, bit):
-        return (bit == (self.option_ & bit))
-
-    # Positionner ou retirer un bit
-    #
-    #   bit : bit à positionner ou retirer
-    #
-    #   set : positionner ? (par défaut True)
-    #
-    def __set(self, bit, set = True):
-        # Déja en place ?
-        inPlace = self.__isSet(bit)
-        if set:
-            if not inPlace:
-                # on le met
-                self.option_ = self.option_ | bit
-        else:
-            if inPlace:
-               # on le retire
-               self.option_ = self.option_ & ~ bit
 # EOF

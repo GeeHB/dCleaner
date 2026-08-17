@@ -15,7 +15,7 @@ import os
 import sys
 from zoneinfo import ZoneInfo
 
-JLOG_VERSION = "1.0.5"
+JLOG_VERSION = "1.1.1"
 
 # Date et heure pour les logs
 JLOG_DATE_REGION = "Europe/Paris"
@@ -28,21 +28,21 @@ LOG_PREFIX_ERROR = "ERR"
 
 # Niveaux reconnus
 class LogLevel:
-    LOG_NONE = 0
-    LOG_QUIET = 1
-    LOG_NORMAL = 10
-    LOG_FULL = 20
-    LOG_DEBUG = 200
-    LOG_ERROR = 255     # Toujours affiché
-    LOG_MIN = LOG_NONE
-    LOG_MAX = LOG_ERROR
+    LOG_NONE:int = 0
+    LOG_QUIET:int = 1
+    LOG_NORMAL:int = 10
+    LOG_FULL:int = 20
+    LOG_DEBUG:int = 200
+    LOG_ERROR:int = 255     # Toujours affiché
+    LOG_MIN:int = LOG_NONE
+    LOG_MAX:int = LOG_ERROR
 
 class jLogger:
     # Construction
     def __init__(self):
-        self.level_ = LogLevel.LOG_FULL
-        self.logInfos_ = False
-        self.pid_ = False
+        self.level_:int = LogLevel.LOG_FULL
+        self.logInfos_:bool = False
+        self.pid_:bool = False
 
     # Niveau de logs
     @property
@@ -55,7 +55,7 @@ class jLogger:
 
     # Ajout de la date et de l'heure
     @property
-    def log(self):
+    def log(self)->bool:
         return self.logInfos_
     @log.setter
     def log(self, value : bool):
@@ -63,14 +63,14 @@ class jLogger:
 
     # Ajout du pid ?
     @property
-    def pid(self):
+    def pid(self)->int:
         return self.pid_
     @pid.setter
     def pid(self, value : bool):
         self.pid_ = value
 
     # Ajout d'une ligne de texte
-    def print(self, level = LogLevel.LOG_NORMAL, text = "", bloc = "", linePrefix = ""):
+    def print(self, level:int = LogLevel.LOG_NORMAL, text:str = "", bloc:str = "", linePrefix:str = ""):
         # plusieurs lignes ?
         if len(bloc) > 0:
             lignes = bloc.splitlines()
@@ -89,7 +89,7 @@ class jLogger:
                     line = text
 
                 if level == LogLevel.LOG_ERROR :
-                    sys.stderr.write(line)
+                    _ = sys.stderr.write(line)
                 else:
                     print(line)
 

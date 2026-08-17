@@ -14,6 +14,8 @@
 import math
 import os
 
+from parameters import options as opts
+
 
 #
 # Objet du système de fichier (dossier ou fichier) à supprimer / vider
@@ -21,16 +23,16 @@ import os
 class FSObject:
     # Paramètres & options
     @property
-    def options(self):
+    def options(self)->opts:
         return self.params_
 
     @options.setter
-    def options(self, value):
+    def options(self, value:opts):
         self.params_ = value
 
-    def __init__(self, parameters):
+    def __init__(self, parameters:opts):
         # Initialisations
-        self.options = parameters
+        self.params_:opts = parameters
 
     # Est-ce un fichier ?
     def isFile(self) -> bool:
@@ -40,7 +42,7 @@ class FSObject:
     #
     #   element : Nom de l'élément à analyser ou None pour le dossier courant
     #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
-    def sizes(self, element = "", recurse = False) -> tuple[int,int,int]:
+    def sizes(self, _element:str = "", _recurse:bool = False) -> tuple[int,int,int]:
         return self.size(), self.files(), 0
 
     # Taille en octets
@@ -57,7 +59,7 @@ class FSObject:
     #   fName : Nom complet du fichier à tester
     #
     @staticmethod
-    def existsFile(fName):
+    def existsFile(fName : str | None):
         # Le nom est-il renseigné ?
         if fName is None or 0 == len(fName):
             return False
@@ -74,7 +76,7 @@ class FSObject:
 
     # Le dossier existe-il ?
     @staticmethod
-    def existsFolder(folderName):
+    def existsFolder(folderName:str) -> bool:
         # On vérifie ...
         return os.path.isdir(folderName)
 
@@ -85,7 +87,7 @@ class FSObject:
     #
     #   Retourne une chaine de caractères
     @staticmethod
-    def size2String(size):
+    def size2String(size:int)->str:
         size = max(size,0)
 
         # Unités
@@ -106,7 +108,7 @@ class FSObject:
     #   reoturne le pluriel ou le singulier d'une chaine
     #
     @staticmethod
-    def count2String(typeStr, count):
+    def count2String(typeStr:str, count:int):
         myStr = f"{count} {typeStr}"
         if count > 1:
             myStr+="s"

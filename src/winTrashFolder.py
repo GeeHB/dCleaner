@@ -10,8 +10,10 @@
 #
 #   Remarque    :
 #
+from typing import override
+
+import parameters
 from basicFolder import basicFolder
-from parameters import WINDOWS_TRASH
 
 
 #
@@ -20,12 +22,14 @@ from parameters import WINDOWS_TRASH
 class winTrashFolder(basicFolder):
 
     # Taille en octets (ou None en cas d'erreur)
-    def size(self):
+    @override
+    def size(self)->int:
         # Pas de connaissance de la taille
         return 0
 
     # Nombre de fichier(s) contenu(s)
-    def files(self):
+    @override
+    def files(self)->int:
         # Pour être certain de lancer le nettoyage
         return 1
 
@@ -34,26 +38,28 @@ class winTrashFolder(basicFolder):
     #   element : Nom du dossier à analyser ou None pour le dossier courant
     #
     #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
-    def sizes(self, element = "", recurse = False):
+    @override
+    def sizes(self, element:str = "", recurse:bool = False):
         return 0, self.files(), self.size()
 
     # Constructeur
     #
-    def __init__(self, opts, pMaxSize = 0):
-        super().__init__(opts, pMaxSize)
+    def __init__(self, options:parameters.options, pMaxSize:int = 0):
+        super().__init__(options, pMaxSize)
 
     # Initalisation
     #
     #   name : Nom du dossier (ou None si dossier 'vierge')
     #
     #  Retourne le tuple (Ok? , message d'erreur)
-    def init(self, name = None):
-        if WINDOWS_TRASH !=  name:
+    @override
+    def init(self, name : str | None = None):
+        if parameters.WINDOWS_TRASH !=  name:
             return False, f"{name} n'est pas un dossier de poubelle Windows"
 
         # Ok
-        self.name_ = name
-        self.valid = True
+        self.name_: str | None = name
+        self.valid_ : bool= True
         return True, ""
 
 # EOF

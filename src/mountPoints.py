@@ -24,14 +24,14 @@ import sys
 try:
     import psutil
 except ModuleNotFoundError:
-    sys.stderr.write("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
+    _ = sys.stderr.write("Erreur - Le module 'psutil' n'a pu être importé. sudo apt install python3-psutil")
     sys.exit(1)
 
 # Liste des points de montage
 #
 #   Generator - "retourne" les dossiers existants
 #
-def mountPointTrashes(id, display = False):
+def mountPointTrashes(id:int, display:bool = False):
     fstypes = [
         'cifs', # JHB : for old time kernels allowing CIFS & Samba < 2 compatibility ...
         #'nfs',
@@ -58,7 +58,7 @@ class Partitions:
     def __init__(self, physical_fstypes):
         self.physical_fstypes = physical_fstypes
 
-    def shouldUsedAsTrash(self, partition, display = False):
+    def shouldUsedAsTrash(self, partition:sdiskpart, display:bool = False):
         if display : print(f"Mount : {partition.mountpoint} - type : {partition.fstype}")
         if ((partition.device, partition.mountpoint,
              partition.fstype) ==
