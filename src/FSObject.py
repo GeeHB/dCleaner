@@ -87,21 +87,40 @@ class FSObject:
     #
     #   Retourne une chaine de caractères
     @staticmethod
-    def size2String(size:int)->str:
-        size = max(size,0)
-
+    def size2String(bSize:int)->str:
         # Unités
         sizeUnits = ["octet(s)", "ko", "Mo", "Go", "To", "Po"]
+
+        size = max(0, bSize)
+        index = 0 if size == 0 else int(math.log2(size) / 10)
+        if index >= len(sizeUnits):
+            index = len(sizeUnits) - 1 # Indice max
 
         # Version 3  - La plus "matheuse" et la plus ouverte aussi
         #  necessite le module math
 
         # on effectue un log base 1024 (= log 2 / 10)
         #   attention logn(0) n'existe pas !!!
-        index = 0 if size == 0 else int(math.log2(size) / 10)
-        if index >= len(sizeUnits):
-            index = len(sizeUnits) - 1 # Indice max
-        return str(round(size/2**(10*index),2)) + " " + sizeUnits[index]
+        """
+
+        value : int = 0
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            valuef : float = size/2**(10*index)
+            value = round(valuef,2)
+
+        return str(value) + " " + sizeUnits[index]
+        """
+        # Version 2 - La plus élégante
+        extremum = len(sizeUnits) - 1    # Après on ne sait plus nommer
+
+        # Log base 1024 ...
+        newSize : float = float(size)
+        while index < extremum and size > 1024:
+            newSize/=1024
+            index+=1
+        return str(round(newSize,2)) + " " + sizeUnits[index]
+
 
     # Gestion des pluriels ...
     #
