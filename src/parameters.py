@@ -1,4 +1,5 @@
 #!/bin/python
+# pyright: reportAny=false
 #
 # coding=UTF-8
 #
@@ -13,6 +14,7 @@ import argparse
 import os
 import platform
 
+from FSObject import FSObject
 from mountPoints import mountPointTrashes
 from sharedTools import colorizer as color
 from sharedTools import jlogger as logs
@@ -246,7 +248,8 @@ class options:
         self.waitFiles_:float = MIN_ELAPSEFILES
         self.waitTasks_:float = MIN_ELAPSETASKS
 
-        self.clean_ : list[str]               # Nettoyage d'un ou plusieurs dossiers
+        self.cleanNames_ : list[str]             # Nettoyage d'un ou plusieurs dossiers
+        self.cleanObjects_ : list[FSObject]
         self.cleanDepth_: int = DEF_DEPTH   # Profondeur du nettoyage (pas de suppression)
 
         # Dossier par défaut
@@ -441,8 +444,8 @@ class options:
             self.handleCleanFolders(args.clean)
 
         # Attentes
-        self.waitFiles_ = self.inRange(args.waitfiles[0], MIN_ELAPSEFILES, MAX_ELAPSEFILES)
-        self.waitFTasks_ = self.inRange(args.waittasks[0], MIN_ELAPSETASKS, MAX_ELAPSETASKS)
+        self.waitFiles_ = min(max(MIN_ELAPSEFILES, args.waitfiles[0]), MAX_ELAPSEFILES)
+        self.waitTasks_ = min(max(MIN_ELAPSETASKS, args.waittasks[0]), MAX_ELAPSETASKS)
 
         return True
 
@@ -525,7 +528,8 @@ class options:
 
         # Les valeurs doivent être uniques ...
         uniqueVals = set(destFolders)
+        self.cleanNames_ = []
         for val in uniqueVals:
-            self.clean_.append(val)
+            self.cleanNames_.append(val)
 
 # EOF

@@ -56,9 +56,9 @@ def mountPointTrashes(id:int, display:bool = False):
 #
 class Partitions:
     def __init__(self, physical_fstypes):
-        self.physical_fstypes = physical_fstypes
+        self.physical_fstypes = physical_fstypes  # pyright: ignore[reportUnannotatedClassAttribute]
 
-    def shouldUsedAsTrash(self, partition:sdiskpart, display:bool = False):
+    def shouldUsedAsTrash(self, partition:sdiskpart, display:bool = False):  # pyright: ignore[reportUndefinedVariable]
         if display : print(f"Mount : {partition.mountpoint} - type : {partition.fstype}")
         if ((partition.device, partition.mountpoint,
              partition.fstype) ==

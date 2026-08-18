@@ -39,7 +39,7 @@ class winTrashFolder(basicFolder):
     #
     #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
     @override
-    def sizes(self, element:str = "", recurse:bool = False):
+    def sizes(self, element:str = "", recurse:bool = False)->tuple[int,int,int]:
         return 0, self.files(), self.size()
 
     # Constructeur
@@ -58,7 +58,7 @@ class winTrashFolder(basicFolder):
             return False, f"{name} n'est pas un dossier de poubelle Windows"
 
         # Ok
-        self.name_: str | None = name
+        self.name_: str = name if name is not None and len(name)>0 else ""
         self.valid_ : bool= True
         return True, ""
 

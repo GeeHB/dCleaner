@@ -15,6 +15,7 @@
 import os
 import random
 import sys
+from typing import override
 
 import parameters
 from basicFile import basicFile
@@ -31,12 +32,12 @@ from winTrashFolder import winTrashFolder
 #
 class dCleaner:
     # Construction
-    def __init__(self, options):
+    def __init__(self, options : parameters.options | None):
         # Initialisation des données membres
-        if options is None or options.folder_ is None:
+        if options is None or len(options.folder_)==0:
             raise ValueError("Pas de paramètre ou paramètres incorrects")
 
-        self.options_ = options
+        self.options_ : parameters.options = options
 
         # Le dossier est-il correct ?
         if self.options_.folder_ == "\\" or (os.path.exists(self.options_.folder_) and not os.path.isdir(self.options_.folder_)):
@@ -44,7 +45,7 @@ class dCleaner:
             raise ValueError(message)
 
         # Création de l'objet pour la gestion du dossier
-        self.paddingFolder_ = paddingFolder(self.options_)
+        self.paddingFolder_ : paddingFolder = paddingFolder(self.options_)
         done, message = self.paddingFolder_.init()
 
         if False == done:
@@ -52,7 +53,8 @@ class dCleaner:
             raise ValueError(message)
 
     # Affichage des paramètres internes de l'objet
-    def __repr__(self):
+    @override
+    def __repr__(self)->str:
         mode = parameters.MODE_NONE
         modeStr = ""
 
@@ -86,7 +88,7 @@ class dCleaner:
 
         return self._repr_verbose(res, modeStr, optimize) if self.options_.full else self._repr_no_verbose(res, modeStr, optimize)
 
-    def _repr_verbose(self, res, modeStr, optimize) -> str:
+    def _repr_verbose(self, res:tuple[int, int, int], modeStr:str, optimize:bool) -> str:
         out = "Paramètres : "
         out += f"\n\t- Mode : {self.options_.color_.colored(modeStr, formatAttr=[color.textAttribute.GRAS])}"
 
@@ -123,7 +125,7 @@ class dCleaner:
 
         return out
 
-    def _repr_no_verbose(self, res, modeStr, optimize):
+    def _repr_no_verbose(self, res:tuple[int, int, int], modeStr:str, optimize:bool):
         if self.options_.quiet:
             return ""
 
@@ -155,11 +157,11 @@ class dCleaner:
     #
     #   Retourne Le tuple (# supprimé, #dossiers supprimés, message d'erreur / "", erreur ?)
     #
-    def cleanFolders(self, fList = None):
+    def cleanFolders(self, fList:list[FSObject]):
         self.options_.logger_.debug("dCleaner::cleanFolders >>>")
 
         try:
-            if fList is None or 0 == len(fList):
+            if 0 == len(fList):
                 ret = self.paddingFolder_.clean()
                 return ret[0], 0, ret[1], True
             else:
@@ -180,7 +182,7 @@ class dCleaner:
             if res[1] < maxFill:
                 # On fait en sorte de coller immédiatement au taux de remplissage
                 fillSize = maxFill - res[1]
-                self.paddingFolder_.newFiles(fillSize)
+                _ = self.paddingFolder_.newFiles(fillSize)
                 return True
 
             # La partition est déja "pleine"
@@ -221,7 +223,7 @@ class dCleaner:
                 else:
                     # Retrait du "minimum"
                     self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = self.options_.color_.colored(f"Suppression de {FSObject.size2String(gap)}"))
-                    self.paddingFolder_.deleteFiles(size=gap)
+                    _ = self.paddingFolder_.deleteFiles(size=gap)
 
                 return True
 
@@ -246,10 +248,10 @@ class dCleaner:
             renewSize = int(self.options_.inRange(renewSize, 0, res[2] * self.options_.renewRate_ / 100))
 
             self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tRemplissage")
-            self.paddingFolder_.newFiles(renewSize, iterate = True)
+            _ = self.paddingFolder_.newFiles(renewSize, iterate = True)
 
             self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tSuppression")
-            self.paddingFolder_.deleteFiles(size = renewSize, iterate = True)
+            _ = self.paddingFolder_.deleteFiles(size = renewSize, iterate = True)
             self.options_.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "\tTerminé")
         finally:
             self.options_.logger_.debug("<<< dCleaner::cleanPartition")
@@ -272,20 +274,20 @@ def isRootLikeUser():
 #
 #   retourne un booléen : des éléments à supprimer ?
 #
-def _listOfFolders(params):
+def _listOfFolders(params:parameters.options):
     params.logger_.debug("_listOfFolders >>>")
 
     try:
         # On s'assure que les dossiers/fichiers existent et on crée les objets en conséquence
-        fileOrFolders = []
-        for folder in params.clean_:
+        fileOrFolders:list[FSObject] = []
+        for folder in params.cleanNames_:
             currentFSO = _objectFromName(folder, params)
             if currentFSO is not None:
                 fileOrFolders.append(currentFSO)
 
         # Mise à jour de la liste (qui devient une liste d'objets de type FSObject)
-        params.clean_ = fileOrFolders
-        return len(params.clean_) > 0
+        params.cleanObjects_ = fileOrFolders
+        return len(params.cleanObjects_) > 0
     finally:
         params.logger_.debug("<<< _listOfFolders")
 
@@ -297,7 +299,7 @@ def _listOfFolders(params):
 #
 #   retourne un objet (basicFile ou basicFolder) en fonction du nom ou None en cas d'erreur
 #
-def _objectFromName(name, params):
+def _objectFromName(name:str, params:parameters.options):
     params.logger_.debug("_objectFromName >>>")
 
     try:
@@ -309,7 +311,7 @@ def _objectFromName(name, params):
 
             # Un dossier ?
             if parameters.WINDOWS_TRASH == name :
-                obj = winTrashFolder(opts = params)
+                obj = winTrashFolder(options = params)
             else :
                 if FSObject.existsFolder(name):
                     obj = basicFolder(parameters = params)
@@ -330,12 +332,12 @@ def _objectFromName(name, params):
 
 # Clean file(s) or folder(s)
 #
-def _cleanPartition(params, cleaner):
+def _cleanPartition(params:parameters.options, cleaner:dCleaner):
     params.logger_.debug("_cleanPartition >>>")
 
     try:
-        if  0 != len(params.clean_):
-            res = cleaner.cleanFolders(params.clean_)
+        if  0 != len(params.cleanObjects_):
+            res = cleaner.cleanFolders(params.cleanObjects_)
 
             if len(res[2]) > 0 :
                 if res[3]:
@@ -349,7 +351,7 @@ def _cleanPartition(params, cleaner):
 
 # Fill the partition
 #
-def _fillPartition(params, cleaner):
+def _fillPartition(params:parameters.options, cleaner:dCleaner):
     params.logger_.debug("_fillPartition >>>")
 
     try:
@@ -357,7 +359,7 @@ def _fillPartition(params, cleaner):
             params.logger_.print(text = "Vérification du dossier de 'padding'", level = logs.LogLevel.LOG_NORMAL)
             if False == cleaner.fillPartition():
                 # Il faut plutôt libérer de la place
-                cleaner.freePartition()
+                _ = cleaner.freePartition()
 
             # Doit-on maintenant "salir" le disque ?
             if False == params.adjust_:
@@ -397,7 +399,7 @@ if '__main__' == __name__:
         params.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = params.version())
 
         # Des dossiers ou fichiers à nettoyer ?
-        if params.clean_ is not None and len(params.clean_) > 0 and not _listOfFolders(params):
+        if len(params.cleanNames_) > 0 and not _listOfFolders(params):
             params.logger_.error("Pas de dossier ou de fichier à nettoyer\n")
 
         # Lancement de l'application avec les paramètres
@@ -406,7 +408,7 @@ if '__main__' == __name__:
 
         if params.clear_:
             params.logger_.print(level = logs.LogLevel.LOG_NORMAL, text = "Nettoyage du dossier de 'padding'")
-            res = cleaner.cleanFolders()
+            res = cleaner.cleanFolders([])
             if len(res[2]) > 0  and res[3]:
                 params.logger_.error(f"Erreur lors de la suppression : {res[2]}\n")
             else:

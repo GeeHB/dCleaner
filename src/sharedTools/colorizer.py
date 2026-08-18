@@ -14,6 +14,8 @@
 #   Commentaire :  le module termcolor doit être installé (pip install termcolor)
 #
 
+from collections.abc import Iterable
+
 COLORIZER_VERSION = "2.1.1"
 
 try :
@@ -121,7 +123,7 @@ class colorizer:
 
     # Formatage d'une ligne de texte
     #   Retourne la chaine complète
-    def colored(self, content:str, txtColor:str | None, bkColor: str | None = None, formatAttr : str | None = None) -> str:
+    def colored(self, content:str, txtColor:str | None = None, bkColor: str | None = None, formatAttr :  Iterable[str] | None = None) -> str:
         retour:str = content
         if self.colored_:
             retour = termcolor.colored(text=content, color=txtColor, on_color = bkColor, attrs = formatAttr)

@@ -20,6 +20,7 @@ import random
 import shutil
 import sys
 import time
+from typing import override
 
 import fakeProgressBar
 from basicFile import basicFile
@@ -43,7 +44,7 @@ class paddingFolder(basicFolder):
         if self.params_.showProgress:
             try:
                 from alive_progress import alive_bar as pBar
-                self.progressBar_ = pBar
+                self.progressBar_ = pBar  # pyright: ignore[reportUnannotatedClassAttribute]
             except ImportError:
                 self.options.logger_.error(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.quiet = True
@@ -54,8 +55,9 @@ class paddingFolder(basicFolder):
 
     # Initalisation
     #  Retourne le tuple (booléen , message d'erreur)
-    def init(self, name = None):
-        super().init(self.options.folder_)
+    @override
+    def init(self, name : str | None= None) -> tuple[bool, str]:
+        _ = super().init(self.options.folder_)
 
         # Ouverture / création du dossier de travail
         if 0 == len(self.options.folder_):
@@ -72,13 +74,13 @@ class paddingFolder(basicFolder):
                 return False, f"Impossible de créer le dossier '{self.options.folder_}'"
 
         # Ok - pas  de message
-        self.valid_ = True
+        self.valid_ : bool = True
         return True , ""
 
     # Attente
     #
     #   duration : duréee d'attente en s
-    def wait(self, duration):
+    def wait(self, duration : float):
         if duration > 0 : time.sleep(duration)
 
     # Usage du disque (de la partition sur laquelle le dossier courant est situé)
@@ -97,7 +99,7 @@ class paddingFolder(basicFolder):
     #   iterate : Dans une boucle d'itérations ?
     #
     #   Retourne un booléen indiquant si l'opération a pu être effectuée
-    def newFiles(self, expectedFillSize, iterate = False):
+    def newFiles(self, expectedFillSize:int, iterate:bool = False):
         if self.options.test:
             return True
 
@@ -114,7 +116,7 @@ class paddingFolder(basicFolder):
                 try:
                     barPos = 0  # Ou je suis ...
                     barMax = self.__convertSize2Progressbar(expectedFillSize)
-                    with self.progressBar_(barMax, title = "Ajouts: ", monitor ="{count} ko - {percent:.0%}", elapsed = "en {elapsed}",stats = False, monitor_end = "\033[2K") as bar:
+                    with self.progressBar_(barMax, _title = "Ajouts: ", _monitor ="{count} ko - {percent:.0%}", _elapsed = "en {elapsed}",_stats = False, _monitor_end = "\033[2K") as bar:  # pyright: ignore[reportUnknownVariableType]
                          # Boucle de remplissage
                          while totalSize < expectedFillSize:
                              # Création d'un fichier sans nom
@@ -124,7 +126,7 @@ class paddingFolder(basicFolder):
                                  barInc = self.__convertSize2Progressbar(fragment)
                                  if barInc > 0:
                                      barPos += barInc
-                                     bar(barInc)
+                                     bar(barInc)  # pyright: ignore[reportUnusedCallResult]
 
                                  still-=fragment
 
@@ -146,7 +148,7 @@ class paddingFolder(basicFolder):
                 while totalSize < expectedFillSize:
                     # Création d'un fichier sans nom
                     bFile = basicFile(parameters = self.options, path = self.name, fName = None)
-                    bFile.create(maxFileSize = still)
+                    #bFile.create(maxFileSize = still)
                     for fragment in bFile.create(maxFileSize = still) :
                         totalSize+=fragment
                         still-=fragment
@@ -176,7 +178,7 @@ class paddingFolder(basicFolder):
     #   iterate : Dans une boucle d'itérations ?
     #
     #   retourne True lorsque l'opération s'est déroulée correctement
-    def deleteFiles(self, count = 0, size = 0, iterate = False) -> bool:
+    def deleteFiles(self, count:int = 0, size:int = 0, iterate:bool = False) -> bool:
         # if True == self.valid_ and (not 0 == count or not 0 == size):
         if not self.valid_ or (0 == count and 0 == size):
             return False
@@ -208,7 +210,7 @@ class paddingFolder(basicFolder):
             barMax = count
             barMonitor = "{count} / {total} - {percent:.0%}"
 
-        with self.progressBar_(barMax, title = "Suppr: ", monitor = barMonitor, elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
+        with self.progressBar_(barMax, _title = "Suppr: ", _monitor = barMonitor, _elapsed = "en {elapsed}", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportArgumentType, reportUnknownVariableType]
             # Suppression des fichiers
             try:
                 # Les fichiers du dossier
@@ -230,14 +232,14 @@ class paddingFolder(basicFolder):
 
                                 # !!!
                                 if barInc:
-                                    bar(barInc)
+                                    bar(barInc)  # pyright: ignore[reportUnusedCallResult]
 
                     # Un fichier de moins
                     tFiles+=1
 
                     if 0 == size:
                         # Suppression sur critère de nombre (de fichier)
-                        bar(1)
+                        bar(1)  # pyright: ignore[reportUnusedCallResult]
                         barPos += 1
 
                     # Quota atteint
@@ -294,7 +296,7 @@ class paddingFolder(basicFolder):
             progressBar = fakeBar
 
         # Vidage du dossier (sans récursivité)
-        with progressBar(barMax, title = "Suppr: ", monitor = "{count} / {total} - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
+        with progressBar(barMax, _title = "Suppr: ", _monitor = "{count} / {total} - {percent:.0%}", _elapsed = "en {elapsed}", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType, reportUnknownVariableType]
             for isFile, fName in super().browse(self.options.folder_):
                 if isFile:
                     # Suppression du fichier
@@ -324,17 +326,19 @@ class paddingFolder(basicFolder):
     #
     #   Retourne le tuple {#fichiers, #dossiers, message, erreur ?}
     #
-    def cleanFolders(self, fList):
+    def cleanFolders(self, fList:list[FSObject] | None)->tuple[int,int,str,bool]:
         if fList is None or 0 == len(fList):
             return 0, 0, "Le paramètre 'fList' n'est pas renseigné" , True
 
         self.options.logger_.print(level = logs.LogLevel.LOG_FULL, text = "Estimation de la taille totale de dossier à supprimer ou à vider")
 
-        barMax = expectedFiles = expectedFolders = 0
-        with self.progressBar_(title = "Taille", monitor = "", elapsed= "", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
-            for FSO in fList:
+        barMax:int = 0
+        expectedFiles:int = 0
+        expectedFolders:int = 0
+        with self.progressBar_(_title = "Taille", _monitor = "", _elapsed= "", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportArgumentType, reportUnknownVariableType]
+            for obj in fList:
                 try:
-                    ret = FSO.sizes(recurse = self.options.recurse)
+                    ret = obj.sizes(_recurse = self.options.recurse)
                     barMax += ret[0]
                     expectedFiles += ret[1]
                     expectedFolders += ret[2]
@@ -354,11 +358,11 @@ class paddingFolder(basicFolder):
         # Nettoyage des dossiers
         freed = barPos = deletedFolders = deletedFiles = 0
         barMax = self.__convertSize2Progressbar(barMax * self.options.iterate_)
-        with self.progressBar_(barMax, title = "Suppr.", monitor = "{count} ko - {percent:.0%}", elapsed = "en {elapsed}", stats = False, monitor_end = "\033[2K", elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType]
-            for FSO in fList:
+        with self.progressBar_(barMax, _title = "Suppr.", _monitor = "{count} ko - {percent:.0%}", _elapsed = "en {elapsed}", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportArgumentType, reportUnknownVariableType]
+            for obj in fList:
                 # Un dossier
-                if type(FSO) is basicFolder:
-                    for isFile, fullName in FSO.browse(recurse = self.options.recurse, remove = self.options.cleanDepth_) :
+                if type(obj) is basicFolder:
+                    for isFile, fullName in obj.browse(recurse = self.options.recurse, remove = self.options.cleanDepth_) :
                         if isFile:
                             barPos, deletedFiles, freed = self.__deleteFileInFolder(fullName, bar, barPos, barMax, deletedFiles, freed)
                         else:
@@ -369,13 +373,13 @@ class paddingFolder(basicFolder):
                                 self.options.logger_.error(f"paddingFolder::cleanFolders - Erreur lors de la suppression du dossier '{fullName}'\n")
                 else:
                     # Dossier windows ?
-                    if type(FSO) is winTrashFolder:
+                    if type(obj) is winTrashFolder:
                         # On essaye de le vider ...
-                        self.__emptyWindowsTrash()
+                        _ = self.__emptyWindowsTrash()
                         deletedFolders += 1
                     else:
                         # Un simple fichier ?
-                        if type(FSO) is basicFile:
+                        if type(obj) is basicFile:
                             barPos, deletedFiles, freed = self.__deleteFile(FSO, bar, barPos, barMax, deletedFiles, freed)
 
             # Retrait de la barre
@@ -388,7 +392,7 @@ class paddingFolder(basicFolder):
         return deletedFiles, deletedFolders, "", False
 
     # Conversion d'une taille (en octets) avant son affichage dans la barre de progression
-    def __convertSize2Progressbar(self, number = 0):
+    def __convertSize2Progressbar(self, number:int = 0):
         return int(number / 1024)     # conversion en ko
 
     # Vidage de le corbeille de Windows
@@ -416,7 +420,7 @@ class paddingFolder(basicFolder):
 
     # Affichage dans la console
     #
-    def __tprint(self, text, endL = None):
+    def __tprint(self, text:str, endL:str | None = None):
         if not self.options.quiet:
             print(text, end = endL)
 
@@ -446,7 +450,7 @@ class paddingFolder(basicFolder):
 
     # Suppression d'un fichier dans un dossier à supprimer ...
     #
-    def __deleteFileInFolder(self, fullName, bar, barPos, barMax, deletedFiles, freed):
+    def __deleteFileInFolder(self, fullName:str, bar, barPos:int, barMax:int, deletedFiles:int, freed:int):
         bFile = basicFile(parameters = self.options)
         bFile.name = fullName
         for fragment in bFile.delete():
