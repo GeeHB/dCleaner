@@ -115,8 +115,8 @@ class basicFolder(FSObject):
     #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #
     #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier}
-    # -> Generator[tuple[bool,str]]
-    def browse(self, folder:str, recurse:bool = False, remove:int = -1):
+    #
+    def browse(self, folder:str, recurse:bool = False, remove:int = -1):  # pyright: ignore[reportUnknownParameterType]
         folderName : str = self.name_ if len(folder) == 0 else folder
         # Analyse récursive du dossier
         for entry in os.scandir(folderName):
@@ -130,6 +130,7 @@ class basicFolder(FSObject):
         # Suppression du dossier courant?
         if 0 == remove:
             yield False, folderName
+        return
 
     # Taille du dossier (et de tout ce qu'il contient)
     #

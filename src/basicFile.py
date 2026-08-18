@@ -121,7 +121,7 @@ class basicFile(FSObject):
     #   fileSize : Taille en octets du fichier (ou 0 si taille aléatoire)
     #   maxFileSize : Taille max. n octets d'un fichier
     #
-    def create(self, fileSize:int = 0, maxFileSize:int = 0):
+    def create(self, fileSize:int = 0, maxFileSize:int = 0):  # pyright: ignore[reportUnknownParameterType]
         if not self.options.test:
             if len(self.name_):
                 # Si le fichier existe, je le supprime ...
@@ -134,7 +134,7 @@ class basicFile(FSObject):
             if self.success():
                 # Creation à la "bonne taille"
                 for _ in range(self.options.iterate_):
-                    yield from self._create(fileSize, maxFileSize, True)
+                    yield from self._create(fileSize, maxFileSize)
 
     # Remplissage d'un fichier existant
     #
@@ -142,13 +142,13 @@ class basicFile(FSObject):
     #
     #   rename : Doit-on renomer le fichier (avec un nom aléatoire) ?
     #
-    def fill(self, rename:bool = False):
+    def fill(self, rename:bool = False):  # pyright: ignore[reportUnknownParameterType]
         if not self.options.test and self.exists():
             for _ in range(self.options.iterate_):
                 yield from self._create()
 
-            #if False == self.success():
-            #    return
+            if False == self.success():
+                return
 
             # Nouveau nom
             if rename and len(self.rename()) == 0:
@@ -183,7 +183,7 @@ class basicFile(FSObject):
     #
     #   Generator qui énumère les blocks d'octets supprimés
     #
-    def delete(self, replace:bool = True):
+    def delete(self, replace:bool = True):  # pyright: ignore[reportUnknownParameterType]
         # Le fichier doit exister
         if not self.options.test and self.exists():
 
