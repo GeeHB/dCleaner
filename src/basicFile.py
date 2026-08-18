@@ -147,8 +147,8 @@ class basicFile(FSObject):
             for _ in range(self.options.iterate_):
                 yield from self._create()
 
-            if False == self.success():
-                return
+            #if False == self.success():
+            #    return
 
             # Nouveau nom
             if rename and len(self.rename()) == 0:

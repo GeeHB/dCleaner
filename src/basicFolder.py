@@ -16,6 +16,7 @@
 #   Remarque    :
 #
 import os
+from typing import override
 
 from basicFile import basicFile
 from FSObject import FSObject
@@ -24,6 +25,7 @@ from parameters import (
     PATTERN_MIN_LEN,
     WINDOWS_TRASH,
 )
+from parameters import options as opt
 
 
 #
@@ -33,15 +35,15 @@ class basicFolder(FSObject):
 
     # Nom du fichier
     @property
-    def name(self):
-        return self.name_ if self.name_ is not None else ""
+    def name(self)->str:
+        return self.name_
 
     @name.setter
-    def name(self, value):
+    def name(self, value:str):
         # Poubelle Windows => non géré ...
         if value != WINDOWS_TRASH:
             # Le dossier existe t'il ?
-            if value is None or value == "" or False == os.path.isdir(value):
+            if value == "" or False == os.path.isdir(value):
                 self.name_ = ""
                 self.valid = False
                 return
@@ -56,35 +58,35 @@ class basicFolder(FSObject):
 
     # Les données internes sont-elles valides ?
     @property
-    def valid(self):
+    def valid(self) -> bool:
         return self.valid_
 
     @valid.setter
-    def valid(self, value):
+    def valid(self, value : bool):
         self.valid_ = value
 
     # Constructeur
     #
-    def __init__(self, parameters, pMaxSize = 0):
+    def __init__(self, parameters : opt, pMaxSize :int = 0):
         super().__init__(parameters)
 
         # Initialisation des données membres
-        self.name = ""
-        self.valid = False
-        self.maxPatternSize_ = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
-        self.sizes_ = None
+        self.name_ : str = ""
+        self.valid_ : bool = False
+        self.maxPatternSize_ : int = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
+        self.sizes_ : list[int] = []
 
     # Initalisation
     #
     #   name : nom du dossier (ou None si dossier 'vierge')
     #
     #  Retourne le tuple (booléen , message d'erreur)
-    def init(self, name = None) -> tuple[bool, str]:
+    def init(self, name : str | None = None) -> tuple[bool, str]:
         if name is not None and False == FSObject.existsFolder(name):
             return False, f"Le dossier '{name}' n'existe pas"
 
         # Ok - pas  de message
-        self.name = name
+        self.name = name if name is not None else ""
         return True , ""
 
     # Création du dossier
@@ -92,7 +94,7 @@ class basicFolder(FSObject):
     #   name : nom du dossier à créer
     #
     #   retourne le booléen : crée ?
-    def create(self, name):
+    def create(self, name : str | None) -> bool:
         if self.options.test:
             return True
 
@@ -113,17 +115,17 @@ class basicFolder(FSObject):
     #       remove : Suppression du dossier (-1 : pas de suppression; 0 : Suppression du dossier et de tous les descendants; n : suppression à partir de la profondeur n)
     #
     #   Generateur - "Retourne" {Fichier?, nom du fichier/dossier}
-    #
-    def browse(self, folder = None, recurse = False, remove = -1):
-        folderName = self.name_ if folder is None else folder
+    # -> Generator[tuple[bool,str]]
+    def browse(self, folder:str, recurse:bool = False, remove:int = -1):
+        folderName : str = self.name_ if len(folder) == 0 else folder
         # Analyse récursive du dossier
         for entry in os.scandir(folderName):
-            fullName = os.path.join(folderName, entry.name)
+            fullName : str = os.path.join(folderName, entry.name)
             if entry.is_file():
                 # Un fichier
                 yield True, fullName
             elif entry.is_dir() and recurse:
-                    yield from self.browse(fullName, True, remove - 1 if remove > 0 else remove)
+                    yield from self.browse(fullName, True, (remove - 1) if remove > 0 else remove)
 
         # Suppression du dossier courant?
         if 0 == remove:
@@ -134,7 +136,8 @@ class basicFolder(FSObject):
     #   element : Nom du dossier à analyser ou None pour le dossier courant
     #
     #   Retourne le tuple (taille en octets, nombre de fichiers, nombre de dossiers inclus)
-    def sizes(self, element = "", recurse = False):
+    @override
+    def sizes(self, element:str = "", recurse:bool = False)->tuple[int,int,int]:
         if False == self.valid :
             # Pas ouvert
             return 0,0,0
@@ -173,18 +176,20 @@ class basicFolder(FSObject):
 
     # Taille en octets
     #   retourne un entier
-    def size(self):
+    @override
+    def size(self) -> int:
         # Déja caclculé ?
-        if self.sizes_ is None:
-            self.sizes_ = self.sizes()
+        if len(self.sizes_) == 0:
+            self.sizes_ = list(self.sizes())
         return self.sizes_[0]
 
     # Nombre de fichier(s) contenu(s)
     #   Retourne un entier
-    def files(self):
+    @override
+    def files(self)->int:
         # Déja caclculé ?
-        if self.sizes_ is None:
-            self.sizes_ = self.sizes()
+        if len(self.sizes_) == 0:
+            self.sizes_ = list(self.sizes())
         return self.sizes_[1]
 
     # Suppression du dossier
@@ -192,7 +197,7 @@ class basicFolder(FSObject):
     #   folder : nom du dossier à supprimer
     #
     #   retourne un booléen : fait ?
-    def rmdir(self, folder):
+    def rmdir(self, folder:str | None):
         if self.options.test:
             return True
 
@@ -212,7 +217,7 @@ class basicFolder(FSObject):
 
         # Nouveau nom
         nFolder = basicFile.genName(res[0], True)
-        if nFolder is not None:
+        if len(nFolder) > 0:
             # Renommage demandé mais pas obligatoire ...
             try:
                 os.rename(folder, nFolder)
@@ -231,8 +236,15 @@ class basicFolder(FSObject):
         return True
 
     # Le dossier existe-il ?
-    def exists(self, folderName = None):
+    def exists(self, folderName : str | None = None):
         # On vérifie ...
-        return FSObject.existsFolder(folderName if (folderName is not None and len(folderName)) != 0 else self.name_)
+        if folderName is not None:
+            if len(folderName) > 0:
+                folder = folderName
+            else:
+                folder =self.name_
+        else
+            folder = self.name_
+        return FSObject.existsFolder(folder)
 
 # EOF
