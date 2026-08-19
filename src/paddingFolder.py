@@ -44,7 +44,7 @@ class paddingFolder(basicFolder):
         if self.params_.showProgress:
             try:
                 from alive_progress import alive_bar as pBar
-                self.progressBar_ = pBar  # pyright: ignore[reportUnannotatedClassAttribute]
+                self.progressBar_ = pBar  # pzyright: ignore[reportUnannotatedClassAttribute]
             except ImportError:
                 self.options.logger_.error(fakeProgressBar.MSG_NO_ALIVE_PROGRESS)
                 self.options.quiet = True

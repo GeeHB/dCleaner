@@ -1,0 +1,6 @@
+{
+  "include": ["src"],
+  "exclude": ["**/__pycache__", "src/mountPoints.py"],
+  // off, basic, standard, strict
+  "typeCheckingMode": "standard"
+}
