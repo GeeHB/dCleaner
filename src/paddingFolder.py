@@ -284,6 +284,8 @@ class paddingFolder(basicFolder):
             return 0, ""
 
         count = 0   # Ce que j'ai effectivement supprimé ...
+
+        """
         if self.options.showProgress:
             try:
                 from alive_progress import alive_bar as pBar
@@ -294,9 +296,11 @@ class paddingFolder(basicFolder):
         else:
             from fakeProgressBar import fakeProgressBar as fakeBar
             progressBar = fakeBar
+        """
 
         # Vidage du dossier (sans récursivité)
-        with progressBar(barMax, _title = "Suppr: ", _monitor = "{count} / {total} - {percent:.0%}", _elapsed = "en {elapsed}", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType, reportUnknownVariableType]
+        #with progressBar(barMax, _title = "Suppr: ", _monitor = "{count} / {total} - {percent:.0%}", _elapsed = "en {elapsed}", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType, reportUnknownVariableType]
+        with self.progressBar_(barMax, _title = "Suppr: ", _monitor = "{count} / {total} - {percent:.0%}", _elapsed = "en {elapsed}", _stats = False, _monitor_end = "\033[2K", _elapsed_end = None) as bar: # pyright: ignore[reportPossiblyUnboundVariable,reportArgumentType, reportUnknownVariableType]
             for isFile, fName in super().browse(self.options.folder_):
                 if isFile:
                     # Suppression du fichier

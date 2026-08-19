@@ -277,6 +277,7 @@ class options:
         self.status_.set(OPTION_LOG_QUIET, value)
         if value :
             self.logger_.level = logs.LogLevel.LOG_QUIET
+            self.showProgress = False
 
     # Mode log / trace
     @property

@@ -26,6 +26,7 @@
   * utilisaton de l'objet sharedTools::statusBits pour la gestion des paramètres binaires (en lieu et place de (plein de) booléens)
 * Corrections
   * Mise en conformaité "standard" pou ruff et pyright
+  * Ajout/masquage de la barre de progression selon le mode choisi
 
 #### Version 1.0.4
 * 13 aout 2026
