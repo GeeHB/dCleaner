@@ -47,14 +47,14 @@ class basicFile(FSObject):
 
         # Un nom complet (ie. le fichier existe !!!)
         if FQN is not None :
-            self.name = FQN
+            self.setName(FQN)
         else:
             # Nom du fichier
             if path is not None and FSObject.existsFolder(path):
                 # Le dossier est valide
                 if fName is not None and len(fName)>0 :
                     # Le nom est "correct"
-                    self.name = os.path.join(path, fName)
+                    self.setName(os.path.join(path, fName))
                 else:
                     # Génération d'un nom nouveau
                     self.name_ = basicFile.genName(path, False)
@@ -66,15 +66,6 @@ class basicFile(FSObject):
     @override
     def isFile(self) -> bool:
         return True
-
-    # Nom du fichier
-    @property
-    def name(self):
-        return self.name_
-
-    @name.setter
-    def name(self, value:str):
-        self.name_ = value
 
     # Nom court
     def shortName(self)->str:

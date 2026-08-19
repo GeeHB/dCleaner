@@ -301,7 +301,7 @@ class paddingFolder(basicFolder):
                 if isFile:
                     # Suppression du fichier
                     bFile = basicFile(parameters = self.options)
-                    bFile.name = fName
+                    bFile.setName(fName)
                     for _ in bFile.delete(False):
                         pass
 
@@ -362,7 +362,7 @@ class paddingFolder(basicFolder):
             for obj in fList:
                 # Un dossier
                 if type(obj) is basicFolder:
-                    for isFile, fullName in obj.browse(recurse = self.options.recurse, remove = self.options.cleanDepth_) :
+                    for isFile, fullName in obj.browse("", recurse = self.options.recurse, remove = self.options.cleanDepth_) :
                         if isFile:
                             barPos, deletedFiles, freed = self.__deleteFileInFolder(fullName, bar, barPos, barMax, deletedFiles, freed)
                         else:
@@ -380,7 +380,7 @@ class paddingFolder(basicFolder):
                     else:
                         # Un simple fichier ?
                         if type(obj) is basicFile:
-                            barPos, deletedFiles, freed = self.__deleteFile(FSO, bar, barPos, barMax, deletedFiles, freed)
+                            barPos, deletedFiles, freed = self.__deleteFile(obj, bar, barPos, barMax, deletedFiles, freed)
 
             # Retrait de la barre
             if self.options.showProgress:
@@ -452,7 +452,7 @@ class paddingFolder(basicFolder):
     #
     def __deleteFileInFolder(self, fullName:str, bar, barPos:int, barMax:int, deletedFiles:int, freed:int):
         bFile = basicFile(parameters = self.options)
-        bFile.name = fullName
+        bFile.setName(fullName)
         for fragment in bFile.delete():
             freed+=fragment
             barInc = self.__convertSize2Progressbar(fragment)

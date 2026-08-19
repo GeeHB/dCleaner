@@ -19,6 +19,14 @@
   * Premier lancement (lenteur / blocage ? constaté sur MacOS)
   * -x => pas besoin de nettoyer "proprement", juste effacer les fichiers
 
+#### Version 1.1.1
+* 19 aout 2026
+* Ajouts
+  * ruff.toml + pyrithconfig.json pour la gestion des corrections syntaxiques
+  * utilisaton de l'objet sharedTools::statusBits pour la gestion des paramètres binaires (en lieu et place de (plein de) booléens)
+* Corrections
+  * Mise en conformaité "standard" pou ruff et pyright
+
 #### Version 1.0.4
 * 13 aout 2026
 * Ajouts

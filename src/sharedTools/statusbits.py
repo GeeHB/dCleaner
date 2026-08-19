@@ -7,14 +7,13 @@
 #   Description : Utilisation de bits d'états
 #
 
-STATUS_NONE = 0
+STATUS_NONE:int = 0
 
 # Bitwise operator wrapper
 #
 class statusBits:
     def __init__(self, value: int = STATUS_NONE):
         self.value_: int = value
-
     # Access
     #
     @property

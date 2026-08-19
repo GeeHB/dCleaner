@@ -18,7 +18,7 @@ from FSObject import FSObject
 from mountPoints import mountPointTrashes
 from sharedTools import colorizer as color
 from sharedTools import jlogger as logs
-from sharedTools import statusBits as ownStatus
+from sharedTools import statusbits as ownStatus
 
 # Nom et version de l'application
 APP_NAME = "dCleaner"
@@ -209,19 +209,20 @@ OPTION_DEFAULT = OPTION_PADDING | OPTION_LOG_FULL | OPTION_SHOW_PROGRESSBAR
 #
 # Modes de fonctionement
 #
-MODE_NONE     = 0
+class appMode:
+    MODE_NONE:int       = 0
 
-MODE_ADJUST     = 1     # Ajustement de la partition
-MODE_ADJUST_STR = "ajustement"
+    MODE_ADJUST:int     = 1     # Ajustement de la partition
+    MODE_ADJUST_STR:str = "ajustement"
 
-MODE_FILL       = 2     # Remplissage de la partition
-MODE_FILL_STR   = "remplissage / nettoyage"
+    MODE_FILL:int       = 2     # Remplissage de la partition
+    MODE_FILL_STR:str   = "remplissage / nettoyage"
 
-MODE_CLEAN      = 4     # Nettoyage de la partition
-MODE_CLEAN_STR  = "vidage de dossier"
+    MODE_CLEAN:int      = 4     # Nettoyage de la partition
+    MODE_CLEAN_STR:str  = "vidage de dossier"
 
-MODE_CLEAR      = 8     # Vidage
-MODE_CLEAR_STR  = "libération"
+    MODE_CLEAR:int      = 8     # Vidage
+    MODE_CLEAR_STR:str  = "libération"
 
 #
 #   classe options : Gestion de la ligne de commande et des paramètres ou options

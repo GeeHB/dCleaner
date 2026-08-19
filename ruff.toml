@@ -1,0 +1,3 @@
+[tool.ruff]
+# Ignore un fichier spécifique
+exclude = ["src/mountPoints.py"]

@@ -34,12 +34,8 @@ from parameters import options as opt
 class basicFolder(FSObject):
 
     # Nom du fichier
-    @property
-    def name(self)->str:
-        return self.name_
-
-    @name.setter
-    def name(self, value:str):
+    @override
+    def setName(self, value:str):
         # Poubelle Windows => non géré ...
         if value != WINDOWS_TRASH:
             # Le dossier existe t'il ?
@@ -71,7 +67,6 @@ class basicFolder(FSObject):
         super().__init__(parameters)
 
         # Initialisation des données membres
-        self.name_ : str = ""
         self.valid_ : bool = False
         self.maxPatternSize_ : int = pMaxSize if (pMaxSize > PATTERN_MIN_LEN and pMaxSize < PATTERN_MAX_LEN) else PATTERN_MAX_LEN
         self.sizes_ : list[int] = []
@@ -86,7 +81,7 @@ class basicFolder(FSObject):
             return False, f"Le dossier '{name}' n'existe pas"
 
         # Ok - pas  de message
-        self.name = name if name is not None else ""
+        self.setName(name if name is not None else "")
         return True , ""
 
     # Création du dossier
@@ -247,7 +242,7 @@ class basicFolder(FSObject):
                 folder = folderName
             else:
                 folder =self.name_
-        else
+        else:
             folder = self.name_
         return FSObject.existsFolder(folder)
 

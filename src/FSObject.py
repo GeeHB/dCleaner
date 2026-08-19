@@ -21,6 +21,14 @@ from parameters import options as opts
 # Objet du système de fichier (dossier ou fichier) à supprimer / vider
 #
 class FSObject:
+    # Nom du fichier
+    @property
+    def name(self):
+        return self.name_
+
+    def setName(self, value:str):
+        self.name_ = value
+
     # Paramètres & options
     @property
     def options(self)->opts:
@@ -32,6 +40,7 @@ class FSObject:
 
     def __init__(self, parameters:opts):
         # Initialisations
+        self.name_ : str = ""
         self.params_:opts = parameters
 
     # Est-ce un fichier ?
